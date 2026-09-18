@@ -1,0 +1,30 @@
+.container {
+  width: min(100% - 1.5rem, var(--container));
+  margin-inline: auto;
+}
+
+.narrow {
+  width: min(100% - 1.5rem, var(--container-narrow));
+}
+
+@media (min-width: 480px) {
+  .container,
+  .narrow {
+    width: min(100% - 2rem, var(--container));
+  }
+
+  .narrow {
+    width: min(100% - 2rem, var(--container-narrow));
+  }
+}
+
+@media (min-width: 768px) {
+  .container,
+  .narrow {
+    width: min(100% - 3rem, var(--container));
+  }
+
+  .narrow {
+    width: min(100% - 3rem, var(--container-narrow));
+  }
+}

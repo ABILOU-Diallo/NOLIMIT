@@ -1,0 +1,49 @@
+.form {
+  display: grid;
+  gap: 1rem;
+  max-width: 36rem;
+}
+
+.progress {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.step {
+  flex: 1;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-navy-100);
+  transition: background-color var(--duration-slow) var(--ease);
+}
+
+.active {
+  background: var(--color-magenta-600);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.success {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.4rem;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  border-radius: var(--radius-lg);
+}
+
+.error {
+  padding: 0.9rem 1rem;
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+}

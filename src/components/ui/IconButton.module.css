@@ -1,0 +1,27 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.iconButton:hover {
+  background: var(--color-navy-50);
+}
+
+.iconButton:active {
+  transform: scale(0.96);
+}
+
+.onDark:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

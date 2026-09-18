@@ -1,0 +1,27 @@
+.loader {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-navy-100);
+  border-top-color: var(--color-magenta-600);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.center {
+  display: grid;
+  place-items: center;
+  min-height: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    animation: none;
+    border-top-color: var(--color-navy-700);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

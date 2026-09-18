@@ -1,0 +1,11 @@
+.section {
+  padding: var(--space-section) 0;
+}
+
+.empty {
+  margin-top: 1.5rem;
+  padding: 1.4rem;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  border-radius: var(--radius-lg);
+}

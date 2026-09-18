@@ -1,0 +1,43 @@
+.heading {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-magenta-600);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.6vw, 2.15rem);
+}
+
+.lede {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-lg);
+}
+
+.center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.onDark .kicker {
+  color: var(--color-magenta-500);
+}
+
+.onDark .title {
+  color: var(--color-white);
+}
+
+.onDark .lede {
+  color: rgba(255, 255, 255, 0.78);
+}

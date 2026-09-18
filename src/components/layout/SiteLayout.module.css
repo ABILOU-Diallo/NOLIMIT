@@ -1,0 +1,17 @@
+.shell {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+}
+
+.homeMain {
+  padding-top: 0;
+}
+
+.pageMain {
+  padding-top: 0;
+}

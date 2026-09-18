@@ -1,0 +1,9 @@
+.divider {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.navy {
+  border-top-color: rgba(20, 26, 94, 0.2);
+}
