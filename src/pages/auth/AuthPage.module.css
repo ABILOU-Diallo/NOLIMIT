@@ -1,0 +1,56 @@
+.page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 3rem 1.25rem;
+}
+
+.panel {
+  width: min(100%, 460px);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  color: #0f172a;
+  font-size: clamp(2rem, 2vw + 1rem, 2.5rem);
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.error {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.meta {
+  margin-top: 1.25rem;
+  color: #475569;
+}
+
+.meta a {
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.meta a:hover {
+  text-decoration: underline;
+}

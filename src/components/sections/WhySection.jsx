@@ -14,15 +14,24 @@ export function WhySection() {
         />
         <div className={styles.proof}>
           <div className={styles.item}>
-            <strong>Agréé MINEFOP</strong>
+            <strong style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <i className="bx bx-badge-check" style={{ fontSize: '1.25rem', color: 'var(--color-magenta-500)' }} aria-hidden="true" />
+              <span>Agréé MINEFOP & MINESUP</span>
+            </strong>
             <span>{site.agrement}</span>
           </div>
           <div className={styles.item}>
-            <strong>CQP et DQP</strong>
-            <span>Deux diplômes professionnels, chacun sur une année.</span>
+            <strong style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <i className="bx bx-certification" style={{ fontSize: '1.25rem', color: 'var(--color-magenta-500)' }} aria-hidden="true" />
+              <span>Diplômes d’État & Supérieurs</span>
+            </strong>
+            <span>CQP, DQP (1 an) et BTS, Licence, Master (ISSMIGA).</span>
           </div>
           <div className={styles.item}>
-            <strong>{site.city}</strong>
+            <strong style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <i className="bx bx-map-pin" style={{ fontSize: '1.25rem', color: 'var(--color-magenta-500)' }} aria-hidden="true" />
+              <span>{site.city}</span>
+            </strong>
             <span>{site.address}</span>
           </div>
         </div>

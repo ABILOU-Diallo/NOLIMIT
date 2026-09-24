@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from './components/layout/AuthProvider'
 import { ToastProvider } from './components/layout/ToastProvider'
 import App from './App.jsx'
+import 'boxicons/css/boxicons.min.css'
 import './styles/globals.css'
 
 createRoot(document.getElementById('root')).render(

@@ -29,3 +29,32 @@ export async function submitContact(payload) {
 
   return { ok: true }
 }
+
+export async function getContacts() {
+  if (!isSupabaseConfigured) return []
+
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function updateContactStatus(id, status) {
+  const { data, error } = await supabase
+    .from('contacts')
+    .update({ status })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteContact(id) {
+  const { error } = await supabase.from('contacts').delete().eq('id', id)
+  if (error) throw error
+}

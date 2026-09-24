@@ -4,12 +4,14 @@ import { MobileDrawer } from '../navigation/MobileDrawer'
 import { IconButton } from '../ui/IconButton'
 import { LinkButton } from '../ui/LinkButton'
 import { Container } from '../ui/Container'
+import { useAuth } from '../../hooks/useAuth'
 import { Logo } from './Logo'
 import styles from './Header.module.css'
 
 export function Header({ overlay = false }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { session, isAdmin } = useAuth()
 
   useEffect(() => {
     function onScroll() {
@@ -34,7 +36,10 @@ export function Header({ overlay = false }) {
         <Logo />
         <DesktopNav />
         <div className={styles.right}>
-          <LinkButton to="/preinscription" className={styles.cta}>
+          <LinkButton to={session ? (isAdmin ? '/admin' : '/compte') : '/connexion'} className={styles.cta}>
+            {session ? (isAdmin ? 'Admin' : 'Mon compte') : 'Connexion'}
+          </LinkButton>
+          <LinkButton to="/preinscription" variant="secondary">
             Préinscription
           </LinkButton>
           <IconButton
@@ -43,12 +48,7 @@ export function Header({ overlay = false }) {
             onDark={overlay}
             onClick={() => setOpen(true)}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M3 5.25h14v1.5H3zm0 4h14v1.5H3zm0 4h14v1.5H3z"
-              />
-            </svg>
+            <i className="bx bx-menu" style={{ fontSize: '1.6rem' }} aria-hidden="true" />
           </IconButton>
         </div>
       </Container>

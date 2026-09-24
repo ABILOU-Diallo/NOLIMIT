@@ -11,11 +11,15 @@ export function Footer() {
       <Container>
         <div className={styles.grid}>
           <div className={styles.brand}>
-        <Logo />
-            <p>
-              {site.address}. Horaires : {site.hours}.
+            <Logo />
+            <p style={{ display: 'flex', gap: '0.4rem', alignItems: 'flex-start', marginTop: '0.75rem' }}>
+              <i className="bx bx-map-pin" style={{ fontSize: '1.2rem', flexShrink: 0, marginTop: '0.1rem' }} aria-hidden="true" />
+              <span>{site.address}. Horaires : {site.hours}.</span>
             </p>
-            <p className={styles.agrement}>{site.agrement}</p>
+            <p className={styles.agrement} style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <i className="bx bx-badge-check" style={{ fontSize: '1.1rem' }} aria-hidden="true" />
+              <span>{site.agrement}</span>
+            </p>
           </div>
           <nav className={styles.nav} aria-label="Pied de page">
             <h2 className={styles.title}>Navigation</h2>
@@ -27,10 +31,14 @@ export function Footer() {
           </nav>
           <div className={styles.meta}>
             <h2 className={styles.title}>Contact</h2>
-            <a href={`mailto:${site.email}`}>{site.email}</a>
+            <a href={`mailto:${site.email}`} style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
+              <i className="bx bx-envelope" aria-hidden="true" />
+              <span>{site.email}</span>
+            </a>
             {site.phones.map((phone) => (
-              <a key={phone.href} href={phone.href}>
-                {phone.label} · {phone.display}
+              <a key={phone.href} href={phone.href} style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
+                <i className={phone.label === 'WhatsApp' ? 'bx bxl-whatsapp' : 'bx bx-phone'} aria-hidden="true" />
+                <span>{phone.label} · {phone.display}</span>
               </a>
             ))}
           </div>

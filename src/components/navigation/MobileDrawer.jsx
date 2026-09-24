@@ -40,7 +40,7 @@ export function MobileDrawer({ open, onClose }) {
         <div className={styles.top}>
           <Logo />
           <IconButton ref={closeRef} label="Fermer le menu" onClick={onClose}>
-            <span aria-hidden="true">×</span>
+            <i className="bx bx-x" style={{ fontSize: '1.6rem' }} aria-hidden="true" />
           </IconButton>
         </div>
         <nav className={styles.nav}>

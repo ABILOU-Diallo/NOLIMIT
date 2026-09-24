@@ -15,6 +15,8 @@ import styles from '../components/layout/PageHero.module.css'
 export function FormationsPage() {
   const [query, setQuery] = useState('')
   const [poleId, setPoleId] = useState('')
+  const [institution, setInstitution] = useState('all')
+
   const { state, data, error } = useAsyncData(async () => {
     const [poles, formations] = await Promise.all([getPoles(), getFormations()])
     return { poles, formations }
@@ -22,19 +24,19 @@ export function FormationsPage() {
 
   const results = useMemo(() => {
     if (!data) return []
-    return searchFormations(data.formations, query, poleId)
-  }, [data, query, poleId])
+    return searchFormations(data.formations, query, poleId, institution)
+  }, [data, query, poleId, institution])
 
   return (
     <>
       <Seo
         title="Formations"
-        description="Cinq pôles de formation au Groupe NO LIMIT : numérique, cybersécurité, gestion, métiers créatifs, santé et QHSE."
+        description="Catalogue complet des formations CFP NO LIMIT (CQP, DQP) et ISSMIGA (BTS, Licence, Master) à Yaoundé."
         path="/formations"
       />
       <PageHero
-        title="Les formations, par pôle."
-        lede="Recherchez une filière ou filtrez. Chaque fiche reste courte : l’essentiel, puis un CTA."
+        title="Formations & Filières d’Études"
+        lede="Classées par établissement (CFP NO LIMIT & ISSMIGA) et par pôle d’expertise."
         crumbs={[
           { to: '/', label: 'Accueil' },
           { label: 'Formations' },
@@ -56,8 +58,18 @@ export function FormationsPage() {
                 label="Rechercher une filière"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Ex. cybersécurité, infographie…"
+                placeholder="Ex. comptabilité, génie logiciel, infographie…"
               />
+              <Select
+                id="institution"
+                label="Établissement"
+                value={institution}
+                onChange={(event) => setInstitution(event.target.value)}
+              >
+                <option value="all">Toutes les écoles</option>
+                <option value="cfp">CFP NO LIMIT (CQP / DQP)</option>
+                <option value="issmiga">ISSMIGA (BTS / Licence / Master)</option>
+              </Select>
               <Select
                 id="pole"
                 label="Pôle"
@@ -74,15 +86,21 @@ export function FormationsPage() {
             </div>
             {results.length === 0 ? (
               <p className={styles.todo}>
-                Aucune filière ne correspond. Effacez la recherche ou changez de pôle.
+                Aucune filière ne correspond. Effacez la recherche ou changez de filtres.
               </p>
             ) : (
               <div className={styles.list}>
                 {results.map((item) => (
                   <Link key={item.slug} to={`/formations/${item.slug}`} className={styles.result}>
-                    <strong>{item.title}</strong>
                     <div>
-                      <Badge>{formatDiploma(item.diploma)}</Badge> · {item.duration}
+                      <strong>{item.title}</strong>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                      <Badge variant={item.institution === 'issmiga' ? 'primary' : 'outline'}>
+                        {item.institution === 'issmiga' ? 'ISSMIGA' : 'CFP NO LIMIT'}
+                      </Badge>
+                      <Badge>{formatDiploma(item.diploma)}</Badge>
+                      <span>· {item.duration}</span>
                     </div>
                   </Link>
                 ))}

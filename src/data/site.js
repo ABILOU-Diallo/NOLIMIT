@@ -24,8 +24,11 @@ export const site = {
     iso: '2026-10-15',
   },
   diplomas: [
-    { code: 'CQP', name: 'Certificat de Qualification Professionnelle', duration: '1 an' },
-    { code: 'DQP', name: 'Diplôme de Qualification Professionnelle', duration: '1 an' },
+    { code: 'CQP', name: 'Certificat de Qualification Professionnelle', duration: '1 an', school: 'CFP NO LIMIT' },
+    { code: 'DQP', name: 'Diplôme de Qualification Professionnelle', duration: '1 an', school: 'CFP NO LIMIT' },
+    { code: 'BTS', name: 'Brevet de Technicien Supérieur', duration: '2 ans', school: 'ISSMIGA' },
+    { code: 'Licence', name: 'Licence Professionnelle', duration: '3 ans / 1 an post-BTS', school: 'ISSMIGA' },
+    { code: 'Master', name: 'Master Professionnel', duration: '2 ans post-Licence', school: 'ISSMIGA' },
   ],
   agrement: 'Arrêté N°24-00000049/MINEFOP/SG/DFOP/SDOP/SARPRP',
   promoter: {
@@ -39,6 +42,7 @@ export const site = {
     slogan: 'Bâtisseur de compétences',
     agrement: 'Arrêté N° 24-00055L/MINESUP/SG/DDES/ESUP/SDA/AOSB',
     rentree: '5 octobre 2026',
+    offer: 'Un Étudiant inscrit = Un Laptop offert gratuitement',
   },
   url: 'https://www.nolimitacademy.org',
 }

@@ -7,6 +7,8 @@ import {
   signOut as signOutService,
 } from '../../services/authService'
 
+const OWNER_EMAIL = 'nicodevnico@gmail.com'
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -40,17 +42,27 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const value = useMemo(
-    () => ({
+  const value = useMemo(() => {
+    const role = profile?.role ?? 'visitor'
+    const email = session?.user?.email ?? ''
+
+    // Hiérarchie : owner > super_admin > admin > student > visitor
+    const isOwner = role === 'owner' || email.toLowerCase() === OWNER_EMAIL
+    const isSuperAdmin = isOwner || role === 'super_admin'
+    const isAdmin = isSuperAdmin || role === 'admin'
+
+    return {
       ready,
       session,
       profile,
-      role: profile?.role ?? 'visitor',
-      isAdmin: profile?.role === 'admin',
+      role,
+      isAdmin,
+      isSuperAdmin,
+      isOwner,
+      email,
       signOut: signOutService,
-    }),
-    [ready, session, profile],
-  )
+    }
+  }, [ready, session, profile])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

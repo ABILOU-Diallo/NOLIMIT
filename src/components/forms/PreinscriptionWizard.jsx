@@ -161,17 +161,34 @@ export function PreinscriptionWizard({ formations }) {
             {...register('formationId', { required: 'Choisissez une formation.' })}
           >
             <option value="">Choisir…</option>
-            {formations.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.title}
-              </option>
-            ))}
+            <optgroup label="ISSMIGA (BTS / Licence / Master — Laptop offert)">
+              {formations
+                .filter((item) => item.institution === 'issmiga')
+                .map((item) => (
+                  <option key={item.id} value={item.id}>
+                    [ISSMIGA] {item.title} ({item.diploma.toUpperCase()})
+                  </option>
+                ))}
+            </optgroup>
+            <optgroup label="CFP NO LIMIT (CQP / DQP — Formation Professionnelle)">
+              {formations
+                .filter((item) => item.institution === 'cfp')
+                .map((item) => (
+                  <option key={item.id} value={item.id}>
+                    [CFP] {item.title} ({item.diploma.toUpperCase()})
+                  </option>
+                ))}
+            </optgroup>
           </Select>
           <Select id="diplomaInterest" label="Diplôme visé" {...register('diplomaInterest')}>
             <option value="">Je ne sais pas encore</option>
-            <option value="cqp">CQP</option>
-            <option value="dqp">DQP</option>
-            <option value="langue">Langue</option>
+
+            <option value="bts">BTS (Brevet de Technicien Supérieur - ISSMIGA)</option>
+            <option value="licence">Licence Professionnelle (ISSMIGA)</option>
+            <option value="master">Master Professionnel (ISSMIGA)</option>
+            <option value="cqp">CQP (Certificat de Qualification Professionnelle - CFP)</option>
+            <option value="dqp">DQP (Diplôme de Qualification Professionnelle - CFP)</option>
+            <option value="langue">Langues & Certifications</option>
           </Select>
         </>
       ) : null}

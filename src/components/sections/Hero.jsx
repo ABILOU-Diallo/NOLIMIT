@@ -10,10 +10,10 @@ export function Hero() {
     <section className={styles.hero} aria-labelledby="hero-title">
       <figure className={styles.photo}>
         <img
-          src={media.flyer}
-          alt="L’équipe et des étudiants du Groupe NO LIMIT, à Yaoundé."
-          width="656"
-          height="872"
+          src={media.heroGroup}
+          alt="L’équipe, l’administration et les étudiants du Groupe NO LIMIT et ISSMIGA devant le campus à Yaoundé."
+          width="1200"
+          height="900"
           fetchPriority="high"
         />
       </figure>
