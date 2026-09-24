@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { mainNav } from '../../data/nav'
 import { site } from '../../data/site'
 import { useLockBody } from '../../hooks/useLockBody'
+import { useAuth } from '../../hooks/useAuth'
 import { whatsappUrl } from '../../utils/format'
 import { IconButton } from '../ui/IconButton'
 import { LinkButton } from '../ui/LinkButton'
@@ -12,6 +13,7 @@ import styles from './MobileDrawer.module.css'
 
 export function MobileDrawer({ open, onClose }) {
   const closeRef = useRef(null)
+  const { session, isAdmin } = useAuth()
   useLockBody(open)
 
   useEffect(() => {
@@ -63,6 +65,14 @@ export function MobileDrawer({ open, onClose }) {
           ))}
         </nav>
         <div className={styles.actions}>
+          <LinkButton
+            to={session ? (isAdmin ? '/admin' : '/compte') : '/connexion'}
+            variant="outline"
+            onClick={onClose}
+            style={{ marginBottom: '0.5rem' }}
+          >
+            {session ? (isAdmin ? 'Administration' : 'Mon compte') : 'Connexion'}
+          </LinkButton>
           <LinkButton to="/preinscription" onClick={onClose}>
             Préinscription
           </LinkButton>
