@@ -16,6 +16,7 @@ export function FormationsPage() {
   const [query, setQuery] = useState('')
   const [poleId, setPoleId] = useState('')
   const [institution, setInstitution] = useState('all')
+  const [level, setLevel] = useState('all')
 
   const { state, data, error } = useAsyncData(async () => {
     const [poles, formations] = await Promise.all([getPoles(), getFormations()])
@@ -24,8 +25,8 @@ export function FormationsPage() {
 
   const results = useMemo(() => {
     if (!data) return []
-    return searchFormations(data.formations, query, poleId, institution)
-  }, [data, query, poleId, institution])
+    return searchFormations(data.formations, query, poleId, institution, level)
+  }, [data, query, poleId, institution, level])
 
   return (
     <>
@@ -36,7 +37,7 @@ export function FormationsPage() {
       />
       <PageHero
         title="Formations & Filières d’Études"
-        lede="Classées par établissement (CFP NO LIMIT & ISSMIGA) et par pôle d’expertise."
+        lede="Classées par établissement (CFP NO LIMIT & ISSMIGA) et par niveau."
         crumbs={[
           { to: '/', label: 'Accueil' },
           { label: 'Formations' },
@@ -52,7 +53,7 @@ export function FormationsPage() {
         ) : null}
         {data ? (
           <>
-            <div className={styles.filters}>
+            <div className={styles.filters} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
               <Input
                 id="recherche"
                 label="Rechercher une filière"
@@ -69,6 +70,19 @@ export function FormationsPage() {
                 <option value="all">Toutes les écoles</option>
                 <option value="cfp">CFP NO LIMIT (CQP / DQP)</option>
                 <option value="issmiga">ISSMIGA (BTS / Licence / Master)</option>
+              </Select>
+              <Select
+                id="level"
+                label="Niveau / Filtre"
+                value={level}
+                onChange={(event) => setLevel(event.target.value)}
+              >
+                <option value="all">Tous les niveaux</option>
+                <option value="cqp">CQP</option>
+                <option value="dqp">DQP</option>
+                <option value="bts">BTS</option>
+                <option value="licence">Licence</option>
+                <option value="master">Master</option>
               </Select>
               <Select
                 id="pole"
@@ -89,18 +103,25 @@ export function FormationsPage() {
                 Aucune filière ne correspond. Effacez la recherche ou changez de filtres.
               </p>
             ) : (
-              <div className={styles.list}>
+              <div className={styles.list} style={{ display: 'grid', gap: '1.5rem' }}>
                 {results.map((item) => (
-                  <Link key={item.slug} to={`/formations/${item.slug}`} className={styles.result}>
-                    <div>
-                      <strong>{item.title}</strong>
+                  <Link key={item.slug} to={`/formations/${item.slug}`} className={styles.result} style={{ display: 'block', padding: '1.5rem', border: '1px solid #e2e8f0', borderRadius: '12px', textDecoration: 'none', color: 'inherit', background: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <strong style={{ fontSize: '1.1rem' }}>{item.title}</strong>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <Badge variant={item.institution === 'issmiga' ? 'primary' : 'outline'}>
+                          {item.institution === 'issmiga' ? 'ISSMIGA' : 'CFP NO LIMIT'}
+                        </Badge>
+                        <Badge>{formatDiploma(item.diploma)}</Badge>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <Badge variant={item.institution === 'issmiga' ? 'primary' : 'outline'}>
-                        {item.institution === 'issmiga' ? 'ISSMIGA' : 'CFP NO LIMIT'}
-                      </Badge>
-                      <Badge>{formatDiploma(item.diploma)}</Badge>
-                      <span>· {item.duration}</span>
+                    {item.presentation && (
+                      <p style={{ margin: '0.5rem 0', color: '#64748b', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                        {item.presentation}
+                      </p>
+                    )}
+                    <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                      Durée : {item.duration}
                     </div>
                   </Link>
                 ))}

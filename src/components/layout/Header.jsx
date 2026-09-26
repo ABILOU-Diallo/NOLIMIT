@@ -36,8 +36,11 @@ export function Header({ overlay = false }) {
         <Logo />
         <DesktopNav />
         <div className={styles.right}>
-          <LinkButton to={session ? (isAdmin ? '/admin' : '/compte') : '/connexion'} className={styles.cta}>
-            {session ? (isAdmin ? 'Admin' : 'Mon compte') : 'Connexion'}
+          <LinkButton
+            to={session && !isAdmin ? '/compte' : '/connexion'}
+            className={styles.cta}
+          >
+            {session && !isAdmin ? 'Mon compte' : 'Se connecter'}
           </LinkButton>
           <LinkButton to="/preinscription" variant="secondary">
             Préinscription

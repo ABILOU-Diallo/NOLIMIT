@@ -66,12 +66,12 @@ export function MobileDrawer({ open, onClose }) {
         </nav>
         <div className={styles.actions}>
           <LinkButton
-            to={session ? (isAdmin ? '/admin' : '/compte') : '/connexion'}
+            to={session && !isAdmin ? '/compte' : '/connexion'}
             variant="outline"
             onClick={onClose}
             style={{ marginBottom: '0.5rem' }}
           >
-            {session ? (isAdmin ? 'Administration' : 'Mon compte') : 'Connexion'}
+            {session && !isAdmin ? 'Mon compte' : 'Se connecter'}
           </LinkButton>
           <LinkButton to="/preinscription" onClick={onClose}>
             Préinscription

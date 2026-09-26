@@ -11,17 +11,26 @@ export function InternationalSection() {
       <Container>
         <SectionHeading
           kicker="07 — International"
-          title="Un relais au Canada, pas une promesse floue."
-          lede="Les opportunités internationales s’appuient sur un contact réel. Les partenariats seront publiés lorsqu’ils seront confirmés."
+          title="Ouverture sur le monde et mobilité."
+          lede="Le Groupe NO LIMIT accompagne ses étudiants dans leurs projets d'études et de carrière à l'international."
         />
         <div className={styles.panel}>
-          <p>
-            Pour une question d’orientation ou de mobilité, un conseiller peut être joint au
-            Canada.
-          </p>
-          <a className={styles.phone} href={canada.href}>
-            {canada.display}
-          </a>
+          {canada ? (
+            <>
+              <p>
+                Pour une question d’orientation ou de mobilité, un conseiller peut être joint au
+                Canada.
+              </p>
+              <a className={styles.phone} href={canada.href}>
+                {canada.display}
+              </a>
+            </>
+          ) : (
+            <p>
+              Nous développons des partenariats stratégiques pour faciliter la mobilité académique
+              et professionnelle de nos étudiants vers l'étranger.
+            </p>
+          )}
           {/* TODO: liste officielle des partenaires internationaux */}
         </div>
       </Container>

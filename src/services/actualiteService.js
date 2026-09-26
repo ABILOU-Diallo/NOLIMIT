@@ -2,180 +2,118 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const LOCAL_ACTUALITES_KEY = 'issmiga_actualites_v1'
 
-const initialNews = [
-  {
-    id: 'act-1',
-    title: 'Offre Spéciale Rentrée 2026 : Un Laptop Offert à Chaque Étudiant Inscrit à ISSMIGA !',
-    slug: 'offre-laptop-gratuit-rentree-2026',
-    category: 'Vie du campus',
-    excerpt: 'Dans le cadre du programme d’excellence et de transformation digitale, tout étudiant inscrit à ISSMIGA reçoit un ordinateur portable professionnel offert.',
-    content: `L’administration d’ISSMIGA et du Groupe NO LIMIT est heureuse d’annoncer le maintien de l’offre exceptionnelle "Un Étudiant inscrit = Un Laptop offert gratuitement" pour la rentrée d’octobre 2026.
-
-Cette initiative majeure vise à garantir à chaque apprenant un accès autonome et fluide aux outils informatiques modernes dès le premier jour de cours.
-
-Les ordinateurs sont remis aux étudiants lors des premières semaines de cours après validation définitive du dossier académique au campus d'Emana.`,
-    image_url: '/og-image.jpeg',
-    status: 'published',
-    author_name: 'Administration Groupe NO LIMIT',
-    published_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'act-2',
-    title: 'Cérémonie de remise des diplômes CQP & DQP de la promotion précédente',
-    slug: 'remise-diplomes-cqp-dqp-promotion',
-    category: 'Événements',
-    excerpt: 'Plus de 150 étudiants et apprenants ont célébré la fin de leur parcours de formation professionnelle au campus d’Emana.',
-    content: `La cérémonie annuelle de remise des diplômes s’est tenue au sein du campus ISSMIGA à Yaoundé. En présence du promoteur Dr Orly Tantchou, des enseignants et des familles, les lauréats ont reçu leurs parchemins CQP et DQP agréés par le MINEFOP.
-
-Le taux d'insertion professionnelle de cette promotion franchit un cap historique avec 85% d'embauche et de création de projets dans les 6 mois suivant la formation.`,
-    image_url: '/og-image.jpeg',
-    status: 'published',
-    author_name: 'Direction de la Formation',
-    published_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: 'act-3',
-    title: 'Ouverture des préinscriptions pour le cycle BTS, Licence et Master 2026-2027',
-    slug: 'ouverture-preinscriptions-bts-licence-master',
-    category: 'Admissions',
-    excerpt: 'Les candidats au cycle supérieur ISSMIGA et aux formations professionnelles CFP NO LIMIT peuvent dès maintenant remplir leur dossier en ligne.',
-    content: `Le Groupe NO LIMIT informe les élèves de terminale, bacheliers et professionnels que les candidatures pour l’année académique 2026-2027 sont officiellement ouvertes.
-
-Les cours débuteront le 5 octobre 2026 pour les filières ISSMIGA et le 15 octobre 2026 pour le CFP NO LIMIT.`,
-    image_url: '/og-image.jpeg',
-    status: 'published',
-    author_name: 'Secrétariat Académique',
-    published_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-    created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-  },
-]
-
-function getLocalArticles() {
-  try {
-    const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
-    if (!raw) {
-      localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(initialNews))
-      return initialNews
-    }
-    return JSON.parse(raw)
-  } catch {
-    return initialNews
+function mapFromDb(item) {
+  if (!item) return null
+  return {
+    ...item,
+    id: item.id,
+    title: item.title || '',
+    slug: item.slug || '',
+    content: item.body || '',
+    excerpt: item.excerpt || '',
+    image_url: item.cover_path || '',
+    video_url: item.video_url || '',
+    category: item.category || 'Vie du campus',
+    status: item.status || 'draft',
+    created_at: item.created_at,
+    published_at: item.published_at,
   }
 }
 
-function setLocalArticles(list) {
-  try {
-    localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(list))
-    notifyListeners()
-  } catch {
-    // Ignore storage write errors
-  }
-}
-
-const listeners = new Set()
-
-function notifyListeners() {
-  listeners.forEach((fn) => fn())
-}
-
-export function subscribeToActualites(callback) {
-  if (isSupabaseConfigured) {
-    const channel = supabase
-      .channel('public:actualites')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'actualites' },
-        () => {
-          callback()
-        },
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }
-
-  listeners.add(callback)
-  return () => {
-    listeners.delete(callback)
+function mapToDb(payload) {
+  return {
+    title: payload.title,
+    slug: payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+    category: payload.category || 'Vie du campus',
+    excerpt: payload.excerpt,
+    body: payload.content,
+    cover_path: payload.image_url,
+    video_url: payload.video_url || '',
+    status: payload.status || 'published',
+    published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
 }
 
 export async function getPublishedArticles() {
-  if (isSupabaseConfigured) {
-    const { data, error } = await supabase
-      .from('actualites')
-      .select('*')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false })
+  try {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('actualites')
+        .select('*')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
 
-    if (!error && data?.length) return data
+      if (!error && data) return data.map(mapFromDb)
+    }
+  } catch (e) {
+    console.error('Supabase error:', e)
   }
 
-  return getLocalArticles().filter((item) => item.status === 'published')
+  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
+  const list = raw ? JSON.parse(raw) : []
+  return list.filter((item) => item.status === 'published')
 }
 
 export async function getAllArticles() {
-  if (isSupabaseConfigured) {
-    const { data, error } = await supabase
-      .from('actualites')
-      .select('*')
-      .order('created_at', { ascending: false })
+  try {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('actualites')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    if (!error && data) return data
+      if (!error && data) return data.map(mapFromDb)
+      if (error) console.error('Supabase error fetching articles:', error)
+    }
+  } catch (e) {
+    console.error('Error in getAllArticles:', e)
   }
 
-  return getLocalArticles()
+  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
+  return raw ? JSON.parse(raw) : []
 }
 
 export async function getArticleBySlug(slug) {
-  const articles = await getPublishedArticles()
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase
+        .from('actualites')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      if (!error && data) return mapFromDb(data)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const articles = await getAllArticles()
   return articles.find((item) => item.slug === slug) ?? null
 }
 
 export async function createArticle(payload) {
-  const slug = payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-
   if (isSupabaseConfigured) {
     const { data, error } = await supabase
       .from('actualites')
-      .insert({
-        title: payload.title,
-        slug,
-        category: payload.category || 'Vie du campus',
-        excerpt: payload.excerpt,
-        content: payload.content,
-        image_url: payload.image_url || '/og-image.jpeg',
-        status: payload.status || 'published',
-        published_at: payload.status === 'published' ? new Date().toISOString() : null,
-      })
+      .insert(mapToDb(payload))
       .select()
       .single()
 
     if (error) throw error
-    return data
+    return mapFromDb(data)
   }
 
-  const list = getLocalArticles()
+  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
+  const list = raw ? JSON.parse(raw) : []
   const newArticle = {
+    ...payload,
     id: `act-${Date.now()}`,
-    title: payload.title,
-    slug,
-    category: payload.category || 'Vie du campus',
-    excerpt: payload.excerpt,
-    content: payload.content,
-    image_url: payload.image_url || '/og-image.jpeg',
-    status: payload.status || 'published',
-    author_name: payload.author_name || 'Administration Groupe NO LIMIT',
-    published_at: payload.status === 'published' ? new Date().toISOString() : null,
+    slug: payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
     created_at: new Date().toISOString(),
+    published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
-
-  const updated = [newArticle, ...list]
-  setLocalArticles(updated)
+  localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify([newArticle, ...list]))
   return newArticle
 }
 
@@ -183,24 +121,21 @@ export async function updateArticle(id, payload) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase
       .from('actualites')
-      .update({
-        ...payload,
-        updated_at: new Date().toISOString(),
-      })
+      .update(mapToDb(payload))
       .eq('id', id)
       .select()
       .single()
 
     if (error) throw error
-    return data
+    return mapFromDb(data)
   }
 
-  const list = getLocalArticles()
-  const updated = list.map((item) =>
-    item.id === id ? { ...item, ...payload, updated_at: new Date().toISOString() } : item,
-  )
-  setLocalArticles(updated)
-  return updated.find((item) => item.id === id)
+  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
+  const list = raw ? JSON.parse(raw) : []
+  const updated = list.map((item) => (item.id === id ? { ...item, ...payload } : item))
+  localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(updated))
+  const result = updated.find((item) => item.id === id)
+  return result
 }
 
 export async function deleteArticle(id) {
@@ -210,8 +145,9 @@ export async function deleteArticle(id) {
     return true
   }
 
-  const list = getLocalArticles()
-  const updated = list.filter((item) => item.id !== id)
-  setLocalArticles(updated)
+  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
+  const list = raw ? JSON.parse(raw) : []
+  const filtered = list.filter((item) => item.id !== id)
+  localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(filtered))
   return true
 }

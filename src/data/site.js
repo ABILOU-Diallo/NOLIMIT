@@ -10,7 +10,6 @@ export const site = {
   phones: [
     { label: 'Yaoundé', href: 'tel:+237678529675', display: '+237 678 529 675' },
     { label: 'WhatsApp', href: 'tel:+237699990289', display: '+237 699 990 289' },
-    { label: 'Canada', href: 'tel:+14387959028', display: '+1 438 795 9028' },
   ],
   whatsapp: {
     e164: '237699990289',

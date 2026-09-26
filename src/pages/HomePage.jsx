@@ -26,7 +26,7 @@ const jsonLd = {
   name: site.name,
   url: site.url,
   email: site.email,
-  telephone: site.phones[0].display,
+  telephone: site.phones && site.phones[0] ? site.phones[0].display : '',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Yaoundé',
@@ -35,20 +35,23 @@ const jsonLd = {
   },
 }
 
+const initialCatalog = { poles: [], formations: [], testimonials: [] }
+
 export function HomePage() {
   const { state, data } = useAsyncData(async () => {
-    const [poles, formations, testimonials] = await Promise.all([
-      getPoles(),
-      getFormations(),
-      getApprovedTestimonials().catch(() => []),
-    ])
-    return { poles, formations, testimonials }
-  }, [])
+    try {
+      const [poles, formations, testimonials] = await Promise.all([
+        getPoles().catch(() => []),
+        getFormations().catch(() => []),
+        getApprovedTestimonials().catch(() => []),
+      ])
+      return { poles, formations, testimonials }
+    } catch (err) {
+      return initialCatalog
+    }
+  }, []) // Fix: dependency argument must be an array
 
-  const catalog = useMemo(
-    () => data ?? { poles: [], formations: [], testimonials: [] },
-    [data],
-  )
+  const catalog = useMemo(() => data || initialCatalog, [data])
 
   return (
     <>
@@ -62,13 +65,16 @@ export function HomePage() {
       <Reveal>
         <WhySection />
       </Reveal>
-      {state === ASYNC.loading ? (
+      {state === ASYNC.loading && (!catalog.poles || catalog.poles.length === 0) ? (
         <Container>
           <Skeleton height="16rem" />
         </Container>
       ) : (
         <Reveal>
-          <ExploreFormations poles={catalog.poles} formations={catalog.formations} />
+          <ExploreFormations
+            poles={catalog.poles || []}
+            formations={catalog.formations || []}
+          />
         </Reveal>
       )}
       <Reveal>
@@ -90,7 +96,7 @@ export function HomePage() {
         <DiplomaCompare />
       </Reveal>
       <Reveal>
-        <TestimonialsSection items={catalog.testimonials} />
+        <TestimonialsSection items={catalog.testimonials || []} />
       </Reveal>
       <Reveal>
         <PreinscriptionCta />
