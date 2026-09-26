@@ -1,7 +1,7 @@
 {
   "name": "groupe-no-limit",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.6.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -38,6 +38,6 @@
     }
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   }
 }

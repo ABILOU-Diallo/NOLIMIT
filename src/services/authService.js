@@ -38,6 +38,19 @@ export async function signIn(email, password) {
   return { error: { message: 'Supabase non configuré.' } }
 }
 
+export async function signUp(email, password, fullName = '') {
+  if (isSupabaseConfigured) {
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, role: 'student' },
+      },
+    })
+  }
+  return { error: { message: 'Supabase non configuré.' } }
+}
+
 export async function signOut() {
   if (isSupabaseConfigured) return supabase.auth.signOut()
   localStorage.removeItem(DEMO_SESSION_KEY)
