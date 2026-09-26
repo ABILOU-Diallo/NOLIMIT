@@ -34,21 +34,23 @@ export function onAuthChange(callback) {
 }
 
 export async function signIn(email, password) {
-  if (isSupabaseConfigured) return supabase.auth.signInWithPassword({ email, password })
-  return { error: { message: 'Supabase non configuré.' } }
+  if (!isSupabaseConfigured) {
+    return { error: { message: 'Le serveur doit être redémarré pour charger les clés .env (Faites Ctrl+C puis npm run dev)' } }
+  }
+  return supabase.auth.signInWithPassword({ email, password })
 }
 
 export async function signUp(email, password, fullName = '') {
-  if (isSupabaseConfigured) {
-    return supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, role: 'student' },
-      },
-    })
+  if (!isSupabaseConfigured) {
+    return { error: { message: 'Configuration Supabase absente.' } }
   }
-  return { error: { message: 'Supabase non configuré.' } }
+  return supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: fullName, role: 'student' },
+    },
+  })
 }
 
 export async function signOut() {

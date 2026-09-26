@@ -4,8 +4,9 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // On autorise Vite à charger les variables commençant par SUPABASE_ en plus de VITE_
+  envPrefix: ['VITE_', 'SUPABASE_'],
   server: {
-    // Désactivez polling pour une vitesse maximale sur disque local (Windows/Mac/Linux natif)
     watch: {
       usePolling: false,
       ignored: [
@@ -15,20 +16,16 @@ export default defineConfig({
         '**/supabase/migrations/**'
       ],
     },
-    // Augmente la réactivité du HMR
     hmr: {
       overlay: true,
     }
   },
   optimizeDeps: {
-    // Force la pré-compilation des grosses dépendances pour un démarrage plus rapide
     include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js', 'recharts']
   },
   build: {
-    // Accélère le build final en désactivant le reporting détaillé si non nécessaire
     reportCompressedSize: false,
     sourcemap: false,
-    // Utilise l'optimisation esbuild (très rapide)
     minify: 'esbuild',
   }
 })
