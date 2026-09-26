@@ -1,7 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-// Configuration locale (fallback)
-const DEMO_USERS_KEY = 'issmiga_demo_users_v1'
+// Configuration locale
 const DEMO_SESSION_KEY = 'issmiga_demo_session_v1'
 
 export const ROLE_HIERARCHY = { visitor: 0, student: 1, admin: 2, super_admin: 3, owner: 4 }
@@ -16,41 +15,14 @@ export const ROLE_LABELS = {
 
 const OWNER_EMAIL = 'nicodevnico@gmail.com'
 
-const initialDemoUsers = [
-  {
-    id: 'usr-owner-1',
-    full_name: 'Nicolas Admin',
-    email: OWNER_EMAIL,
-    role: 'owner',
-    is_active: true,
-    created_at: new Date().toISOString(),
-  },
-]
-
-function getLocalUsers() {
-  try {
-    const raw = localStorage.getItem(DEMO_USERS_KEY)
-    if (!raw) {
-      localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(initialDemoUsers))
-      return initialDemoUsers
-    }
-    return JSON.parse(raw)
-  } catch {
-    return initialDemoUsers
-  }
-}
-
 export async function getSession() {
   if (isSupabaseConfigured) {
     const { data } = await supabase.auth.getSession()
     return data.session ?? null
   }
   try {
-    const raw = localStorage.getItem(DEMO_SESSION_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
+    return JSON.parse(localStorage.getItem(DEMO_SESSION_KEY))
+  } catch { return null }
 }
 
 export function onAuthChange(callback) {
@@ -75,26 +47,19 @@ export async function signOut() {
 export async function getProfile(userId) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+    if (error) console.error('Error fetching profile:', error)
     return data
   }
-  return getLocalUsers().find(u => u.id === userId) || null
+  return null
 }
 
-export async function getUsers({ hideOwner = false } = {}) {
+export async function getUsers() {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
     if (error) throw error
-    return hideOwner ? data.filter(u => u.role !== 'owner') : data
+    return data
   }
-  return getLocalUsers()
-}
-
-export async function updateUserProfile(userId, payload) {
-  if (isSupabaseConfigured) {
-    const { error } = await supabase.from('profiles').update(payload).eq('id', userId)
-    if (error) throw error
-  }
-  return true
+  return []
 }
 
 export async function updateUserRole(userId, role) {
