@@ -22,14 +22,14 @@ export function ActualitesPage() {
     e?.stopPropagation()
     if (selectedIndex === null || !data) return
     setSelectedIndex((prev) => (prev + 1) % data.length)
-    setShowFullDesc(false) // Réinitialiser le bouton voir plus
+    setShowFullDesc(false)
   }, [selectedIndex, data])
 
   const handlePrev = useCallback((e) => {
     e?.stopPropagation()
     if (selectedIndex === null || !data) return
     setSelectedIndex((prev) => (prev - 1 + data.length) % data.length)
-    setShowFullDesc(false) // Réinitialiser le bouton voir plus
+    setShowFullDesc(false)
   }, [selectedIndex, data])
 
   const handleClose = () => {
@@ -51,6 +51,110 @@ export function ActualitesPage() {
 
   const selectedArticle = selectedIndex !== null ? data[selectedIndex] : null
 
+  function renderMedia(article, isLightbox = false) {
+    const hasVideo = Boolean(article.video_url)
+    const hasImage = Boolean(article.image_url)
+
+    if (hasVideo) {
+      const url = article.video_url
+      const isYT = url.includes('youtube.com') || url.includes('youtu.be')
+
+      if (isLightbox) {
+        if (isYT) {
+          const embedUrl = url.includes('embed') ? url : url.replace('watch?v=', 'embed/')
+          return (
+            <iframe
+              src={embedUrl}
+              title={article.title}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )
+        }
+        return (
+          <video
+            src={url}
+            controls
+            className="lightbox-img"
+            style={{ maxHeight: '80vh', maxWidth: '100%' }}
+          />
+        )
+      }
+
+      // Preview in grid
+      return (
+        <div style={{
+          width: '100%',
+          height: '200px',
+          background: '#0f172a',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {hasImage && (
+            <img
+              src={article.image_url}
+              alt=""
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
+            />
+          )}
+          <i className="bx bx-play-circle" style={{ fontSize: '4rem', zIndex: 2 }} />
+          <span style={{ zIndex: 2, fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem', background: 'rgba(0,0,0,0.5)', padding: '2px 8px', borderRadius: '4px' }}>
+            VIDÉO
+          </span>
+        </div>
+      )
+    }
+
+    if (hasImage) {
+      return (
+        <div style={{
+          width: '100%',
+          background: '#f8fafc',
+          borderBottom: isLightbox ? 'none' : '1px solid #f1f5f9',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          height: isLightbox ? '100%' : 'auto'
+        }}>
+          <img
+            src={article.image_url}
+            alt={article.title}
+            className={isLightbox ? "lightbox-img" : ""}
+            style={isLightbox ? {} : {
+              width: '100%',
+              height: 'auto',
+              maxHeight: '240px',
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div style={{
+        width: '100%',
+        height: '160px',
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#ffffff',
+        fontSize: '2.5rem'
+      }}>
+        <i className="bx bx-news" />
+      </div>
+    )
+  }
+
   return (
     <>
       <Seo
@@ -60,7 +164,7 @@ export function ActualitesPage() {
       />
       <PageHero
         title="Actualités"
-        lede="Les informations publiées par le groupe apparaissent ici."
+        lede="Retrouvez ici toute la vie du campus, les événements et les annonces importantes en images et vidéos."
         crumbs={[
           { to: '/', label: 'Accueil' },
           { label: 'Actualités' },
@@ -70,7 +174,7 @@ export function ActualitesPage() {
         {state === ASYNC.loading ? <Loader /> : null}
         {state === ASYNC.error ? (
           <p role="alert" style={{ color: '#dc2626', padding: '1rem', background: '#fef2f2', borderRadius: '8px' }}>
-            Les actualités n’ont pas pu être chargées. {error?.message} Réessayez later.
+            Les actualités n’ont pas pu être chargées. Réessayez plus tard.
           </p>
         ) : null}
         {state === ASYNC.empty || (state === ASYNC.success && !data?.length) ? (
@@ -110,42 +214,7 @@ export function ActualitesPage() {
                   e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                 }}
               >
-                {article.image_url ? (
-                  <div style={{
-                    width: '100%',
-                    background: '#f8fafc',
-                    borderBottom: '1px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
-                  }}>
-                    <img
-                      src={article.image_url}
-                      alt={article.title}
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        maxHeight: '240px',
-                        objectFit: 'contain',
-                        display: 'block'
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{
-                    width: '100%',
-                    height: '160px',
-                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ffffff',
-                    fontSize: '2.5rem'
-                  }}>
-                    <i className="bx bx-news" />
-                  </div>
-                )}
+                {renderMedia(article)}
 
                 <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <span style={{
@@ -192,7 +261,7 @@ export function ActualitesPage() {
                       marginTop: 'auto'
                     }}
                   >
-                    Voir l'annonce <i className="bx bx-expand-alt" style={{ fontSize: '1rem' }} />
+                    Voir {article.video_url ? 'la vidéo' : 'l\'annonce'} <i className="bx bx-expand-alt" style={{ fontSize: '1rem' }} />
                   </span>
                 </div>
               </article>
@@ -200,7 +269,6 @@ export function ActualitesPage() {
           </div>
         ) : null}
 
-        {/* Lightbox sans couleur d'arrière-plan opaque sur le texte — Réduction de luminosité pure de la photo */}
         {selectedArticle && (
           <div
             onClick={handleClose}
@@ -269,7 +337,6 @@ export function ActualitesPage() {
               }
               .close-btn:hover { transform: scale(1.05); background: #ffffff; }
 
-              /* Zone média occupant TOUT le cadre en arrière-plan */
               .lightbox-img-area {
                 position: absolute;
                 inset: 0;
@@ -282,10 +349,9 @@ export function ActualitesPage() {
                 padding: 1.5rem;
                 z-index: 5;
                 transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                filter: brightness(0.65); /* Assombrissement de base constant pour garder l'image visible derrière */
+                filter: brightness(0.65);
               }
 
-              /* Assombrissement plus prononcé uniquement lorsque le texte est déployé au maximum */
               .lightbox-img-area.deep-dimmed {
                 filter: brightness(0.18);
               }
@@ -297,7 +363,6 @@ export function ActualitesPage() {
                 display: block;
               }
 
-              /* Superposition de détails transparente sans AUCUNE couleur d'arrière-plan unie */
               .details-overlay {
                 position: absolute;
                 bottom: 0;
@@ -311,7 +376,7 @@ export function ActualitesPage() {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
-                pointer-events: none; /* Laisse cliquer à travers vers l'image */
+                pointer-events: none;
               }
 
               .details-overlay.expanded {
@@ -321,7 +386,6 @@ export function ActualitesPage() {
                 padding-top: 2rem;
               }
 
-              /* Rendre les éléments cliquables dans l'overlay */
               .details-overlay * {
                 pointer-events: auto;
               }
@@ -345,7 +409,6 @@ export function ActualitesPage() {
               }
               .voir-plus-btn:hover { background: #2563eb; transform: translateY(-1px); }
 
-              /* Ombres portées de sécurité sur le texte pour détacher parfaitement les lettres du fond blanc/clair de l'image */
               .text-shadow-safe {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.7);
               }
@@ -376,22 +439,10 @@ export function ActualitesPage() {
               className="lightbox-content"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Le média occupe 100% de la surface de fond, sa luminosité est filtrée */}
               <div className={`lightbox-img-area ${showFullDesc ? 'deep-dimmed' : ''}`}>
-                {selectedArticle.image_url ? (
-                  <img
-                    src={selectedArticle.image_url}
-                    alt={selectedArticle.title}
-                    className="lightbox-img"
-                  />
-                ) : (
-                  <div style={{ fontSize: '6rem', color: '#1e293b' }}>
-                    <i className="bx bx-news" />
-                  </div>
-                )}
+                {renderMedia(selectedArticle, true)}
               </div>
 
-              {/* Superposition du texte transparente (le média est entièrement visible derrière) */}
               <div className={`details-overlay ${showFullDesc ? 'expanded' : ''}`}>
                 <span className="text-shadow-safe" style={{ color: '#93c5fd', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', display: 'block' }}>
                   {selectedArticle.category || 'Actualité'}
@@ -401,7 +452,6 @@ export function ActualitesPage() {
                   {selectedArticle.title}
                 </h2>
 
-                {/* Description fluide avec le bouton Voir plus */}
                 <div className="text-shadow-safe" style={{ marginTop: '0.75rem', color: '#f1f5f9', lineHeight: '1.6', fontSize: '0.95rem' }}>
                   {showFullDesc ? (
                     <div style={{ animation: 'fadeIn 0.2s ease' }}>

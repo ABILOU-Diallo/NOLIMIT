@@ -22,97 +22,56 @@ function mapFromDb(item) {
 
 function mapToDb(payload) {
   return {
-    title: payload.title,
-    slug: payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+    title: payload.title || '',
+    slug: payload.slug || payload.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `act-${Date.now()}`,
     category: payload.category || 'Vie du campus',
-    excerpt: payload.excerpt,
-    body: payload.content,
-    cover_path: payload.image_url,
-    video_url: payload.video_url || '',
-    status: payload.status || 'published',
+    excerpt: payload.excerpt || '',
+    body: payload.content || '',
+    cover_path: payload.image_url || null,
+    video_url: payload.video_url || null,
+    status: payload.status || 'draft',
     published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
 }
 
-export async function getPublishedArticles() {
-  try {
-    if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('actualites')
-        .select('*')
-        .eq('status', 'published')
-        .order('published_at', { ascending: false })
-
-      if (!error && data) return data.map(mapFromDb)
-    }
-  } catch (e) {
-    console.error('Supabase error:', e)
-  }
-
-  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
-  const list = raw ? JSON.parse(raw) : []
-  return list.filter((item) => item.status === 'published')
-}
-
 export async function getAllArticles() {
-  try {
-    if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('actualites')
-        .select('*')
-        .order('created_at', { ascending: false })
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabase
+      .from('actualites')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-      if (!error && data) return data.map(mapFromDb)
-      if (error) console.error('Supabase error fetching articles:', error)
-    }
-  } catch (e) {
-    console.error('Error in getAllArticles:', e)
+    if (error) throw error
+    return data.map(mapFromDb)
   }
-
   const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
   return raw ? JSON.parse(raw) : []
 }
 
-export async function getArticleBySlug(slug) {
-  if (isSupabaseConfigured) {
-    try {
-      const { data, error } = await supabase
-        .from('actualites')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle()
-
-      if (!error && data) return mapFromDb(data)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  const articles = await getAllArticles()
-  return articles.find((item) => item.slug === slug) ?? null
-}
-
 export async function createArticle(payload) {
   if (isSupabaseConfigured) {
+    const dbData = mapToDb(payload)
+    console.log("Tentative d'insertion Supabase:", dbData)
+
     const { data, error } = await supabase
       .from('actualites')
-      .insert(mapToDb(payload))
+      .insert([dbData])
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("Erreur Supabase lors de l'insertion:", error)
+      throw new Error(`Supabase Error: ${error.message} (Code: ${error.code})`)
+    }
+
+    console.log('Insertion réussie:', data)
     return mapFromDb(data)
   }
 
+  // Fallback local si Supabase non configuré
   const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
   const list = raw ? JSON.parse(raw) : []
-  const newArticle = {
-    ...payload,
-    id: `act-${Date.now()}`,
-    slug: payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-    created_at: new Date().toISOString(),
-    published_at: payload.status === 'published' ? new Date().toISOString() : null,
-  }
+  const newArticle = { ...payload, id: `act-${Date.now()}`, created_at: new Date().toISOString() }
   localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify([newArticle, ...list]))
   return newArticle
 }
@@ -129,13 +88,7 @@ export async function updateArticle(id, payload) {
     if (error) throw error
     return mapFromDb(data)
   }
-
-  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
-  const list = raw ? JSON.parse(raw) : []
-  const updated = list.map((item) => (item.id === id ? { ...item, ...payload } : item))
-  localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(updated))
-  const result = updated.find((item) => item.id === id)
-  return result
+  return { id, ...payload }
 }
 
 export async function deleteArticle(id) {
@@ -144,10 +97,15 @@ export async function deleteArticle(id) {
     if (error) throw error
     return true
   }
-
-  const raw = localStorage.getItem(LOCAL_ACTUALITES_KEY)
-  const list = raw ? JSON.parse(raw) : []
-  const filtered = list.filter((item) => item.id !== id)
-  localStorage.setItem(LOCAL_ACTUALITES_KEY, JSON.stringify(filtered))
   return true
+}
+
+export async function getPublishedArticles() {
+  const all = await getAllArticles()
+  return all.filter(a => a.status === 'published')
+}
+
+export async function getArticleBySlug(slug) {
+  const all = await getAllArticles()
+  return all.find(a => a.slug === slug)
 }
