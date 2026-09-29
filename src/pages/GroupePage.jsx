@@ -39,19 +39,35 @@ export function GroupePage() {
             <p className={styles.muted}>Dr Orly Tantchou.</p>
           </Card>
         </div>
-        <figure className={styles.media} style={{ marginTop: '1.5rem' }}>
-          <img
-            src={media.flyer}
-            alt="Flyer officiel ISSMIGA, institut du Groupe NO LIMIT à Yaoundé."
-            width="656"
-            height="872"
-            loading="lazy"
-          />
-        </figure>
-        <p className={styles.todo} style={{ marginTop: '1.5rem' }}>
-          {/* TODO: contenu réel à fournir */}
-          Le texte institutionnel long du Groupe sera intégré dès réception.
-        </p>
+        <h2 style={{ marginTop: '2rem' }}>Brochures officielles du Groupe</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
+          <figure className={styles.media}>
+            <img
+              src={media.flyerFr}
+              alt="Flyer officiel ISSMIGA, institut du Groupe NO LIMIT à Yaoundé."
+              width="656"
+              height="872"
+              loading="lazy"
+              style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
+            />
+            <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+              Dépliant ISSMIGA (Cycles BTS, Licence & Master)
+            </figcaption>
+          </figure>
+          <figure className={styles.media}>
+            <img
+              src={media.flyerCfp}
+              alt="Brochure officielle du Centre de Formation Professionnelle CFP NO LIMIT."
+              width="656"
+              height="872"
+              loading="lazy"
+              style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
+            />
+            <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+              Dépliant CFP NO LIMIT (Formations CQP & DQP)
+            </figcaption>
+          </figure>
+        </div>
         <p style={{ marginTop: '1rem' }}>
           <Link to="/formations">Explorer les formations</Link>
         </p>

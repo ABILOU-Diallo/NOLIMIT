@@ -1,6 +1,7 @@
 import { PageBody, PageHero } from '../components/layout/PageHero'
 import { Seo } from '../components/layout/Seo'
 import { site } from '../data/site'
+import { media } from '../data/media'
 import { LinkButton } from '../components/ui/LinkButton'
 import { Badge } from '../components/ui/Badge'
 import { formations } from '../data/formations'
@@ -91,6 +92,23 @@ export function CfpPage() {
                 </span>
               </div>
             ))}
+          </div>
+
+          <h2 style={{ marginTop: '2.5rem' }}>Brochure Officielle CFP NO LIMIT</h2>
+          <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%' }}>
+            <figure className={styles.media}>
+              <img
+                src={media.flyerCfp}
+                alt="Brochure officielle du Centre de Formation Professionnelle CFP NO LIMIT."
+                width="656"
+                height="872"
+                loading="lazy"
+                style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
+              />
+              <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+                Prospectus CFP NO LIMIT (Filières, Modalités & Inscriptions)
+              </figcaption>
+            </figure>
           </div>
 
           <div style={{ marginTop: '2rem', textAlign: 'center' }}>

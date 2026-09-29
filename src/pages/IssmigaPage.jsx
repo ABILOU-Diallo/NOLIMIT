@@ -94,8 +94,11 @@ export function IssmigaPage() {
             ))}
           </div>
 
-          <h2 style={{ marginTop: '2rem' }}>Prospectus et Dépliants Officiels ISSMIGA</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <h2 style={{ marginTop: '2.5rem' }}>Brochures & Prospectus du Groupe NO LIMIT</h2>
+          <p style={{ color: 'var(--color-muted)', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
+            Consultez les dépliants officiels d’ISSMIGA ainsi que du Centre de Formation Professionnelle NO LIMIT (CFP).
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             <figure className={styles.media}>
               <img
                 src={media.flyerFr}
@@ -120,6 +123,19 @@ export function IssmigaPage() {
               />
               <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
                 Prospectus ISSMIGA (Version Anglais)
+              </figcaption>
+            </figure>
+            <figure className={styles.media}>
+              <img
+                src={media.flyerCfp}
+                alt="Brochure officielle du Centre de Formation Professionnelle CFP NO LIMIT."
+                width="656"
+                height="872"
+                loading="lazy"
+                style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
+              />
+              <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+                Brochure CFP NO LIMIT (Formations CQP & DQP)
               </figcaption>
             </figure>
           </div>

@@ -6,32 +6,38 @@ import { SectionHeading } from '../ui/SectionHeading'
 import styles from './PromoterSection.module.css'
 
 export function PromoterSection() {
+  const { promoter } = site
+
   return (
     <section className={styles.section}>
       <Container>
-        <SectionHeading kicker="08 — Mot du promoteur" title="Une institution a un visage." />
+        <SectionHeading kicker="08 — Mot du promoteur" title="Une vision engagée pour la jeunesse." />
         <div className={styles.layout}>
           <figure className={styles.portrait}>
-          <img
-            src={media.founder}
-            alt={`${site.promoter.name}, promoteur du Groupe NO LIMIT.`}
-            width="540"
-            height="614"
-            loading="lazy"
-          />
+            <img
+              src={media.founder}
+              alt={`${promoter.name}, promoteur du Groupe NO LIMIT.`}
+              width="540"
+              height="614"
+              loading="lazy"
+            />
           </figure>
           <blockquote className={styles.quote}>
-            <p>
-              Le mot officiel du promoteur sera publié ici dès qu’il aura été transmis par le
-              Groupe NO LIMIT.
+            <p style={{ fontSize: '1.2rem', lineHeight: '1.6', fontStyle: 'italic', marginBottom: '1rem' }}>
+              « Depuis près de trente ans, une conviction guide mon engagement auprès de la jeunesse: un talent peut changer une vie lorsqu’il rencontre la bonne orientation, une formation solide et la possibilité de faire ses preuves. »
+            </p>
+            <p style={{ fontSize: '1.05rem', color: 'var(--color-navy-800)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+              Notre engagement tient en trois mots: <strong>Orientation – Formation – Employabilité</strong>. Ensemble, bâtissons les compétences qui feront avancer l’Afrique.
             </p>
             <div className={styles.who}>
-              <strong>{site.promoter.name}</strong>
-              <span>{site.promoter.role}</span>
+              <strong>{promoter.name}</strong>
+              <span>{promoter.role}</span>
             </div>
-            <LinkButton to="/le-groupe/promoteur" variant="ghost">
-              Lire la page du promoteur
-            </LinkButton>
+            <div style={{ marginTop: '1.25rem' }}>
+              <LinkButton to="/le-groupe/promoteur">
+                Lire le mot complet du promoteur
+              </LinkButton>
+            </div>
           </blockquote>
         </div>
       </Container>

@@ -13,7 +13,7 @@ export const ROLE_LABELS = {
   owner: 'Propriétaire',
 }
 
-const OWNER_EMAIL = 'nicodevnico@gmail.com'
+const OWNER_EMAIL = 'tantchou@yahoo.com'
 
 export async function getSession() {
   if (isSupabaseConfigured) {
@@ -40,7 +40,7 @@ export async function signIn(email, password) {
   return supabase.auth.signInWithPassword({ email, password })
 }
 
-export async function signUp(email, password, fullName = '') {
+export async function signUp(email, password, fullName = '', role = 'student') {
   if (!isSupabaseConfigured) {
     return { error: { message: 'Configuration Supabase absente.' } }
   }
@@ -48,9 +48,49 @@ export async function signUp(email, password, fullName = '') {
     email,
     password,
     options: {
-      data: { full_name: fullName, role: 'student' },
+      data: { full_name: fullName, role },
     },
   })
+}
+
+/**
+ * Création d'un utilisateur par un admin.
+ * Note: En mode standard Supabase sans clé service_role, signUp crée le compte Auth.
+ */
+export async function adminCreateUser(payload) {
+  if (!isSupabaseConfigured) {
+    return {
+      id: `u-${Date.now()}`,
+      ...payload,
+      is_active: true,
+      created_at: new Date().toISOString()
+    }
+  }
+
+  // Création via Auth
+  const { data, error } = await supabase.auth.signUp({
+    email: payload.email,
+    password: payload.password,
+    options: {
+      data: {
+        full_name: payload.full_name,
+        role: payload.role
+      },
+    },
+  })
+
+  if (error) throw error
+
+  // Le profil est créé par le trigger handle_new_user() en BD
+  // On attend un peu ou on récupère le profil
+  const { data: profile, error: pError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
+    .single()
+
+  if (pError) throw pError
+  return profile
 }
 
 export async function signOut() {
@@ -68,9 +108,15 @@ export async function getProfile(userId) {
   return null
 }
 
-export async function getUsers() {
+export async function getUsers(options = {}) {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('profiles').select('*')
+
+    if (options.hideOwner) {
+      query = query.neq('role', 'owner')
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
     return data
   }
@@ -99,14 +145,4 @@ export async function deleteUser(userId) {
     if (error) throw error
   }
   return true
-}
-
-export async function uploadArticleImage(file) {
-  if (!isSupabaseConfigured) return URL.createObjectURL(file)
-  const ext = file.name.split('.').pop()
-  const name = `${Math.random().toString(36).substring(2)}-${Date.now()}.${ext}`
-  const { data, error } = await supabase.storage.from('article-images').upload(name, file)
-  if (error) throw error
-  const { data: { publicUrl } } = supabase.storage.from('article-images').getPublicUrl(name)
-  return publicUrl
 }

@@ -4,7 +4,6 @@ import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
 import { Textarea } from '../../components/ui/Textarea'
 import { createArticle, deleteArticle, getAllArticles, updateArticle } from '../../services/actualiteService'
-import { uploadArticleImage } from '../../services/authService'
 
 const blankForm = {
   title: '',

@@ -7,7 +7,8 @@ import {
   signOut as signOutService,
 } from '../../services/authService'
 
-const OWNER_EMAIL = 'nicodevnico@gmail.com'
+// Nouveau Propriétaire désigné
+const OWNER_EMAIL = 'tantchou@yahoo.com'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
     const role = profile?.role ?? 'visitor'
     const email = session?.user?.email ?? ''
 
-    // Hiérarchie : owner > super_admin > admin > student > visitor
+    // Hiérarchie : owner > super_admin > admin > student
     const isOwner = role === 'owner' || email.toLowerCase() === OWNER_EMAIL
     const isSuperAdmin = isOwner || role === 'super_admin'
     const isAdmin = isSuperAdmin || role === 'admin'
