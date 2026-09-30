@@ -25,7 +25,7 @@ const jsonLd = {
   '@type': 'EducationalOrganization',
   name: site.name,
   url: site.url,
-  email: site.email,
+  email: ['Info@issmiga.com', 'Info@cfpnolimit.com'],
   telephone: site.phones && site.phones[0] ? site.phones[0].display : '',
   address: {
     '@type': 'PostalAddress',

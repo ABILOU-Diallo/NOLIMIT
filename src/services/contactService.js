@@ -6,7 +6,7 @@ export async function submitContact(payload) {
       ok: false,
       offline: true,
       message:
-        'Le formulaire n’est pas encore connecté. Écrivez à info@nolimitacademy.org ou passez par WhatsApp.',
+        'Le formulaire en ligne est temporairement indisponible. Écrivez à Info@issmiga.com ou Info@cfpnolimit.com ou contactez-nous via WhatsApp.',
     }
   }
 

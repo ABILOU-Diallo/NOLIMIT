@@ -31,10 +31,16 @@ export function Footer() {
           </nav>
           <div className={styles.meta}>
             <h2 className={styles.title}>Contact</h2>
-            <a href={`mailto:${site.email}`} style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
-              <i className="bx bx-envelope" aria-hidden="true" />
-              <span>{site.email}</span>
-            </a>
+            {site.emails.map((em) => (
+              <a
+                key={em.address}
+                href={em.href}
+                style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', fontSize: '0.92rem' }}
+              >
+                <i className="bx bx-envelope" aria-hidden="true" />
+                <span>{em.label} : {em.address}</span>
+              </a>
+            ))}
             {site.phones.map((phone) => (
               <a key={phone.href} href={phone.href} style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
                 <i className={phone.label === 'WhatsApp' ? 'bx bxl-whatsapp' : 'bx bx-phone'} aria-hidden="true" />

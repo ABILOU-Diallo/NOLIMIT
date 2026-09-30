@@ -6,7 +6,11 @@ export const site = {
   city: 'Yaoundé, Cameroun',
   address: 'Yaoundé, derrière Tradex Emana, lieu-dit NO LIMIT',
   hours: '8h – 17h',
-  email: 'info@nolimitacademy.org',
+  email: 'Info@issmiga.com',
+  emails: [
+    { label: 'ISSMIGA', address: 'Info@issmiga.com', href: 'mailto:Info@issmiga.com' },
+    { label: 'CFP NO LIMIT', address: 'Info@cfpnolimit.com', href: 'mailto:Info@cfpnolimit.com' },
+  ],
   phones: [
     { label: 'Yaoundé', href: 'tel:+237678529675', display: '+237 678 529 675' },
     { label: 'WhatsApp', href: 'tel:+237699990289', display: '+237 699 990 289' },
