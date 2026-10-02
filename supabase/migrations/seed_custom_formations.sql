@@ -1,0 +1,307 @@
+-- ==============================================================================
+-- INSERTION DES FORMATIONS À LA CARTE
+-- ==============================================================================
+
+-- Beauté esthétique et coiffure
+INSERT INTO public.custom_formations (slug, title, category, description_3mois, description_6mois, description_9mois, faisabilite, is_published, sort_order) VALUES
+('onglerie-prothese-ongulaire', 'Onglerie et prothèse ongulaire', 'beaute-esthetique-coiffure',
+  'Manucure, hygiène, préparation de l’ongle et poses simples.',
+  'Techniques de pose, remplissage, retrait et conseil à la clientèle.',
+  'Prestations avancées, organisation du poste et création d’un portfolio.',
+  'Faisable avec postes de manucure, consommables, modèles et protocole d’hygiène.',
+  true, 1),
+
+('maquillage-professionnel', 'Maquillage professionnel', 'beaute-esthetique-coiffure',
+  'Maquillage de jour, préparation de la peau et choix des produits.',
+  'Maquillage de soirée, cérémonie et photographie.',
+  'Prestations complètes, mise en situation client et portfolio.',
+  'Faisable avec kits, modèles et produits adaptés aux différentes carnations.',
+  true, 2),
+
+('esthetique-soins-beaute', 'Esthétique et soins de beauté', 'beaute-esthetique-coiffure',
+  'Accueil, hygiène, soins esthétiques de base et conseil.',
+  'Protocoles de soins, pratique supervisée et vente de prestations.',
+  'Prise en charge complète, gestion d’institut et projet professionnel.',
+  'Prévoir cabine, équipements, produits et règles d’hygiène; les actes médicaux sont exclus.',
+  true, 3),
+
+('coiffure-femme', 'Coiffure femme', 'beaute-esthetique-coiffure',
+  'Soins capillaires, tresses et coiffage de base.',
+  'Coupes, techniques variées et service client.',
+  'Prestations complètes, gestion de salon et pratique en conditions réelles.',
+  'Faisable avec salon d’application, matériel, consommables et modèles.',
+  true, 4),
+
+('coiffure-homme', 'Coiffure homme', 'beaute-esthetique-coiffure',
+  'Coupe de base, entretien du matériel et hygiène.',
+  'Dégradés, styles et conseil au client.',
+  'Prestations avancées, gestion d’un espace barbier et fidélisation.',
+  'Faisable avec fauteuils, tondeuses, modèles et désinfection.',
+  true, 5),
+
+('coiffure-ceremonies', 'Coiffure de cérémonies', 'beaute-esthetique-coiffure',
+  'Préparation et coiffures événementielles simples.',
+  'Chignons, accessoires et coordination avec le maquillage.',
+  'Prestations de mariages et événements avec portfolio.',
+  'Faisable en ateliers et sur modèles; demande saisonnière à intégrer au calendrier.',
+  true, 6),
+
+('pose-lace', 'Pose de lace', 'beaute-esthetique-coiffure',
+  'Préparation, pose et retraits sécurisés.',
+  'Adaptation, coiffage et entretien.',
+  'Prestations personnalisées et activité indépendante.',
+  'Faisable avec matériel, modèles et formation à la protection du cuir chevelu.',
+  true, 7),
+
+('extensions-cils', 'Extensions de cils', 'beaute-esthetique-coiffure',
+  'Hygiène, techniques de base et conseil.',
+  'Poses variées, remplissage et entretien.',
+  'Prestations avancées et gestion clientèle.',
+  'Faisable avec matériel adapté et vigilance sur les contre-indications.',
+  true, 8),
+
+('gestion-salon-beaute', 'Gestion d’un salon de beauté', 'beaute-esthetique-coiffure',
+  'Accueil, prix de revient et organisation quotidienne.',
+  'Stock, promotion, comptabilité simple et qualité de service.',
+  'Plan d’affaires, management et projet d’ouverture.',
+  'Faisable en salle; recommandé en complément d’une formation technique.',
+  true, 9);
+
+-- Administration commerce et gestion
+INSERT INTO public.custom_formations (slug, title, category, description_3mois, description_6mois, description_9mois, faisabilite, is_published, sort_order) VALUES
+('secretariat-bureautique', 'Secrétariat bureautique', 'administration-commerce-gestion',
+  'Saisie, traitement de texte, tableur et accueil.',
+  'Correspondance, classement et gestion des dossiers.',
+  'Assistanat polyvalent, projet administratif et pratique en entreprise.',
+  'Faisable avec postes informatiques et logiciels bureautiques.',
+  true, 10),
+
+('secretariat-comptable-custom', 'Secrétariat comptable', 'administration-commerce-gestion',
+  'Documents commerciaux, caisse et tableur.',
+  'Facturation, suivi comptable et tableaux de bord.',
+  'Dossiers complets, logiciels et immersion supervisée.',
+  'Faisable avec ordinateurs, exercices et accès à un logiciel adapté.',
+  true, 11),
+
+('assistanat-direction-bilingue', 'Assistanat de direction bilingue', 'administration-commerce-gestion',
+  'Accueil et correspondance professionnelle en français et en anglais.',
+  'Agenda, réunions et outils collaboratifs.',
+  'Coordination administrative et dossiers bilingues complexes.',
+  'Faisable avec formateur bilingue et mises en situation régulières.',
+  true, 12),
+
+('comptabilite-pratique-logiciels', 'Comptabilité pratique et logiciels', 'administration-commerce-gestion',
+  'Principes comptables, pièces et Excel.',
+  'Écritures, rapprochements et suivi de gestion.',
+  'Cas d’entreprise, logiciels et préparation de rapports.',
+  'Faisable avec formateurs compétents en référentiel OHADA et logiciels disponibles.',
+  true, 13),
+
+('ressources-humaines-paie', 'Ressources humaines et paie', 'administration-commerce-gestion',
+  'Dossiers du personnel et initiation au recrutement.',
+  'Administration du personnel, paie et reporting.',
+  'Cas pratiques de gestion RH et procédures d’entreprise.',
+  'Faisable avec supports actualisés et supervision sur les règles camerounaises.',
+  true, 14),
+
+('vente-relation-client', 'Vente et relation client', 'administration-commerce-gestion',
+  'Accueil, argumentaire et caisse.',
+  'Prospection, fidélisation et outils de suivi.',
+  'Négociation, coordination commerciale et projet de vente.',
+  'Faisable rapidement avec jeux de rôle et commerces partenaires.',
+  true, 15),
+
+('entrepreneuriat-gestion-pme', 'Entrepreneuriat et gestion de petite entreprise', 'administration-commerce-gestion',
+  'Idée, clientèle, budget et calcul des coûts.',
+  'Étude de marché, commercialisation et gestion quotidienne.',
+  'Plan d’affaires testé, suivi des ventes et accompagnement au lancement.',
+  'Faisable en salle avec mentorat et projet concret.',
+  true, 16),
+
+('logistique-stocks-approvisionnement', 'Logistique stocks et approvisionnement', 'administration-commerce-gestion',
+  'Inventaire, réception et stockage.',
+  'Achats, suivi des flux et outils de gestion.',
+  'Planification, indicateurs et cas d’entreprise.',
+  'Faisable avec mini-magasin pédagogique et partenaires de stage.',
+  true, 17),
+
+('transit-documentation-douaniere', 'Transit et documentation douanière', 'administration-commerce-gestion',
+  'Documents, vocabulaire commercial et circuits.',
+  'Dossiers de transit et simulations.',
+  'Cas complexes et immersion en entreprise.',
+  'Faisable avec praticiens et documents à jour; ne confère aucune habilitation professionnelle.',
+  true, 18);
+
+-- Informatique création et numérique
+INSERT INTO public.custom_formations (slug, title, category, description_3mois, description_6mois, description_9mois, faisabilite, is_published, sort_order) VALUES
+('initiation-informatique-bureautique', 'Initiation informatique et bureautique', 'informatique-creation-numerique',
+  'Ordinateur, fichiers, Internet, Word et Excel.',
+  'Maîtrise bureautique et collaboration en ligne.',
+  'Production de documents professionnels et assistance de proximité.',
+  'Faisable avec un poste par apprenant ou un calendrier d’accès suffisant.',
+  true, 19),
+
+('infographie-design-visuel', 'Infographie et design visuel', 'informatique-creation-numerique',
+  'Principes graphiques, affiches et outils de création.',
+  'Identité visuelle, maquettes et projets clients.',
+  'Portfolio, production imprimée et numérique.',
+  'Faisable avec ordinateurs performants, logiciels autorisés et encadrement pratique.',
+  true, 20),
+
+('community-management', 'Community management', 'informatique-creation-numerique',
+  'Plateformes, contenus et calendrier éditorial.',
+  'Animation, analyse et campagnes simples.',
+  'Stratégie multicanale et projet pour une structure locale.',
+  'Faisable avec Internet, comptes de démonstration et cas réels.',
+  true, 21),
+
+('marketing-digital-publicite', 'Marketing digital et publicité en ligne', 'informatique-creation-numerique',
+  'Bases du marketing, contenus et mesure.',
+  'Référencement et campagnes supervisées.',
+  'Stratégie, optimisation et rapport de résultats.',
+  'Faisable avec connexion stable; les budgets publicitaires éventuels sont à définir séparément.',
+  true, 22),
+
+('photographie-video-montage', 'Photographie vidéo et montage', 'informatique-creation-numerique',
+  'Cadrage, son, lumière et montage de base.',
+  'Tournage et montage de contenus professionnels.',
+  'Production complète, portfolio et projet client.',
+  'Faisable avec caméras, microphones, éclairage et postes de montage.',
+  true, 23),
+
+('creation-sites-web', 'Création de sites Web', 'informatique-creation-numerique',
+  'Structure de page et site simple.',
+  'Site complet, contenu, mise en ligne et maintenance.',
+  'Projet client, ergonomie et optimisation.',
+  'Faisable avec ordinateurs, Internet et environnement de test.',
+  true, 24),
+
+('developpement-web-applications', 'Développement Web et applications', 'informatique-creation-numerique',
+  'Bases de programmation et premier projet.',
+  'Interfaces, bases de données et application fonctionnelle.',
+  'Application déployée, versionnement et projet d’équipe.',
+  'Faisable avec formateurs spécialisés et laboratoire; le niveau dépend des prérequis.',
+  true, 25),
+
+('maintenance-informatique', 'Maintenance informatique', 'informatique-creation-numerique',
+  'Composants, diagnostic simple et sécurité.',
+  'Installation, dépannage et assistance utilisateur.',
+  'Réparations variées, suivi d’atelier et pratique supervisée.',
+  'Faisable avec machines de test, outils et pièces; disponibilité des équipements indispensable.',
+  true, 26),
+
+('reseaux-informatiques', 'Réseaux informatiques', 'informatique-creation-numerique',
+  'Câblage et notions de réseau.',
+  'Configuration, dépannage et sécurité de base.',
+  'Réseau de démonstration, documentation et projet pratique.',
+  'Faisable avec commutateurs, routeurs et laboratoire.',
+  true, 27),
+
+('analyse-donnees-excel-avance', 'Analyse de données et Excel avancé', 'informatique-creation-numerique',
+  'Tableaux, formules et nettoyage.',
+  'Tableaux croisés, visualisation et indicateurs.',
+  'Projet de données, tableaux de bord et restitution.',
+  'Faisable avec ordinateurs, jeux de données et prérequis bureautiques.',
+  true, 28),
+
+('cybersecurite-fondamentale', 'Cybersécurité fondamentale', 'informatique-creation-numerique',
+  'Protection des comptes et hygiène numérique.',
+  'Réseaux, sauvegarde et analyse de risques.',
+  'Laboratoire encadré et plan de protection pour une organisation.',
+  'Faisable avec environnement isolé et formateur qualifié; exercices uniquement autorisés.',
+  true, 29);
+
+-- Hôtellerie restauration et services
+INSERT INTO public.custom_formations (slug, title, category, description_3mois, description_6mois, description_9mois, faisabilite, is_published, sort_order) VALUES
+('cuisine-professionnelle', 'Cuisine professionnelle', 'hotellerie-restauration-services',
+  'Hygiène, préparations et organisation du poste.',
+  'Production de menus et service en équipe.',
+  'Gestion de production, coûts et pratique professionnelle.',
+  'Nécessite cuisine pédagogique équipée, denrées et mesures de sécurité.',
+  true, 30),
+
+('patisserie-boulangerie', 'Pâtisserie et boulangerie', 'hotellerie-restauration-services',
+  'Pâtes et produits de base.',
+  'Gammes de pains et pâtisseries, conservation.',
+  'Production, décoration et gestion des coûts.',
+  'Nécessite laboratoire, fours, consommables et respect des règles sanitaires.',
+  true, 31),
+
+('service-salle-bar', 'Service en salle et bar', 'hotellerie-restauration-services',
+  'Accueil, mise en place et service de base.',
+  'Caisse, service complet et gestion des demandes.',
+  'Coordination de service et pratique en établissement.',
+  'Faisable avec salle d’application et partenaires hôteliers.',
+  true, 32),
+
+('reception-hoteliere', 'Réception hôtelière', 'hotellerie-restauration-services',
+  'Accueil, réservations et communication.',
+  'Gestion des séjours et situations clients.',
+  'Réception bilingue, logiciels et immersion.',
+  'Faisable avec poste de simulation et établissements partenaires.',
+  true, 33),
+
+('gouvernance-entretien-hotelier', 'Gouvernance et entretien hôtelier', 'hotellerie-restauration-services',
+  'Entretien, linge et sécurité.',
+  'Organisation des chambres et contrôle qualité.',
+  'Coordination d’équipe et pratique en établissement.',
+  'Faisable avec chambre d’application et équipements d’entretien.',
+  true, 34),
+
+('organisation-evenements', 'Organisation d’événements', 'hotellerie-restauration-services',
+  'Brief, budget et planification.',
+  'Prestataires, logistique et coordination.',
+  'Événement réel encadré et portfolio.',
+  'Faisable avec partenaires et calendrier de projets.',
+  true, 35),
+
+('decoration-evenementielle', 'Décoration événementielle', 'hotellerie-restauration-services',
+  'Couleurs, compositions et montages simples.',
+  'Décors thématiques et gestion du matériel.',
+  'Projets complets et prestations supervisées.',
+  'Nécessite espace de stockage, matériel et événements d’application.',
+  true, 36);
+
+-- Autres types de prestations/services
+INSERT INTO public.custom_formations (slug, title, category, description_3mois, description_6mois, description_9mois, faisabilite, is_published, sort_order) VALUES
+('couture-retouches', 'Couture et retouches', 'autres-prestations-services',
+  'Mesures, machine et retouches simples.',
+  'Confection de vêtements courants.',
+  'Collection, ajustements et gestion d’atelier.',
+  'Faisable avec machines à coudre, tissus et postes de coupe.',
+  true, 37),
+
+('stylisme-modelisme', 'Stylisme et modélisme', 'autres-prestations-services',
+  'Dessin, mesures et patrons de base.',
+  'Patronage et confection de modèles.',
+  'Mini-collection et portfolio.',
+  'Nécessite atelier de couture, mannequins et matériel de patronage.',
+  true, 38),
+
+('transformation-agroalimentaire', 'Transformation agroalimentaire', 'autres-prestations-services',
+  'Hygiène, préparation et conservation de base.',
+  'Transformation et conditionnement de plusieurs produits.',
+  'Qualité, calcul des coûts et projet de vente.',
+  'Nécessite espace de transformation, équipements et protocoles sanitaires.',
+  true, 39),
+
+('elevage-volailles-gestion-exploitation', 'Élevage de volailles et gestion d’exploitation', 'autres-prestations-services',
+  'Biosécurité et conduite de base.',
+  'Suivi d’élevage, alimentation et ventes.',
+  'Gestion technique et économique d’un cycle.',
+  'Nécessite installation d’élevage, encadrement vétérinaire approprié et biosécurité.',
+  true, 40),
+
+('assistance-domicile-accompagnement', 'Assistance à domicile et accompagnement non médical', 'autres-prestations-services',
+  'Communication et aide dans les tâches quotidiennes.',
+  'Organisation du domicile et accompagnement supervisé.',
+  'Situations variées, éthique et coordination avec la famille.',
+  'Faisable avec mises en situation; aucun acte médical n’est enseigné comme compétence autonome.',
+  true, 41),
+
+('anglais-professionnel-service-client', 'Anglais professionnel et service client', 'autres-prestations-services',
+  'Accueil et échanges courants.',
+  'Correspondance, téléphone et service client.',
+  'Situations professionnelles complexes et pratique orale.',
+  'Faisable avec formateur compétent et évaluation du niveau initial.',
+  true, 42);

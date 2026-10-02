@@ -73,6 +73,9 @@ const AdminActualitesPage = lazy(() =>
 const AdminFormationsPage = lazy(() =>
   import('./pages/admin/AdminFormationsPage').then((m) => ({ default: m.AdminFormationsPage })),
 )
+const AdminCustomFormationsPage = lazy(() =>
+  import('./pages/admin/AdminCustomFormationsPage').then((m) => ({ default: m.AdminCustomFormationsPage })),
+)
 const AdminContactsPage = lazy(() =>
   import('./pages/admin/AdminContactsPage').then((m) => ({ default: m.AdminContactsPage })),
 )
@@ -140,6 +143,7 @@ export default function App() {
               <Route path="admin/preinscriptions" element={<AdminPreinscriptionsPage />} />
               <Route path="admin/actualites" element={<AdminActualitesPage />} />
               <Route path="admin/formations" element={<AdminFormationsPage />} />
+              <Route path="admin/formations-a-la-carte" element={<AdminCustomFormationsPage />} />
               <Route path="admin/contacts" element={<AdminContactsPage />} />
               <Route path="admin/temoignages" element={<AdminTestimonialsPage />} />
               <Route path="admin/commentaires" element={<AdminCommentsPage />} />

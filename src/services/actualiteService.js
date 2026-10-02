@@ -4,6 +4,15 @@ const LOCAL_ACTUALITES_KEY = 'issmiga_actualites_v1'
 
 function mapFromDb(item) {
   if (!item) return null
+
+  // gallery peut être un tableau JSON ou null
+  let gallery = []
+  if (Array.isArray(item.gallery)) {
+    gallery = item.gallery
+  } else if (typeof item.gallery === 'string') {
+    try { gallery = JSON.parse(item.gallery) } catch { gallery = [] }
+  }
+
   return {
     ...item,
     id: item.id,
@@ -13,6 +22,7 @@ function mapFromDb(item) {
     excerpt: item.excerpt || '',
     image_url: item.cover_path || '',
     video_url: item.video_url || '',
+    gallery,                         // tableau de { url, type: 'image'|'video' }
     category: item.category || 'Vie du campus',
     status: item.status || 'draft',
     created_at: item.created_at,
@@ -29,20 +39,51 @@ function mapToDb(payload) {
     body: payload.content || '',
     cover_path: payload.image_url || null,
     video_url: payload.video_url || null,
+    gallery: payload.gallery?.length ? payload.gallery : null,
     status: payload.status || 'draft',
     published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
 }
 
+// ─── Upload d'un seul fichier (rétrocompatibilité) ───────────────────────────
 export async function uploadArticleImage(file) {
+  return uploadSingleFile(file)
+}
+
+// ─── Upload de plusieurs fichiers en parallèle ────────────────────────────────
+export async function uploadArticleMedia(files) {
+  const fileArray = Array.from(files)
+  const results = await Promise.allSettled(fileArray.map(uploadSingleFile))
+
+  const uploaded = []
+  const errors = []
+
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      const file = fileArray[i]
+      const type = file.type.startsWith('video') ? 'video' : 'image'
+      uploaded.push({ url: result.value, type })
+    } else {
+      errors.push({ file: fileArray[i].name, reason: result.reason?.message })
+    }
+  })
+
+  if (errors.length > 0) {
+    console.warn('Certains fichiers ont échoué :', errors)
+  }
+
+  return { uploaded, errors }
+}
+
+async function uploadSingleFile(file) {
   if (!isSupabaseConfigured) {
-    // Mode démo : retourne une URL objet locale
     return URL.createObjectURL(file)
   }
 
   const ext = file.name.split('.').pop()
+  const folder = file.type.startsWith('video') ? 'videos' : 'covers'
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  const filePath = `covers/${fileName}`
+  const filePath = `${folder}/${fileName}`
 
   const { error: uploadError } = await supabase.storage
     .from('actualites')
@@ -58,12 +99,13 @@ export async function uploadArticleImage(file) {
     .getPublicUrl(filePath)
 
   if (!data?.publicUrl) {
-    throw new Error('Impossible de récupérer l\'URL publique du fichier.')
+    throw new Error("Impossible de récupérer l'URL publique du fichier.")
   }
 
   return data.publicUrl
 }
 
+// ─── CRUD ────────────────────────────────────────────────────────────────────
 export async function getAllArticles() {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase

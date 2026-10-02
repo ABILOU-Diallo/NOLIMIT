@@ -11,6 +11,7 @@ import { getFormations, getPoles, searchFormations } from '../services/formation
 import { formatDiploma } from '../utils/format'
 import { ASYNC } from '../utils/asyncState'
 import styles from '../components/layout/PageHero.module.css'
+import CustomFormationsSection from '../components/sections/CustomFormationsSection'
 
 export function FormationsPage() {
   const [query, setQuery] = useState('')
@@ -129,6 +130,9 @@ export function FormationsPage() {
             )}
           </>
         ) : null}
+
+        {/* Section Formations à la Carte */}
+        <CustomFormationsSection />
       </PageBody>
     </>
   )
