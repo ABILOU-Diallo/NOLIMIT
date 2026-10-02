@@ -34,6 +34,36 @@ function mapToDb(payload) {
   }
 }
 
+export async function uploadArticleImage(file) {
+  if (!isSupabaseConfigured) {
+    // Mode démo : retourne une URL objet locale
+    return URL.createObjectURL(file)
+  }
+
+  const ext = file.name.split('.').pop()
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const filePath = `covers/${fileName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('actualites')
+    .upload(filePath, file, { upsert: false })
+
+  if (uploadError) {
+    console.error('Erreur upload Storage:', uploadError)
+    throw new Error(uploadError.message)
+  }
+
+  const { data } = supabase.storage
+    .from('actualites')
+    .getPublicUrl(filePath)
+
+  if (!data?.publicUrl) {
+    throw new Error('Impossible de récupérer l\'URL publique du fichier.')
+  }
+
+  return data.publicUrl
+}
+
 export async function getAllArticles() {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase

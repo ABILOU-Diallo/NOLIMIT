@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
 import { Textarea } from '../../components/ui/Textarea'
-import { createArticle, deleteArticle, getAllArticles, updateArticle } from '../../services/actualiteService'
+import { createArticle, deleteArticle, getAllArticles, updateArticle, uploadArticleImage } from '../../services/actualiteService'
 
 const blankForm = {
   title: '',
