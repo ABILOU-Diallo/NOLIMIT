@@ -64,12 +64,21 @@ function setLocalPreinscriptions(list) {
 
 export async function getPreinscriptions() {
   if (isSupabaseConfigured) {
+    // On récupère également le titre de la formation via une jointure pour l'admin
     const { data, error } = await supabase
       .from('preinscriptions')
-      .select('*')
+      .select('*, formations(title, institution)')
       .order('created_at', { ascending: false })
 
-    if (!error && data) return data
+    if (!error && data) {
+      return data.map(item => ({
+        ...item,
+        // Si la jointure a fonctionné, on s'assure que l'institution est cohérente
+        formation_title: item.formations?.title || item.formation_id,
+        // On privilégie l'institution de la formation si elle existe
+        institution: item.formations?.institution || item.institution
+      }))
+    }
   }
 
   return getLocalPreinscriptions()
@@ -97,7 +106,7 @@ export async function submitPreinscription(payload) {
     created_at: new Date().toISOString(),
   }
 
-  // Always save locally for immediate offline/hybrid availability
+  // Toujours sauvegarder localement
   try {
     const list = getLocalPreinscriptions()
     setLocalPreinscriptions([nextItem, ...list])
@@ -107,32 +116,66 @@ export async function submitPreinscription(payload) {
 
   if (isSupabaseConfigured) {
     try {
+      // 1. Validation de l'ID de formation
+      let validFormationId = null
+      let detectedInstitution = nextItem.institution
+
+      if (nextItem.formation_id) {
+        try {
+          const { data: found } = await supabase
+            .from('formations')
+            .select('id, institution')
+            .or(`id.eq.${nextItem.formation_id},slug.eq.${nextItem.formation_id}`)
+            .maybeSingle()
+
+          if (found?.id) {
+            validFormationId = found.id
+            // Sécurité : on utilise l'institution définie dans la table formations pour éviter toute confusion
+            detectedInstitution = found.institution
+          }
+        } catch (e) {
+          console.warn('Erreur vérification formation:', e)
+        }
+      }
+
+      // 2. Vérification de la session utilisateur
+      let userId = null
+      try {
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData?.session?.user?.id) {
+          userId = sessionData.session.user.id
+        }
+      } catch (e) { /* ignore */ }
+
       const dbPayload = {
         full_name: nextItem.full_name,
         email: nextItem.email,
         phone: nextItem.phone,
-        city: nextItem.city,
-        birth_date: nextItem.birth_date,
-        guardian_name: nextItem.guardian_name,
-        guardian_phone: nextItem.guardian_phone,
-        formation_id: nextItem.formation_id,
-        diploma_interest: nextItem.diploma_interest,
-        message: nextItem.message,
-        consent: nextItem.consent,
+        city: nextItem.city || 'Yaoundé',
+        birth_date: nextItem.birth_date ? nextItem.birth_date : null,
+        guardian_name: nextItem.guardian_name || null,
+        guardian_phone: nextItem.guardian_phone || null,
+        institution: detectedInstitution, // CRITIQUE : Ajout de l'institution dans le payload DB
+        formation_id: validFormationId,
+        diploma_interest: nextItem.diploma_interest || null,
+        message: nextItem.message || (nextItem.formation_id && !validFormationId ? `Filière demandée : ${nextItem.formation_id}` : null),
+        consent: Boolean(nextItem.consent),
         status: 'new',
       }
 
-      const { data, error } = await supabase.from('preinscriptions').insert(dbPayload).select()
+      if (userId) dbPayload.user_id = userId
+
+      const { error } = await supabase.from('preinscriptions').insert(dbPayload)
 
       if (error) {
-        console.warn('Supabase insertion error (fallback to local active):', error)
-        // If Supabase has foreign key or column issue, we don't block the user since local storage is saved
-        return { ok: true, reference: refCode, item: nextItem, warning: 'Saved locally' }
+        console.error('Erreur Supabase insertion:', error)
+      } else {
+        console.log('✅ Préinscription enregistrée avec succès ! Institution:', detectedInstitution)
       }
 
-      return { ok: true, reference: refCode, item: data?.[0] || nextItem }
+      return { ok: true, reference: refCode, item: { ...nextItem, institution: detectedInstitution } }
     } catch (err) {
-      console.warn('Supabase unexpected error:', err)
+      console.warn('Erreur inattendue Supabase:', err)
       return { ok: true, reference: refCode, item: nextItem }
     }
   }

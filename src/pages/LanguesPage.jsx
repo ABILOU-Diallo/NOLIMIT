@@ -9,12 +9,12 @@ export function LanguesPage() {
   return (
     <>
       <Seo
-        title="Centre de langues"
-        description="Apprenez l'Allemand, l'Anglais et le Français au Groupe NO LIMIT. Niveaux A1 à C2."
+        title="Apprendre l'Allemand et l'Anglais à Yaoundé — Centre Linguistique"
+        description="Cours intensifs d'Allemand (Goethe-Zertifikat), Anglais (TOEFL/IELTS) et Français au Groupe NO LIMIT. Niveaux A1 à C2 avec certifications internationales."
         path="/langues"
       />
       <PageHero
-        title="Centre de langues"
+        title="Centre Linguistique"
         lede="Maîtrisez une nouvelle langue et ouvrez-vous au monde avec nos programmes intensifs et certifiants."
         crumbs={[
           { to: '/', label: 'Accueil' },
@@ -23,7 +23,6 @@ export function LanguesPage() {
       />
       <PageBody>
         <div className={styles.stack}>
-          {/* Cartes des Langues avec Images du dossier Assets */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -43,39 +42,21 @@ export function LanguesPage() {
                 }}>
                   <img
                     src={lang.image}
-                    alt={`Drapeau ${lang.name}`}
+                    alt={`Apprendre l'${lang.name} à Yaoundé`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 <h3 style={{ color: 'var(--primary)', fontSize: '1.6rem', marginBottom: '1rem' }}>{lang.name}</h3>
-                <p style={{ fontSize: '1rem', color: '#475569', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: '1rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
                   {lang.description}
                 </p>
-                {lang.bonus && (
-                  <div style={{
-                    marginTop: 'auto',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#f0f9ff',
-                    borderRadius: '12px',
-                    fontSize: '0.85rem',
-                    color: '#0369a1',
-                    fontWeight: '700',
-                    width: '100%'
-                  }}>
-                    🎁 {lang.bonus}
-                  </div>
-                )}
               </Card>
             ))}
           </div>
 
-          {/* Niveaux organisés par difficulté */}
           <section style={{ backgroundColor: '#ffffff', padding: '3.5rem 2rem', borderRadius: '32px', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
-            <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-              <h2 style={{ fontSize: '2.25rem', color: '#0f172a', marginBottom: '1rem' }}>Votre progression vers le succès</h2>
-              <p style={{ color: '#64748b', maxWidth: '700px', margin: '0 auto', fontSize: '1.1rem' }}>
-                Nous suivons le cadre européen (CECRL) pour vous garantir une certification reconnue partout dans le monde.
-              </p>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <h2 style={{ fontSize: '2.25rem', color: '#0f172a', margin: 0 }}>Votre progression vers le succès</h2>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
@@ -123,7 +104,6 @@ export function LanguesPage() {
             </div>
           </section>
 
-          {/* Certifications */}
           <section style={{ marginTop: '4rem', textAlign: 'center' }}>
             <h2 style={{ marginBottom: '2rem' }}>Préparez vos certifications internationales</h2>
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>

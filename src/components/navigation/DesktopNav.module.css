@@ -1,7 +1,7 @@
 .list {
   display: none;
   align-items: center;
-  gap: 0.1rem;
+  gap: clamp(0.05rem, 0.3vw, 0.25rem);
 }
 
 .link {
@@ -9,13 +9,14 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-min);
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem clamp(0.45rem, 0.65vw, 0.75rem);
   color: inherit;
   text-decoration: none;
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: clamp(0.82rem, 0.9vw, 0.9rem);
   font-weight: 600;
   border-radius: var(--radius-sm);
+  white-space: nowrap;
   transition: color var(--duration-fast) var(--ease),
     background-color var(--duration-fast) var(--ease);
 }
@@ -44,7 +45,7 @@
   transform: scaleX(1);
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1140px) {
   .list {
     display: flex;
   }

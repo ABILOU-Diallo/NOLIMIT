@@ -7,21 +7,18 @@ export const languages = [
     slug: 'allemand',
     name: 'Allemand',
     image: allemandImg,
-    bonus: 'Livre de cours d’allemand offert.',
     description: 'La langue de l\'ingénierie et de l\'innovation. Essentielle pour vos projets d\'études ou de carrière en Allemagne.',
   },
   {
     slug: 'anglais',
     name: 'Anglais',
     image: anglaisImg,
-    bonus: 'Laboratoire de langue inclus.',
     description: 'Le passeport universel pour le business et la technologie. Indispensable pour toute carrière internationale.',
   },
   {
     slug: 'francais',
     name: 'Français',
     image: francaisImg,
-    bonus: 'Préparation TCF/TEF offerte.',
     description: 'Perfectionnez votre communication professionnelle et académique pour le Canada et le monde francophone.',
   },
 ]
@@ -54,7 +51,7 @@ export const languageLevels = [
 ]
 
 export const languageCertifications = [
-  { code: 'IELTS/TOEFL', language: 'Anglais' },
-  { code: 'Goethe Zertifikat', language: 'Allemand' },
-  { code: 'TCF / TEF / DALF', language: 'Français' },
+  { code: 'Allemand (A1 à C2 et Goethe Zertifikat)', language: 'Allemand' },
+  { code: 'Anglais (IELTS/TOEFL/SAT)', language: 'Anglais' },
+  { code: 'Français (TCF / TEF / DALF)', language: 'Français' },
 ]

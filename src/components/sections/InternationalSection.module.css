@@ -3,40 +3,238 @@
   background: var(--color-surface);
 }
 
-.panel {
+.languagesGrid {
   display: grid;
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.5rem;
   margin-top: 2rem;
-  padding: 1.6rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.5rem;
   background: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  transition: box-shadow var(--duration) var(--ease);
+  box-shadow: 0 2px 8px rgba(20, 26, 94, 0.04);
+  transition: transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
 }
 
-.panel:hover {
+.card:hover {
+  transform: translateY(-4px);
   box-shadow: var(--shadow-card);
+  border-color: rgba(20, 26, 94, 0.2);
 }
 
-.panel p {
-  color: var(--color-muted);
-  max-width: 40rem;
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.phone {
-  font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3vw, 1.4rem);
-  font-weight: 700;
+.cardIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--color-navy-50);
   color: var(--color-navy-900);
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
 }
 
-.phone:hover {
+.cardBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--color-magenta-600);
+  background: var(--color-magenta-50);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.35rem;
 }
 
-@media (max-width: 479px) {
-  .panel {
-    padding: 1.2rem;
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 750;
+  color: var(--color-navy-900);
+  line-height: 1.25;
+}
+
+.cardDesc {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.tag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-navy-900);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* Accompaniment Box */
+.accompanimentBox {
+  margin-top: 2rem;
+  padding: 2.25rem 2rem;
+  background: linear-gradient(135deg, var(--color-navy-900) 0%, #1c2477 100%);
+  color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 30px rgba(20, 26, 94, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.accompanimentHeader {
+  max-width: 48rem;
+  margin-bottom: 1.75rem;
+}
+
+.accBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffd3e8;
+  background: rgba(214, 0, 110, 0.25);
+  border: 1px solid rgba(214, 0, 110, 0.45);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+.accompanimentTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+  font-weight: 800;
+  color: var(--color-white);
+  margin-bottom: 0.6rem;
+  line-height: 1.2;
+}
+
+.accompanimentLede {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.pointsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.pointCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.pointIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(238, 47, 139, 0.25);
+  color: #ff85be;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.pointTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 0.35rem;
+}
+
+.pointDesc {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+.actionsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.buttonsGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.canadaContact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.canadaLabel {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.canadaPhone {
+  color: #ffd3e8;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color var(--duration) var(--ease);
+}
+
+.canadaPhone:hover {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .accompanimentBox {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .actionsBar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

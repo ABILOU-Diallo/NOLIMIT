@@ -9,8 +9,8 @@ export function PromoteurPage() {
   return (
     <>
       <Seo
-        title={`Mot du Promoteur — ${promoter.name}`}
-        description="Message officiel du Dr Orly TANTCHOU, promoteur du Groupe NO LIMIT à Yaoundé : orientation, formation et employabilité."
+        title={`Mot du Promoteur — ${promoter.name} | Groupe NO LIMIT`}
+        description={`Découvrez la vision du Dr Orly TANTCHOU, promoteur du Groupe NO LIMIT à Yaoundé. Orientation, formation professionnelle et employabilité pour la jeunesse africaine.`}
         path="/le-groupe/promoteur"
       />
       <PageHero
@@ -42,7 +42,7 @@ export function PromoteurPage() {
             }}>
               <img
                 src={media.founder}
-                alt={`${promoter.name}, promoteur du Groupe NO LIMIT.`}
+                alt={`${promoter.name}, promoteur du Groupe NO LIMIT à Yaoundé.`}
                 width="540"
                 height="614"
                 loading="lazy"
@@ -104,7 +104,6 @@ export function PromoteurPage() {
               color: 'var(--color-navy-800)'
             }}>
               {promoter.paragraphs.map((paragraph, index) => {
-                // Highlight key pillar sentences or quotes
                 const isHighlight = paragraph.includes('Orientation – Formation – Employabilité') || paragraph.includes('Bâtisseur de Compétences')
                 return (
                   <p
@@ -145,4 +144,3 @@ export function PromoteurPage() {
     </>
   )
 }
-

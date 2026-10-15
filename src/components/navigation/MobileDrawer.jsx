@@ -9,6 +9,7 @@ import { IconButton } from '../ui/IconButton'
 import { LinkButton } from '../ui/LinkButton'
 import { Logo } from '../layout/Logo'
 import { WhatsAppIcon } from '../ui/WhatsAppIcon'
+import { LanguageToggle } from '../ui/LanguageToggle'
 import styles from './MobileDrawer.module.css'
 
 export function MobileDrawer({ open, onClose }) {
@@ -41,9 +42,12 @@ export function MobileDrawer({ open, onClose }) {
       >
         <div className={styles.top}>
           <Logo />
-          <IconButton ref={closeRef} label="Fermer le menu" onClick={onClose}>
-            <i className="bx bx-x" style={{ fontSize: '1.6rem' }} aria-hidden="true" />
-          </IconButton>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <LanguageToggle light />
+            <IconButton ref={closeRef} label="Fermer le menu" onClick={onClose}>
+              <i className="bx bx-x" style={{ fontSize: '1.6rem' }} aria-hidden="true" />
+            </IconButton>
+          </div>
         </div>
         <nav className={styles.nav}>
           {mainNav.map((item) => (

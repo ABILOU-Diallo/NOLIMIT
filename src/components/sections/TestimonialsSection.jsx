@@ -8,7 +8,7 @@ export function TestimonialsSection({ items = [] }) {
     <section className={styles.section}>
       <Container>
         <SectionHeading
-          kicker="10 — Témoignages"
+          kicker="07 — Témoignages"
           title="La parole des personnes formées, lorsqu’elle est disponible."
         />
         {items.length === 0 ? (

@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: clamp(0.4rem, 1.2vw, 1.25rem);
   height: 100%;
   min-width: 0;
 }
@@ -21,12 +21,21 @@
 .right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex: none;
+  gap: clamp(0.3rem, 0.8vw, 0.6rem);
+  flex-shrink: 0;
 }
 
 .cta {
   display: none;
+  font-size: 0.84rem !important;
+  padding: 0.42rem 0.85rem !important;
+  white-space: nowrap;
+}
+
+.preinscrBtn {
+  font-size: clamp(0.76rem, 1.8vw, 0.86rem) !important;
+  padding: 0.38rem clamp(0.55rem, 1vw, 0.9rem) !important;
+  white-space: nowrap;
 }
 
 .menu {
@@ -34,7 +43,7 @@
 }
 
 .solid {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--color-navy-900);
   box-shadow: var(--shadow-header);
   backdrop-filter: blur(16px);
@@ -46,20 +55,30 @@
   right: 0;
   background: linear-gradient(
     180deg,
-    rgba(16, 22, 79, 0.62) 0%,
-    rgba(16, 22, 79, 0.18) 70%,
+    rgba(16, 22, 79, 0.65) 0%,
+    rgba(16, 22, 79, 0.2) 70%,
     transparent 100%
   );
   color: var(--color-white);
 }
 
 .overlay.scrolled {
-  background: rgba(20, 26, 94, 0.78);
+  background: rgba(20, 26, 94, 0.85);
   box-shadow: var(--shadow-header);
   backdrop-filter: blur(16px);
 }
 
-@media (min-width: 1080px) {
+@media (max-width: 440px) {
+  .right {
+    gap: 0.25rem;
+  }
+  .preinscrBtn {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.74rem !important;
+  }
+}
+
+@media (min-width: 1140px) {
   .cta {
     display: inline-flex;
   }

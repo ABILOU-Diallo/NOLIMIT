@@ -19,6 +19,12 @@ const FormationsPage = lazy(() =>
 const FormationDetailPage = lazy(() =>
   import('./pages/FormationDetailPage').then((m) => ({ default: m.FormationDetailPage })),
 )
+const CustomFormationsPage = lazy(() =>
+  import('./pages/CustomFormationsPage').then((m) => ({ default: m.CustomFormationsPage })),
+)
+const OrientationRequestPage = lazy(() =>
+  import('./pages/OrientationRequestPage').then((m) => ({ default: m.OrientationRequestPage })),
+)
 const LanguesPage = lazy(() =>
   import('./pages/LanguesPage').then((m) => ({ default: m.LanguesPage })),
 )
@@ -76,6 +82,9 @@ const AdminFormationsPage = lazy(() =>
 const AdminCustomFormationsPage = lazy(() =>
   import('./pages/admin/AdminCustomFormationsPage').then((m) => ({ default: m.AdminCustomFormationsPage })),
 )
+const AdminOrientationsPage = lazy(() =>
+  import('./pages/admin/AdminOrientationsPage').then((m) => ({ default: m.AdminOrientationsPage })),
+)
 const AdminContactsPage = lazy(() =>
   import('./pages/admin/AdminContactsPage').then((m) => ({ default: m.AdminContactsPage })),
 )
@@ -117,10 +126,15 @@ export default function App() {
               <Route path="issmiga" element={<IssmigaPage />} />
               <Route path="cfp" element={<CfpPage />} />
             </Route>
+            {/* Alias directs pour un accès rapide */}
+            <Route path="issmiga" element={<Navigate to="/le-groupe/issmiga" replace />} />
+            <Route path="cfp" element={<Navigate to="/le-groupe/cfp" replace />} />
             <Route path="formations">
               <Route index element={<FormationsPage />} />
               <Route path=":slug" element={<FormationDetailPage />} />
             </Route>
+            <Route path="formations-a-la-carte" element={<CustomFormationsPage />} />
+            <Route path="demande-entretien" element={<OrientationRequestPage />} />
             <Route path="langues" element={<LanguesPage />} />
             <Route path="employabilite" element={<EmployabilitePage />} />
             <Route path="admissions" element={<AdmissionsPage />} />
@@ -144,6 +158,7 @@ export default function App() {
               <Route path="admin/actualites" element={<AdminActualitesPage />} />
               <Route path="admin/formations" element={<AdminFormationsPage />} />
               <Route path="admin/formations-a-la-carte" element={<AdminCustomFormationsPage />} />
+              <Route path="admin/orientations" element={<AdminOrientationsPage />} />
               <Route path="admin/contacts" element={<AdminContactsPage />} />
               <Route path="admin/temoignages" element={<AdminTestimonialsPage />} />
               <Route path="admin/commentaires" element={<AdminCommentsPage />} />

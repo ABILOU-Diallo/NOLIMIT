@@ -16,7 +16,6 @@ import CustomFormationsSection from '../components/sections/CustomFormationsSect
 export function FormationsPage() {
   const [query, setQuery] = useState('')
   const [poleId, setPoleId] = useState('')
-  const [institution, setInstitution] = useState('all')
   const [level, setLevel] = useState('all')
 
   const { state, data, error } = useAsyncData(async () => {
@@ -26,14 +25,14 @@ export function FormationsPage() {
 
   const results = useMemo(() => {
     if (!data) return []
-    return searchFormations(data.formations, query, poleId, institution, level)
-  }, [data, query, poleId, institution, level])
+    return searchFormations(data.formations, query, poleId, 'all', level)
+  }, [data, query, poleId, level])
 
   return (
     <>
       <Seo
-        title="Formations"
-        description="Catalogue complet des formations CFP NO LIMIT (CQP, DQP) et ISSMIGA (BTS, Licence, Master) à Yaoundé."
+        title="Catalogue des Formations — BTS, Licence, Master, CQP, DQP"
+        description="Découvrez toutes les filières du Groupe NO LIMIT (ISSMIGA & CFP) à Yaoundé. Formations professionnelles et académiques en gestion, informatique, management et plus."
         path="/formations"
       />
       <PageHero
@@ -62,16 +61,6 @@ export function FormationsPage() {
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Ex. comptabilité, génie logiciel, infographie…"
               />
-              <Select
-                id="institution"
-                label="Établissement"
-                value={institution}
-                onChange={(event) => setInstitution(event.target.value)}
-              >
-                <option value="all">Toutes les écoles</option>
-                <option value="cfp">CFP NO LIMIT (CQP / DQP)</option>
-                <option value="issmiga">ISSMIGA (BTS / Licence / Master)</option>
-              </Select>
               <Select
                 id="level"
                 label="Niveau / Filtre"

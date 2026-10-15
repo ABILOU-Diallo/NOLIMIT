@@ -5,7 +5,7 @@ const LOCAL_ACTUALITES_KEY = 'issmiga_actualites_v1'
 function mapFromDb(item) {
   if (!item) return null
 
-  // gallery peut être un tableau JSON ou null
+  // gallery : colonne jsonb ou null (après migration)
   let gallery = []
   if (Array.isArray(item.gallery)) {
     gallery = item.gallery
@@ -18,11 +18,13 @@ function mapFromDb(item) {
     id: item.id,
     title: item.title || '',
     slug: item.slug || '',
-    content: item.body || '',
+    // Compatibilité : ancien schéma = body, nouveau = body, ancien legacy = content
+    content: item.body || item.content || '',
     excerpt: item.excerpt || '',
-    image_url: item.cover_path || '',
+    // Compatibilité : ancien schéma = image_url, nouveau = cover_path
+    image_url: item.cover_path || item.image_url || '',
     video_url: item.video_url || '',
-    gallery,                         // tableau de { url, type: 'image'|'video' }
+    gallery,
     category: item.category || 'Vie du campus',
     status: item.status || 'draft',
     created_at: item.created_at,
@@ -30,19 +32,28 @@ function mapFromDb(item) {
   }
 }
 
-function mapToDb(payload) {
-  return {
-    title: payload.title || '',
-    slug: payload.slug || payload.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `act-${Date.now()}`,
-    category: payload.category || 'Vie du campus',
-    excerpt: payload.excerpt || '',
-    body: payload.content || '',
-    cover_path: payload.image_url || null,
-    video_url: payload.video_url || null,
-    gallery: payload.gallery?.length ? payload.gallery : null,
-    status: payload.status || 'draft',
+// Colonnes présentes dans la table Supabase après la migration v2.
+// Avant migration, gallery et video_url n'existent pas : on les omet si le payload
+// ne les contient pas, pour éviter l'erreur PGRST204.
+function mapToDb(payload, { includeGallery = true } = {}) {
+  const db = {
+    title:        payload.title || '',
+    slug:         payload.slug || payload.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `act-${Date.now()}`,
+    category:     payload.category || 'Vie du campus',
+    excerpt:      payload.excerpt || '',
+    body:         payload.content || '',
+    cover_path:   payload.image_url || null,
+    video_url:    payload.video_url || null,
+    status:       payload.status || 'draft',
     published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
+
+  // Inclure gallery seulement si la colonne existe (après migration)
+  if (includeGallery && payload.gallery) {
+    db.gallery = Array.isArray(payload.gallery) ? payload.gallery : JSON.parse(payload.gallery || '[]')
+  }
+
+  return db
 }
 
 // ─── Upload d'un seul fichier (rétrocompatibilité) ───────────────────────────
@@ -122,18 +133,28 @@ export async function getAllArticles() {
 
 export async function createArticle(payload) {
   if (isSupabaseConfigured) {
-    const dbData = mapToDb(payload)
+    // 1er essai : avec gallery (nécessite la colonne après migration)
+    let dbData = mapToDb(payload, { includeGallery: true })
     console.log("Tentative d'insertion Supabase:", dbData)
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('actualites')
       .insert([dbData])
       .select()
       .single()
 
+    // Si la colonne gallery est absente (PGRST204), réessayer sans elle
+    if (error && (error.code === 'PGRST204' || error.message?.includes('gallery'))) {
+      console.warn('Colonne gallery absente — réessai sans gallery. Exécutez migration_actualites_v2.sql dans Supabase.')
+      dbData = mapToDb(payload, { includeGallery: false })
+      const retry = await supabase.from('actualites').insert([dbData]).select().single()
+      data  = retry.data
+      error = retry.error
+    }
+
     if (error) {
       console.error("Erreur Supabase lors de l'insertion:", error)
-      throw new Error(`Supabase Error: ${error.message} (Code: ${error.code})`)
+      throw new Error(`Erreur Supabase : ${error.message} (Code : ${error.code})`)
     }
 
     console.log('Insertion réussie:', data)
@@ -150,14 +171,26 @@ export async function createArticle(payload) {
 
 export async function updateArticle(id, payload) {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase
+    // 1er essai : avec gallery
+    let dbData = mapToDb(payload, { includeGallery: true })
+
+    let { data, error } = await supabase
       .from('actualites')
-      .update(mapToDb(payload))
+      .update(dbData)
       .eq('id', id)
       .select()
       .single()
 
-    if (error) throw error
+    // Réessai sans gallery si la colonne manque (migration pas encore exécutée)
+    if (error && (error.code === 'PGRST204' || error.message?.includes('gallery'))) {
+      console.warn('Colonne gallery absente — réessai sans gallery. Exécutez migration_actualites_v2.sql.')
+      dbData = mapToDb(payload, { includeGallery: false })
+      const retry = await supabase.from('actualites').update(dbData).eq('id', id).select().single()
+      data  = retry.data
+      error = retry.error
+    }
+
+    if (error) throw new Error(`Erreur Supabase : ${error.message} (Code : ${error.code})`)
     return mapFromDb(data)
   }
   return { id, ...payload }

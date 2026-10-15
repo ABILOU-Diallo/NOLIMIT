@@ -3,6 +3,7 @@ import { media } from '../../data/media'
 import { Container } from '../ui/Container'
 import { LinkButton } from '../ui/LinkButton'
 import { whatsappUrl } from '../../utils/format'
+import { BouncingBallsPortal } from '../ui/BouncingBallsPortal'
 import styles from './Hero.module.css'
 
 export function Hero() {
@@ -16,7 +17,7 @@ export function Hero() {
         <div className={styles.header}>
           <div className={styles.badgeWelcome}>
             <span className={styles.badgeDot} />
-            <span>Bienvenue au {site.name} & ISSMIGA · Yaoundé</span>
+            <span>Bienvenue sur la plateforme du {site.name}</span>
           </div>
 
           <h1 id="hero-title" className={styles.title}>
@@ -100,6 +101,9 @@ export function Hero() {
           </div>
         </div>
 
+        {/* Portail interactif avec les 2 balles rebondissantes pour CFP et ISSMIGA */}
+        <BouncingBallsPortal />
+
         {/* Quick Highlights Bar */}
         <div className={styles.highlightsGrid}>
           <div className={styles.highlightItem}>
@@ -118,7 +122,7 @@ export function Hero() {
             </div>
             <div>
               <h3>CFP NO LIMIT — Métiers Pratiques</h3>
-              <p>Parcours certifiants CQP & DQP en 1 an avec immersion professionnelle immédiate.</p>
+              <p>CQP & DQP (1 an) et Attestation (3, 6 et 9 mois) avec immersion professionnelle immédiate.</p>
             </div>
           </div>
 
@@ -127,8 +131,8 @@ export function Hero() {
               <i className="bx bx-globe" aria-hidden="true" />
             </div>
             <div>
-              <h3>Centre International de Langues</h3>
-              <p>Allemand (A1-B2), Anglais, Français. Préparation aux examens & mobilités.</p>
+              <h3>Centre Linguistique</h3>
+              <p>Allemand (A1-B2), Anglais (TOEFL-IELTS-SAT...), Français (TCF-TEF...). Préparation aux examens & accompagnements.</p>
             </div>
           </div>
         </div>

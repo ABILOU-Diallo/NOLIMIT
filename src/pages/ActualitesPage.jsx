@@ -10,13 +10,28 @@ import { ASYNC } from '../utils/asyncState'
 import { useLockBody } from '../hooks/useLockBody'
 import styles from '../components/layout/PageHero.module.css'
 
-// Construit la liste complète de medias d'un article
+// Construit la liste complète de medias d'un article avec normalisation
 function buildMediaList(article) {
-  const gallery = Array.isArray(article.gallery) ? article.gallery : []
-  if (gallery.length > 0) return gallery
-  const list = []
-  if (article.image_url) list.push({ url: article.image_url, type: 'image' })
-  if (article.video_url) list.push({ url: article.video_url, type: 'video' })
+  if (!article) return []
+
+  // Normalisation de la galerie
+  let gallery = Array.isArray(article.gallery) ? article.gallery : []
+
+  // Nettoyage et typage automatique si besoin
+  let list = gallery.filter(Boolean).map(m => {
+    if (typeof m === 'string') {
+      const isVideo = m.match(/\.(mp4|webm|ogg|mov|m4v)$/i) || m.includes('youtube.com') || m.includes('youtu.be')
+      return { url: m, type: isVideo ? 'video' : 'image' }
+    }
+    return m
+  })
+
+  // Si la galerie est vide, fallback sur les champs image_url et video_url
+  if (list.length === 0) {
+    if (article.video_url) list.push({ url: article.video_url, type: 'video' })
+    if (article.image_url) list.push({ url: article.image_url, type: 'image' })
+  }
+
   return list
 }
 
@@ -73,56 +88,102 @@ export function ActualitesPage() {
       if (isYT) {
         const embedUrl = url.includes('embed') ? url : url.replace('watch?v=', 'embed/')
         return (
-          <iframe
-            src={embedUrl}
-            title={article.title}
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+          <div style={{ width: '100%', maxWidth: '960px', aspectRatio: '16/9', maxHeight: '72vh', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <iframe
+              src={embedUrl}
+              title={article.title}
+              style={{ width: '100%', height: '100%', border: 'none', borderRadius: '12px' }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         )
       }
-      return <video src={url} controls className="lightbox-img" style={{ maxHeight: '80vh', maxWidth: '100%' }} />
+      return (
+        <video
+          src={url}
+          controls
+          autoPlay
+          className="lightbox-img"
+          style={{ maxHeight: '72vh', maxWidth: '100%', width: 'auto', height: 'auto', objectFit: 'contain', borderRadius: '10px' }}
+        />
+      )
     }
-    return <img src={url} alt={article.title} className="lightbox-img" />
+    return (
+      <img
+        src={url}
+        alt={article.title}
+        className="lightbox-img"
+        style={{ maxHeight: '72vh', maxWidth: '100%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block', borderRadius: '8px' }}
+      />
+    )
   }
 
   function renderCardMedia(article) {
     const mediaList = buildMediaList(article)
-    const first = mediaList[0]
-    if (!first) {
+    const count = mediaList.length
+
+    if (count === 0) {
       return (
-        <div style={{ width: '100%', height: '200px', background: 'linear-gradient(135deg,#1e3a8a,#3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2.5rem' }}>
+        <div style={{ width: '100%', aspectRatio: '16/10', minHeight: '200px', background: 'linear-gradient(135deg,#1e3a8a,#3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2.5rem' }}>
           <i className="bx bx-news" />
         </div>
       )
     }
-    if (first.type === 'video') {
-      const isYT = first.url.includes('youtube.com') || first.url.includes('youtu.be')
+
+    const renderItem = (media, index, isOverlay = false) => {
+      if (!media) return null
+      const { url, type } = media
+      const isVideo = type === 'video'
+      const isYT = isVideo && (url.includes('youtube.com') || url.includes('youtu.be'))
+
       return (
-        <div style={{ width: '100%', height: '200px', background: '#0f172a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-          {!isYT && <video src={first.url} muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />}
-          <i className="bx bx-play-circle" style={{ fontSize: '3.5rem', zIndex: 2 }} />
-          <span style={{ zIndex: 2, fontSize: '0.72rem', fontWeight: '700', marginTop: '0.4rem', background: 'rgba(0,0,0,0.5)', padding: '2px 8px', borderRadius: '4px' }}>VIDÉO</span>
-          {mediaList.length > 1 && (
-            <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.68rem', fontWeight: '700', padding: '2px 7px', borderRadius: '4px', backdropFilter: 'blur(4px)' }}>
-              +{mediaList.length - 1} médias
-            </span>
+        <div key={index} style={{ position: 'relative', width: '100%', height: '100%', background: '#0b1120', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {isVideo ? (
+            <>
+              {!isYT && (
+                <video
+                  src={url}
+                  muted
+                  playsInline
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                />
+              )}
+              <i className="bx bx-play-circle" style={{ fontSize: count === 1 ? '3.6rem' : '2.4rem', zIndex: 2, color: '#fff', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.6))' }} />
+              {!isOverlay && (
+                <span style={{ position: 'absolute', bottom: 10, right: 10, zIndex: 2, fontSize: '0.65rem', fontWeight: '700', background: 'rgba(0,0,0,0.65)', color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>VIDÉO</span>
+              )}
+            </>
+          ) : (
+            <>
+              <img
+                src={url}
+                alt=""
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(10px) brightness(0.5)', transform: 'scale(1.1)' }}
+              />
+              <img
+                src={url}
+                alt={article.title}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'relative', zIndex: 1 }}
+              />
+            </>
+          )}
+          {isOverlay && (
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.8rem', fontWeight: '700', zIndex: 10, backdropFilter: 'blur(3px)' }}>
+              +{count - 2}
+            </div>
           )}
         </div>
       )
     }
+
     return (
-      <div style={{ width: '100%', overflow: 'hidden', background: '#f8fafc', position: 'relative' }}>
-        <img
-          src={first.url}
-          alt={article.title}
-          style={{ width: '100%', height: '210px', objectFit: 'cover', display: 'block', transition: 'transform 0.4s' }}
-        />
-        {mediaList.length > 1 && (
-          <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(15,23,42,0.65)', color: '#fff', fontSize: '0.68rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', backdropFilter: 'blur(4px)' }}>
-            📸 {mediaList.length}
-          </span>
+      <div style={{ display: 'grid', gridTemplateColumns: count === 1 ? '1fr' : '1fr 1fr', gap: '2px', width: '100%', aspectRatio: '16/10', background: '#f8fafc', overflow: 'hidden' }}>
+        {count === 1 ? renderItem(mediaList[0], 0) : (
+          <>
+            {renderItem(mediaList[0], 0)}
+            {renderItem(mediaList[1], 1, count > 2)}
+          </>
         )}
       </div>
     )
@@ -169,7 +230,7 @@ export function ActualitesPage() {
                 transition: transform 0.22s, box-shadow 0.22s; cursor: zoom-in;
               }
               .actu-card:hover { transform: translateY(-5px); box-shadow: 0 14px 28px -8px rgba(0,0,0,0.13); }
-              .actu-card:hover img { transform: scale(1.04); }
+              .actu-card:hover img { transform: scale(1.02); }
             `}</style>
             <div className="actu-grid">
               {data.map((article, index) => (
@@ -211,8 +272,8 @@ export function ActualitesPage() {
 
               .lb-shell {
                 max-width: 1080px; width: 100%; height: 92vh;
-                background: #0f172a; border-radius: 20px; overflow: hidden;
-                position: relative; box-shadow: 0 30px 70px -12px rgba(0,0,0,0.8);
+                background: #0b1120; border-radius: 20px; overflow: hidden;
+                position: relative; box-shadow: 0 30px 70px -12px rgba(0,0,0,0.85);
                 display: flex; flex-direction: column;
               }
               @media(max-width:600px){ .lb-shell{height:96vh;border-radius:14px;} }
@@ -220,34 +281,36 @@ export function ActualitesPage() {
               .lb-media-area {
                 flex:1; display:flex; align-items:center; justify-content:center;
                 overflow:hidden; position:relative;
-                transition:filter 0.3s; filter:brightness(0.65);
+                padding: clamp(2.6rem, 5vh, 3.6rem) clamp(0.75rem, 2vw, 1.5rem) 0.5rem;
+                background: #020617;
+                transition: filter 0.3s;
               }
-              .lb-media-area.dimmed { filter:brightness(0.18); }
-              .lightbox-img { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+              .lb-media-area.dimmed { filter:brightness(0.2); }
+              .lightbox-img { max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; object-position:center; display:block; }
 
               .lb-thumbs {
                 display:flex; gap:0.4rem; padding:0.45rem 0.65rem;
-                background:rgba(0,0,0,0.55); overflow-x:auto; flex-shrink:0;
+                background:rgba(0,0,0,0.65); overflow-x:auto; flex-shrink:0;
                 scrollbar-width:thin; scrollbar-color:#475569 transparent;
               }
               .lb-thumb-item {
-                width:50px; height:40px; flex-shrink:0; border-radius:6px;
-                overflow:hidden; cursor:pointer; opacity:0.45;
+                width:52px; height:42px; flex-shrink:0; border-radius:6px;
+                overflow:hidden; cursor:pointer; opacity:0.5;
                 border:2px solid transparent; transition:opacity 0.2s, border-color 0.2s;
               }
               .lb-thumb-item.active { opacity:1; border-color:#3b82f6; }
               .lb-thumb-item img,.lb-thumb-item video{width:100%;height:100%;object-fit:cover;display:block;}
 
               .lb-details {
-                position:absolute; bottom:0; left:0; right:0;
-                padding:3.5rem 2rem 1.75rem; color:#fff; z-index:20;
-                background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%);
-                max-height:42%; display:flex; flex-direction:column;
-                justify-content:flex-end; pointer-events:none; transition:max-height 0.3s;
+                position:relative;
+                padding: 1rem 1.5rem 1.25rem; color:#fff; z-index:20;
+                background: #0b1120;
+                border-top: 1px solid rgba(255,255,255,0.08);
+                display:flex; flex-direction:column;
+                transition: max-height 0.3s;
               }
-              .lb-details.expanded { max-height:85%; justify-content:flex-start; overflow-y:auto; padding-top:1.5rem; }
-              .lb-details * { pointer-events:auto; }
-              @media(max-width:600px){ .lb-details{padding:2rem 1rem 1rem;max-height:50%;} }
+              .lb-details.expanded { max-height:60vh; overflow-y:auto; }
+              @media(max-width:600px){ .lb-details{padding:0.85rem 1rem 1rem;} }
 
               .lb-nav {
                 position:absolute; top:50%; transform:translateY(-50%);
@@ -326,37 +389,37 @@ export function ActualitesPage() {
               )}
 
               <div className={`lb-details ${showFullDesc ? 'expanded' : ''}`}>
-                <span className="tshadow" style={{ color: '#93c5fd', fontWeight: '700', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem', display: 'block' }}>
+                <span style={{ color: '#93c5fd', fontWeight: '700', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem', display: 'block' }}>
                   {selectedArticle.category || 'Actualité'}
                 </span>
-                <h2 className="tshadow" style={{ fontSize: showFullDesc ? '1.4rem' : '1.15rem', color: '#fff', margin: 0, lineHeight: '1.3', fontWeight: '700', transition: 'font-size 0.3s' }}>
+                <h2 style={{ fontSize: showFullDesc ? '1.3rem' : '1.1rem', color: '#fff', margin: 0, lineHeight: '1.3', fontWeight: '700', transition: 'font-size 0.3s' }}>
                   {selectedArticle.title}
                 </h2>
-                <div className="tshadow" style={{ marginTop: '0.55rem', color: '#f1f5f9', fontSize: '0.88rem', lineHeight: '1.6' }}>
+                <div style={{ marginTop: '0.5rem', color: '#cbd5e1', fontSize: '0.87rem', lineHeight: '1.6' }}>
                   {showFullDesc ? (
                     <div style={{ animation: 'fadeInLb 0.2s ease' }}>
-                      <p style={{ marginBottom: '1.25rem', whiteSpace: 'pre-wrap', color: '#fff' }}>
+                      <p style={{ marginBottom: '1.1rem', whiteSpace: 'pre-wrap', color: '#e2e8f0' }}>
                         {selectedArticle.content || selectedArticle.excerpt}
                       </p>
                       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <button className="lb-voir-plus" style={{ background: 'rgba(71,85,105,0.75)' }} onClick={() => setShowFullDesc(false)}>
-                          <i className="bx bx-chevron-down" /> Réduire
+                        <button className="lb-voir-plus" style={{ background: 'rgba(71,85,105,0.85)' }} onClick={() => setShowFullDesc(false)}>
+                          <i className="bx bx-chevron-up" /> Réduire
                         </button>
                         <Link
                           to={`/actualites/${selectedArticle.slug}`}
-                          style={{ color: '#60a5fa', fontWeight: '600', textDecoration: 'none', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+                          style={{ color: '#60a5fa', fontWeight: '600', textDecoration: 'none', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
                         >
                           Page complète <i className="bx bx-link-external" />
                         </Link>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', color: '#e2e8f0', margin: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', color: '#94a3b8', margin: 0, fontSize: '0.85rem' }}>
                         {selectedArticle.excerpt || selectedArticle.content || ''}
                       </p>
                       <button className="lb-voir-plus" onClick={() => setShowFullDesc(true)}>
-                        <i className="bx bx-chevron-up" /> Lire la description
+                        <i className="bx bx-chevron-down" /> Lire la description
                       </button>
                     </div>
                   )}

@@ -11,7 +11,7 @@ export function PromoterSection() {
   return (
     <section className={styles.section}>
       <Container>
-        <SectionHeading kicker="08 — Mot du promoteur" title="Une vision engagée pour la jeunesse." />
+        <SectionHeading kicker="06 — Mot du promoteur" title="Une vision engagée pour la jeunesse." />
         <div className={styles.layout}>
           <figure className={styles.portrait}>
             <img

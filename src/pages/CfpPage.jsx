@@ -6,6 +6,7 @@ import { LinkButton } from '../components/ui/LinkButton'
 import { Badge } from '../components/ui/Badge'
 import { formations } from '../data/formations'
 import { formatDiploma } from '../utils/format'
+import { InstitutionFormationsSection } from '../components/sections/InstitutionFormationsSection'
 import styles from '../components/layout/PageHero.module.css'
 
 const cfpFormations = formations.filter((f) => f.institution === 'cfp')
@@ -14,13 +15,15 @@ export function CfpPage() {
   return (
     <>
       <Seo
-        title="CFP NO LIMIT — Centre de Formation Professionnelle"
-        description="Centre de Formation Professionnelle NO LIMIT à Yaoundé, agréé MINEFOP. Diplômes professionnels CQP et DQP en 1 an."
+        title="CFP NO LIMIT Yaoundé — Formations Professionnelles CQP & DQP"
+        description="Centre de Formation Professionnelle agréé MINEFOP à Yaoundé. Devenez opérationnel en 1 an avec nos cycles CQP et DQP. Stages garantis et insertion immédiate."
         path="/le-groupe/cfp"
       />
       <PageHero
         title="CFP NO LIMIT"
         lede="Le Centre de Formation Professionnelle du Groupe, agréé MINEFOP à Emana."
+        logo={media.cfp}
+        logoAlt="Logo officiel CFP NO LIMIT"
         crumbs={[
           { to: '/', label: 'Accueil' },
           { to: '/le-groupe', label: 'Le Groupe' },
@@ -42,7 +45,7 @@ export function CfpPage() {
               <span>Formations Qualifiantes & Diplômantes</span>
             </h2>
             <p style={{ margin: '0 0 0.75rem 0', fontSize: '1.05rem', color: '#fed7aa' }}>
-              Certificat de Qualification Professionnelle (CQP) & Diplôme de Qualification Professionnelle (DQP).
+              Certificat de Qualification Professionnelle (CQP), Diplôme de Qualification Professionnelle (DQP) & des attestations de 03, 06 et 09 mois.
             </p>
             <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
               Durée des formations : <strong>1 an (Pratique intensive & Insertion professionnelle)</strong>
@@ -51,48 +54,25 @@ export function CfpPage() {
 
           <div>
             <p>
-              Le CFP NO LIMIT prépare directement aux métiers du numérique, de la cybersécurité, de la gestion, des médias créatifs et de la santé.
+              Le CFP NO LIMIT prépare directement aux métiers d'avenir du numérique, de la cybersécurité, de la gestion, des médias créatifs et du management appliqué.
             </p>
-            <p className={styles.muted}>Agrément MINEFOP : {site.agrement}</p>
-            <p>Localisation : {site.address}</p>
+            <p className={styles.muted} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <i className="bx bx-badge-check" style={{ color: '#ea580c', fontSize: '1.2rem' }} aria-hidden="true" />
+              <strong>Agrément MINEFOP :</strong> {site.agrementMinefop || site.agrement}
+            </p>
+            <p style={{ margin: '0.25rem 0 0 0' }}>Localisation : {site.address}</p>
           </div>
 
-          <h2 style={{ marginTop: '1.5rem' }}>Catalogue des Formations CFP NO LIMIT (CQP & DQP)</h2>
+          <h2 style={{ marginTop: '2rem' }}>Catalogue des Formations Professionnelles (CFP NO LIMIT)</h2>
+          <p style={{ color: 'var(--color-muted)', marginTop: '-0.5rem' }}>
+            Parcours pratiques et qualifiants (CQP & DQP en 1 an) avec descriptions complètes, compétences techniques développées et débouchés directs sur le marché de l’emploi.
+          </p>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.25rem',
-            marginTop: '0.5rem'
-          }}>
-            {cfpFormations.map((f) => (
-              <div
-                key={f.id}
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '10px',
-                  padding: '1.2rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justify: 'space-between',
-                  gap: '0.75rem'
-                }}
-              >
-                <div>
-                  <Badge variant="outline" style={{ marginBottom: '0.5rem' }}>
-                    {formatDiploma(f.diploma)}
-                  </Badge>
-                  <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.05rem', color: 'var(--color-navy-900)' }}>
-                    {f.title}
-                  </h3>
-                </div>
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>
-                  Durée : {f.duration}
-                </span>
-              </div>
-            ))}
-          </div>
+          <InstitutionFormationsSection
+            formations={cfpFormations}
+            institution="cfp"
+            diplomaFilters={['Tous', 'CQP', 'DQP']}
+          />
 
           <h2 style={{ marginTop: '2.5rem' }}>Brochure Officielle CFP NO LIMIT</h2>
           <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%' }}>

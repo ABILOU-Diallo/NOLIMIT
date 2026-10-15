@@ -17,7 +17,7 @@ export function LanguagesTeaser() {
       <Container>
         <SectionHeading
           onDark
-          kicker="05 — Centre de langues"
+          kicker="03 — Centre Linguistique"
           title="A1 jusqu’à C2. Pas un slogan, une échelle."
           lede="Allemand, anglais et français, avec des certifications reconnues. Votre réussite internationale commence ici."
         />
@@ -42,9 +42,6 @@ export function LanguagesTeaser() {
             </span>
           ))}
         </div>
-        {safeLanguages.length > 0 && safeLanguages[0].bonus && (
-          <p className={styles.bonus}>Bonus : {safeLanguages[0].bonus}</p>
-        )}
         <LinkButton to="/langues" variant="outline" onDark>
           Découvrir nos cours
         </LinkButton>

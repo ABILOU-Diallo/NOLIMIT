@@ -8,7 +8,7 @@ export function WhySection() {
     <section className={styles.section}>
       <Container>
         <SectionHeading
-          kicker="02 — Pourquoi NO LIMIT"
+          kicker="01 — Pourquoi NO LIMIT"
           title="Une institution de formation, pas une plateforme anonyme."
           lede="Le Groupe NO LIMIT relie l’orientation, la formation professionnelle et l’employabilité dans un même lieu, à Yaoundé."
         />
@@ -18,7 +18,10 @@ export function WhySection() {
               <i className="bx bx-badge-check" style={{ fontSize: '1.25rem', color: 'var(--color-magenta-500)' }} aria-hidden="true" />
               <span>Agréé MINEFOP & MINESUP</span>
             </strong>
-            <span>{site.agrement}</span>
+            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.86rem' }}>
+              <span><strong>MINEFOP :</strong> {site.agrementMinefop || site.agrement}</span>
+              <span><strong>MINESUP :</strong> {site.agrementMinesup}</span>
+            </span>
           </div>
           <div className={styles.item}>
             <strong style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
@@ -30,9 +33,9 @@ export function WhySection() {
           <div className={styles.item}>
             <strong style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
               <i className="bx bx-map-pin" style={{ fontSize: '1.25rem', color: 'var(--color-magenta-500)' }} aria-hidden="true" />
-              <span>{site.city}</span>
+              <span>Cameroun</span>
             </strong>
-            <span>{site.address}</span>
+            <span>Yaoundé, derrière Tradex Emana, lieu-dit NO LIMIT</span>
           </div>
         </div>
       </Container>

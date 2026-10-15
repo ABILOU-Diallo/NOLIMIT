@@ -3,6 +3,7 @@ export const site = {
   signature: 'Orientation · Formation · Employabilité',
   tagline:
     'Développez des compétences professionnelles et préparez votre avenir.',
+  country: 'Cameroun',
   city: 'Yaoundé, Cameroun',
   address: 'Yaoundé, derrière Tradex Emana, lieu-dit NO LIMIT',
   hours: '8h – 17h',
@@ -23,7 +24,7 @@ export const site = {
   },
   rentree: {
     label: 'Rentrée',
-    date: '15 octobre 2026',
+    date: '15/10/2026',
     iso: '2026-10-15',
   },
   diplomas: [
@@ -34,6 +35,26 @@ export const site = {
     { code: 'Master', name: 'Master Professionnel', duration: '2 ans post-Licence', school: 'ISSMIGA' },
   ],
   agrement: 'Arrêté N°24-00000049/MINEFOP/SG/DFOP/SDOP/SARPRP',
+  agrementMinefop: 'Arrêté N°24-00000049/MINEFOP/SG/DFOP/SDOP/SARPRP',
+  agrementMinesup: 'Arrêté N° 24-00555/L/MINESUP/SG/DDES/ESUP/SDA/AOSB',
+  cfp: {
+    name: 'CFP NO LIMIT',
+    fullName: 'Centre de Formation Professionnelle NO LIMIT',
+    url: 'https://www.cfpnolimit.com',
+    slogan: 'Formation pratique, métiers d’avenir & insertion immédiate',
+    agrement: 'Arrêté N°24-00000049/MINEFOP/SG/DFOP/SDOP/SARPRP',
+    rentree: '15/10/2026',
+    offer: 'Diplômes professionnels CQP & DQP en 1 an et Attestation 3, 6 et 9 mois avec stage garanti',
+  },
+  issmiga: {
+    name: 'ISSMIGA',
+    fullName: 'Institut Supérieur des Sciences du Management, de l’Informatique et de Gestion Appliquée',
+    url: 'https://www.issmiga.com',
+    slogan: 'Bâtisseur de compétences',
+    agrement: 'Arrêté N° 24-00555/L/MINESUP/SG/DDES/ESUP/SDA/AOSB',
+    rentree: '15/10/2026',
+    offer: 'Un Étudiant inscrit = Un Laptop offert gratuitement',
+  },
   promoter: {
     name: 'Dr Orly TANTCHOU',
     role: 'Promoteur du Groupe NO LIMIT',
@@ -45,18 +66,9 @@ export const site = {
       'Vient ensuite la formation. Au CFP NO LIMIT, les parcours professionnels de 3, 6, 9 mois et d’un an permettent d’acquérir des savoir-faire concrets. À ISSMIGA, les cycles BTS, Licence et Master ouvrent d’autres voies de spécialisation et de progression. Chaque parcours mérite le même respect lorsqu’il correspond à un projet réfléchi et conduit à des compétences réelles.',
       'Mais apprendre ne suffit pas. Il faut pouvoir appliquer ce que l’on apprend, notamment lors des stages d’imprégnation, gagner en assurance, présenter ses réalisations et saisir les occasions de travailler ou d’entreprendre. C’est pourquoi notre engagement tient en trois mots: Orientation – Formation – Employabilité.',
       'À chaque jeune qui doute de sa place, je veux dire ceci: votre point de départ ne définit pas votre destination. Prenez le temps de découvrir vos forces. Travaillez avec exigence. Osez apprendre, essayer, vous tromper et recommencer. L’Afrique a besoin de vos idées, de votre savoir-faire et de votre détermination.',
-      'Nous portons sur nos tee-shirts les mots « Bâtisseur de Compétences ». Pour moi, ils expriment une responsabilité : aider chaque apprenant à construire, étape par étape, les capacités qui lui permettront de tracer sa voie et de contribuer à sa communauté.',
+      'Nous portons sur nos polos les mots « Bâtisseur de Compétences ». Pour moi, ils expriment une responsabilité : aider chaque apprenant à construire, étape par étape, les capacités qui lui permettront de tracer sa voie et de contribuer à sa communauté.',
       'Votre avenir ne se devine pas: il s’oriente, se forme et se construit. Ensemble, bâtissons les compétences qui feront avancer l’Afrique.',
     ],
-  },
-  issmiga: {
-    name: 'ISSMIGA',
-    fullName:
-      'Institut Supérieur des Sciences du Management, de l’Informatique et de Gestion Appliquée',
-    slogan: 'Bâtisseur de compétences',
-    agrement: 'Arrêté N° 24-00055L/MINESUP/SG/DDES/ESUP/SDA/AOSB',
-    rentree: '5 octobre 2026',
-    offer: 'Un Étudiant inscrit = Un Laptop offert gratuitement',
   },
   url: 'https://www.nolimitacademy.org',
 }

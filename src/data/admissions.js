@@ -40,31 +40,26 @@ export const employabilityPath = [
   {
     id: 'orientation',
     title: 'Orientation',
-    text: 'Clarifier un projet avant de s’engager dans une filière.',
+    text: 'Clarifier tes aptitudes avant le choix d’une filière.',
   },
   {
     id: 'formation',
     title: 'Formation',
-    text: 'Acquérir un savoir-faire professionnel, en CQP, DQP ou langues.',
-  },
-  {
-    id: 'pratique',
-    title: 'Pratique',
-    text: 'Mettre les gestes en situation, dans le cadre de la formation.',
+    text: 'Acquérir un savoir-faire pratique et professionnel.',
   },
   {
     id: 'stage',
     title: 'Stage',
-    text: 'Confronter les compétences au monde du travail.',
+    text: 'Mettre en pratique les compétences acquises lors de la formation.',
   },
   {
     id: 'employabilite',
     title: 'Employabilité',
-    text: 'Devenir opérationnel sur un métier identifié.',
+    text: 'Mettre en pratique le savoir-faire issu des compétences acquises.',
   },
   {
     id: 'international',
     title: 'Opportunités internationales',
-    text: 'Explorer des pistes au-delà du Cameroun, notamment via le relais Canada.',
+    text: 'Explorer d’autres horizons grâce à l’accompagnement de NOLIMIT.',
   },
 ]

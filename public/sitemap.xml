@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.nolimitacademy.org/</loc></url>
-  <url><loc>https://www.nolimitacademy.org/le-groupe</loc></url>
-  <url><loc>https://www.nolimitacademy.org/le-groupe/promoteur</loc></url>
-  <url><loc>https://www.nolimitacademy.org/le-groupe/issmiga</loc></url>
-  <url><loc>https://www.nolimitacademy.org/le-groupe/cfp</loc></url>
-  <url><loc>https://www.nolimitacademy.org/formations</loc></url>
-  <url><loc>https://www.nolimitacademy.org/langues</loc></url>
-  <url><loc>https://www.nolimitacademy.org/employabilite</loc></url>
-  <url><loc>https://www.nolimitacademy.org/admissions</loc></url>
-  <url><loc>https://www.nolimitacademy.org/actualites</loc></url>
-  <url><loc>https://www.nolimitacademy.org/contact</loc></url>
-  <url><loc>https://www.nolimitacademy.org/preinscription</loc></url>
-  <url><loc>https://www.nolimitacademy.org/mentions-legales</loc></url>
-  <url><loc>https://www.nolimitacademy.org/politique-confidentialite</loc></url>
+  <url><loc>https://www.nolimitacademy.org/</loc><priority>1.0</priority></url>
+  <url><loc>https://www.nolimitacademy.org/le-groupe</loc><priority>0.8</priority></url>
+  <url><loc>https://www.nolimitacademy.org/le-groupe/promoteur</loc><priority>0.7</priority></url>
+  <url><loc>https://www.nolimitacademy.org/le-groupe/issmiga</loc><priority>0.9</priority></url>
+  <url><loc>https://www.nolimitacademy.org/le-groupe/cfp</loc><priority>0.9</priority></url>
+  <url><loc>https://www.nolimitacademy.org/formations</loc><priority>0.9</priority></url>
+  <url><loc>https://www.nolimitacademy.org/formations-a-la-carte</loc><priority>0.7</priority></url>
+  <url><loc>https://www.nolimitacademy.org/langues</loc><priority>0.8</priority></url>
+  <url><loc>https://www.nolimitacademy.org/employabilite</loc><priority>0.7</priority></url>
+  <url><loc>https://www.nolimitacademy.org/admissions</loc><priority>0.8</priority></url>
+  <url><loc>https://www.nolimitacademy.org/actualites</loc><priority>0.8</priority></url>
+  <url><loc>https://www.nolimitacademy.org/contact</loc><priority>0.6</priority></url>
+  <url><loc>https://www.nolimitacademy.org/preinscription</loc><priority>0.9</priority></url>
+  <url><loc>https://www.nolimitacademy.org/demande-entretien</loc><priority>0.7</priority></url>
+  <url><loc>https://www.nolimitacademy.org/mentions-legales</loc><priority>0.3</priority></url>
+  <url><loc>https://www.nolimitacademy.org/politique-confidentialite</loc><priority>0.3</priority></url>
 </urlset>

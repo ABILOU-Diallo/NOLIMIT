@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import customFormationService from '../../services/customFormationService';
 import './CustomFormationsSection.css';
 
@@ -6,6 +7,7 @@ import './CustomFormationsSection.css';
  * Section affichant les formations à la carte pour les utilisateurs
  */
 const CustomFormationsSection = () => {
+  const navigate = useNavigate();
   const [formations, setFormations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,11 +51,31 @@ const CustomFormationsSection = () => {
   const groupedFormations = formations.reduce((acc, formation) => {
     const categoryLabel = customFormationService.getCategoryLabel(formation.category);
     if (!acc[categoryLabel]) {
-      acc[categoryLabel] = [];
+      acc[acc.length] = { label: categoryLabel, items: [] };
+      const found = acc.find(g => g.label === categoryLabel);
+      if (found) found.items.push(formation);
+      else {
+          const newGroup = { label: categoryLabel, items: [formation] };
+          acc.push(newGroup);
+      }
+    } else {
+       // logic was a bit flawed above, let's fix
     }
-    acc[categoryLabel].push(formation);
     return acc;
-  }, {});
+  }, []);
+
+  // Correct grouping logic
+  const groupByCategory = (list) => {
+      const groups = {};
+      list.forEach(f => {
+          const label = customFormationService.getCategoryLabel(f.category);
+          if (!groups[label]) groups[label] = [];
+          groups[label].push(f);
+      });
+      return groups;
+  };
+
+  const grouped = groupByCategory(formations);
 
   const handleFormationClick = (formation) => {
     setSelectedFormation(formation);
@@ -61,6 +83,16 @@ const CustomFormationsSection = () => {
 
   const handleCloseModal = () => {
     setSelectedFormation(null);
+  };
+
+  const handleRegistration = () => {
+    // Redirige vers la préinscription avec le type attestation et le titre
+    navigate(`/preinscription?type=attestation&formation_title=${encodeURIComponent(selectedFormation.title)}`);
+  };
+
+  const handleOrientationRequest = () => {
+    // Redirige vers le formulaire de demande d'entretien
+    navigate(`/demande-entretien?formation=${encodeURIComponent(selectedFormation.title)}&slug=${selectedFormation.slug}`);
   };
 
   if (loading) {
@@ -114,11 +146,11 @@ const CustomFormationsSection = () => {
         </div>
 
         <div className="formations-grid">
-          {Object.entries(groupedFormations).map(([category, formations]) => (
+          {Object.entries(grouped).map(([category, items]) => (
             <div key={category} className="category-group">
               <h3 className="category-title">{category}</h3>
               <div className="formations-list">
-                {formations.map(formation => (
+                {items.map(formation => (
                   <div
                     key={formation.id}
                     className="formation-card"
@@ -183,9 +215,14 @@ const CustomFormationsSection = () => {
               <p>{selectedFormation.faisabilite}</p>
             </div>
 
-            <button className="contact-button">
-              Demander un entretien d'orientation
-            </button>
+            <div className="modal-actions">
+              <button className="contact-button" onClick={handleOrientationRequest}>
+                Demander un entretien d'orientation
+              </button>
+              <button className="register-button" onClick={handleRegistration}>
+                S'inscrire à cette formation
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -10,8 +10,8 @@ export function AdmissionsPage() {
   return (
     <>
       <Seo
-        title="Admissions"
-        description="CQP, DQP, documents, calendrier et étapes d’inscription au Groupe NO LIMIT. Rentrée le 15 octobre 2026."
+        title="Admissions et Inscriptions — ISSMIGA & CFP NO LIMIT Yaoundé"
+        description={`Comment s'inscrire au Groupe NO LIMIT ? Découvrez les étapes d'admission, les documents requis et les modalités d'inscription pour la rentrée du ${site.rentree.date}.`}
         path="/admissions"
       />
       <PageHero
@@ -33,24 +33,24 @@ export function AdmissionsPage() {
             </section>
           ))}
         </div>
-        <h2 style={{ marginTop: '2rem' }}>CQP et DQP</h2>
+        <h2 style={{ marginTop: '2rem' }}>Diplômes Préparés (BTS, Licence, Master, CQP, DQP)</h2>
         <ul>
           {site.diplomas.map((item) => (
             <li key={item.code}>
-              {item.code} — {item.name} — {item.duration}
+              <strong>{item.code}</strong> — {item.name} — {item.duration} ({item.school})
             </li>
           ))}
         </ul>
-        <h2>Documents</h2>
+        <h2>Documents à Fournir</h2>
         <Accordion
           items={admissionDocuments.map((doc, index) => ({
             id: String(index),
             title: doc,
-            content: 'À déposer au campus lors de la constitution du dossier.',
+            content: 'À déposer au campus lors de la constitution physique de votre dossier de candidature.',
           }))}
         />
         <div style={{ marginTop: '1.5rem' }}>
-          <LinkButton to="/preinscription">Démarrer la préinscription</LinkButton>
+          <LinkButton to="/preinscription">Démarrer ma préinscription en ligne</LinkButton>
         </div>
       </PageBody>
     </>

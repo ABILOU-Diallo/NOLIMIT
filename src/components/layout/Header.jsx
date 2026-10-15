@@ -6,6 +6,7 @@ import { LinkButton } from '../ui/LinkButton'
 import { Container } from '../ui/Container'
 import { useAuth } from '../../hooks/useAuth'
 import { Logo } from './Logo'
+import { LanguageToggle } from '../ui/LanguageToggle'
 import styles from './Header.module.css'
 
 export function Header({ overlay = false }) {
@@ -36,13 +37,18 @@ export function Header({ overlay = false }) {
         <Logo />
         <DesktopNav />
         <div className={styles.right}>
+          <LanguageToggle light={!overlay || scrolled} />
           <LinkButton
             to={session && !isAdmin ? '/compte' : '/connexion'}
             className={styles.cta}
           >
             {session && !isAdmin ? 'Mon compte' : 'Se connecter'}
           </LinkButton>
-          <LinkButton to="/preinscription" variant="secondary">
+          <LinkButton
+            to="/preinscription"
+            variant="secondary"
+            className={styles.preinscrBtn}
+          >
             Préinscription
           </LinkButton>
           <IconButton

@@ -7,17 +7,17 @@ const paths = [
   {
     to: '/admissions',
     title: 'Je sors du lycée',
-    text: 'Comprendre CQP, DQP, le calendrier et les documents avant de s’inscrire.',
+    text: 'ISSMIGA OU CFP ?',
   },
   {
     to: '/langues',
     title: 'Je veux une langue',
-    text: 'Allemand, anglais ou français, de A1 à C2, avec certifications.',
+    text: 'Anglais, Allemand ou français.',
   },
   {
     to: '/formations',
     title: 'Je prépare un métier',
-    text: 'Parcourir les cinq pôles et ouvrir une fiche filière.',
+    text: 'Immigration ou formation emploi.',
   },
 ]
 
@@ -26,9 +26,9 @@ export function PathFinder() {
     <section className={styles.section}>
       <Container>
         <SectionHeading
-          kicker="04 — Trouver son parcours"
-          title="Par où commencer, selon votre situation."
-          lede="Trois portes d’entrée. Une seule question : ce que vous venez chercher."
+          kicker="02 — Trouver son parcours"
+          title="Trois portes d’entrée. Une seule question : Laquelle choisir ?"
+          lede="Identifiez votre profil pour être guidé vers le parcours le plus adapté à votre projet."
         />
         <div className={styles.grid}>
           {paths.map((path) => (

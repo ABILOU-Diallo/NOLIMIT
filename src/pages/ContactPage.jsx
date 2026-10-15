@@ -7,8 +7,8 @@ export function ContactPage() {
   return (
     <>
       <Seo
-        title="Contact — ISSMIGA & CFP NO LIMIT"
-        description="Contacter le Groupe NO LIMIT à Yaoundé : Info@issmiga.com, Info@cfpnolimit.com, téléphone, WhatsApp et adresse à Emana."
+        title="Contact et Localisation — ISSMIGA & CFP NO LIMIT"
+        description="Contacter le Groupe NO LIMIT à Yaoundé : Info@issmiga.com, Info@cfpnolimit.com. Retrouvez-nous à Emana ou sur nos sites officiels issmiga.com et cfpnolimit.com."
         path="/contact"
       />
       <PageHero
@@ -26,12 +26,29 @@ export function ContactPage() {
           gap: '2rem',
           alignItems: 'start'
         }}>
-          {/* Contact Details Card */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.25rem'
-          }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Sites Web Officiels */}
+            <div style={{
+              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+            }}>
+              <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-navy-900)' }}>
+                <i className="bx bx-world" style={{ color: 'var(--color-magenta-600)', fontSize: '1.4rem' }} aria-hidden="true" />
+                <span>Nos Portails Web</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <a href={site.issmiga.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <i className="bx bx-link-external" /> {site.issmiga.url.replace('https://www.', '')}
+                </a>
+                <a href={site.cfp.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <i className="bx bx-link-external" /> {site.cfp.url.replace('https://www.', '')}
+                </a>
+              </div>
+            </div>
+
             {/* Address */}
             <div style={{
               background: '#ffffff',
@@ -62,7 +79,7 @@ export function ContactPage() {
             }}>
               <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-navy-900)' }}>
                 <i className="bx bx-envelope" style={{ color: 'var(--color-magenta-600)', fontSize: '1.4rem' }} aria-hidden="true" />
-                <span>Adresses E-mail Officielles</span>
+                <span>E-mails Officiels</span>
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {site.emails.map((em) => (
@@ -70,56 +87,10 @@ export function ContactPage() {
                     <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
                       {em.label} :
                     </span>
-                    <a
-                      href={em.href}
-                      style={{
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: 'var(--color-navy-800)',
-                        textDecoration: 'none'
-                      }}
-                    >
+                    <a href={em.href} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-navy-800)', textDecoration: 'none' }}>
                       {em.address}
                     </a>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Phones & WhatsApp */}
-            <div style={{
-              background: '#ffffff',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '1px solid var(--color-border)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
-            }}>
-              <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-navy-900)' }}>
-                <i className="bx bx-phone-call" style={{ color: 'var(--color-magenta-600)', fontSize: '1.4rem' }} aria-hidden="true" />
-                <span>Téléphone & WhatsApp</span>
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {site.phones.map((phone) => (
-                  <a
-                    key={phone.href}
-                    href={phone.href}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      color: 'var(--color-navy-800)',
-                      textDecoration: 'none'
-                    }}
-                  >
-                    <i
-                      className={phone.label === 'WhatsApp' ? 'bx bxl-whatsapp' : 'bx bx-phone'}
-                      style={{ color: phone.label === 'WhatsApp' ? '#25D366' : 'var(--color-navy-700)', fontSize: '1.25rem' }}
-                      aria-hidden="true"
-                    />
-                    <span>{phone.label} : {phone.display}</span>
-                  </a>
                 ))}
               </div>
             </div>
@@ -134,10 +105,10 @@ export function ContactPage() {
             boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
           }}>
             <h2 style={{ fontSize: '1.3rem', margin: '0 0 0.5rem 0', color: 'var(--color-navy-900)' }}>
-              Envoyez-nous un message écrit
+              Envoyez-nous un message
             </h2>
             <p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-muted)', fontSize: '0.95rem' }}>
-              Remplissez le formulaire ci-dessous et notre secrétariat vous répondra dans les plus brefs délais.
+              Remplissez le formulaire ci-dessous et notre secrétariat vous répondra rapidement.
             </p>
             <ContactForm />
           </div>
@@ -146,4 +117,3 @@ export function ContactPage() {
     </>
   )
 }
-
