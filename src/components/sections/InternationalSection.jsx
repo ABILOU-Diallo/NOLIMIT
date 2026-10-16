@@ -10,12 +10,12 @@ export function InternationalSection() {
   const languagePrograms = [
     {
       id: 'allemand',
-      title: 'Allemand (A1-B2)',
+      title: 'Allemand (A1-C2)',
       badge: 'Études & Emploi en Allemagne',
       icon: 'bx bx-book-bookmark',
       description:
-        'Formation progressive et intensive du niveau A1 à B2. Préparez efficacement le Goethe-Zertifikat ou le TestDaF pour réussir vos admissions en universités, Studienkollegs et vos procédures de visa.',
-      tags: ['A1 - B2', 'Goethe-Zertifikat', 'Livre de cours offert', 'Mobilité Allemagne'],
+        'Formation progressive et intensive du niveau A1 à C2. Préparez efficacement le Goethe-Zertifikat.',
+      tags: ['A1 - C2', 'Goethe-Zertifikat'],
     },
     {
       id: 'anglais',
@@ -23,8 +23,8 @@ export function InternationalSection() {
       badge: 'Tests Internationaux & Bourses',
       icon: 'bx bx-certification',
       description:
-        'Préparation rigoureuse aux tests d’anglais de renommée mondiale requis par les grandes universités nord-américaines (USA, Canada), britanniques et pour l’obtention de bourses d’études d’excellence.',
-      tags: ['TOEFL iBT', 'IELTS Academic', 'SAT', 'Laboratoire audio', 'Simulations d’examens'],
+        'Préparation rigoureuse aux tests d’anglais de renommée mondiale requis par les grandes universités nord-américaines (USA, Canada).',
+      tags: ['TOEFL', 'IELTS Academic', 'SAT'],
     },
     {
       id: 'francais',
@@ -32,8 +32,8 @@ export function InternationalSection() {
       badge: 'Procédures Canada & Universités',
       icon: 'bx bx-badge-check',
       description:
-        'Entraînement stratégique et complet aux épreuves du TCF (Canada, Tout Public, Québec) et du TEF. Maximisez vos scores officiels pour vos permis d’études et projets d’immigration.',
-      tags: ['TCF Canada / TP', 'TEF Canada', 'Entraînement oral', 'Stratégies d’épreuves'],
+        'Entraînement stratégique et complet aux épreuves du TCF et du TEF. Maximisez vos scores officiels pour vos permis d’études et projets d’immigration.',
+      tags: ['TCF Canada', 'TEF Canada', 'Entraînement oral'],
     },
   ]
 
@@ -93,33 +93,7 @@ export function InternationalSection() {
 
         {/* Bloc Préparation aux examens & accompagnements */}
         <div className={styles.accompanimentBox}>
-          <div className={styles.accompanimentHeader}>
-            <div className={styles.accBadge}>
-              <i className="bx bx-compass" aria-hidden="true" />
-              <span>Accompagnement complet</span>
-            </div>
-            <h3 className={styles.accompanimentTitle}>
-              Préparation aux examens & accompagnements
-            </h3>
-            <p className={styles.accompanimentLede}>
-              De la mise à niveau linguistique jusqu’à l’obtention de vos certifications et la validation de votre dossier, bénéficiez d’un suivi rigoureux à chaque étape.
-            </p>
-          </div>
-
-          <div className={styles.pointsGrid}>
-            {accompanimentPoints.map((point) => (
-              <div key={point.title} className={styles.pointCard}>
-                <div className={styles.pointIcon}>
-                  <i className={point.icon} aria-hidden="true" />
-                </div>
-                <div>
-                  <h4 className={styles.pointTitle}>{point.title}</h4>
-                  <p className={styles.pointDesc}>{point.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
+          
           <div className={styles.actionsBar}>
             <div className={styles.buttonsGroup}>
               <LinkButton to="/langues" variant="primary">

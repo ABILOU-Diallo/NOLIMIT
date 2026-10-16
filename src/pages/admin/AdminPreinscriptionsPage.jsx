@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
+import { Avatar } from '../../components/ui/Avatar'
+import { Modal } from '../../components/ui/Modal'
 import { getPreinscriptions, updatePreinscriptionStatus } from '../../services/preinscriptionService'
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'En attente' },
-  { value: 'contacted', label: 'Contacté' },
-  { value: 'validated', label: 'Validé' },
-  { value: 'rejected', label: 'Rejeté' },
+  { value: 'new', label: 'En attente', color: '#64748b' },
+  { value: 'contacted', label: 'Contacté', color: '#3b82f6' },
+  { value: 'validated', label: 'Validé', color: '#10b981' },
+  { value: 'rejected', label: 'Rejeté', color: '#ef4444' },
 ]
 
 export function AdminPreinscriptionsPage() {
@@ -16,208 +18,186 @@ export function AdminPreinscriptionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [institutionFilter, setInstitutionFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState('all')
   const [query, setQuery] = useState('')
+  const [selectedItem, setSelectedItem] = useState(null)
 
   async function loadItems() {
     try {
       setLoading(true)
       const data = await getPreinscriptions()
       setItems(data)
-      setError('')
     } catch (err) {
-      setError(err.message || 'Impossible de charger les préinscriptions.')
+      setError('Erreur de chargement.')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    loadItems()
-  }, [])
+  useEffect(() => { loadItems() }, [])
 
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      const matchesInstitution =
-        institutionFilter === 'all' || item.institution === institutionFilter
-      const matchesStatus = statusFilter === 'all' || item.status === statusFilter
-      const haystack = `${item.full_name ?? ''} ${item.email ?? ''} ${item.formation_title ?? ''}`.toLowerCase()
-      const matchesQuery = haystack.includes(query.trim().toLowerCase())
-      return matchesInstitution && matchesStatus && matchesQuery
+      const matchesInst = institutionFilter === 'all' || item.institution === institutionFilter
+      const haystack = `${item.full_name} ${item.email} ${item.formation_title}`.toLowerCase()
+      return matchesInst && haystack.includes(query.toLowerCase())
     })
-  }, [institutionFilter, items, query, statusFilter])
+  }, [items, institutionFilter, query])
 
-  const handleStatusUpdate = async (id, nextStatus, nextNotes) => {
+  const handleStatusUpdate = async (id, status) => {
     try {
-      await updatePreinscriptionStatus(id, nextStatus, nextNotes)
-      setItems((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, status: nextStatus, admin_notes: nextNotes } : item,
-        ),
-      )
-    } catch (err) {
-      setError(err.message || 'La mise à jour a échoué.')
-    }
+      await updatePreinscriptionStatus(id, status, selectedItem?.admin_notes || '')
+      setItems(prev => prev.map(i => i.id === id ? { ...i, status } : i))
+      if (selectedItem?.id === id) setSelectedItem(prev => ({ ...prev, status }))
+    } catch (err) { alert("Erreur de mise à jour") }
   }
 
-  const handleExportPDF = () => {
-    window.print();
-  };
-
-  if (loading) return <Loader label="Chargement des préinscriptions" />
+  if (loading) return <Loader label="Chargement des préinscriptions..." />
 
   return (
-    <div style={{ background: '#fff', borderRadius: '16px', padding: '1.25rem', boxShadow: '0 10px 18px rgba(15, 23, 42, 0.05)' }}>
-      <style>{`
-        @media print {
-          .no-print, .admin-sidebar, .admin-topbar, .filters-area, .admin-sidebar-toggle {
-            display: none !important;
-          }
-          .admin-content { margin: 0 !important; padding: 0 !important; width: 100% !important; left: 0 !important; }
-          table { width: 100%; border-collapse: collapse; font-size: 10px; }
-          th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
-          h2 { text-align: center; margin-bottom: 20px; color: #0f172a; }
-          body { background: white !important; }
-          .admin-shell { display: block !important; }
-        }
-      `}</style>
+    <div style={{ padding: '1rem' }}>
+      <header style={{ marginBottom: '2rem' }}>
+        <h2 style={{ margin: 0, fontSize: '1.8rem', color: '#1e1b4b' }}>Registre des Préinscriptions</h2>
+      </header>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }} className="no-print">
-        <h2 style={{ margin: 0 }}>Registre des Préinscriptions</h2>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Button type="button" variant="outline" onClick={handleExportPDF} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <i className="bx bx-printer" /> Exporter PDF
-          </Button>
-          <Button type="button" variant="primary" onClick={loadItems}>Actualiser</Button>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+        <Input placeholder="Rechercher par nom..." value={query} onChange={e => setQuery(e.target.value)} />
+        <select value={institutionFilter} onChange={e => setInstitutionFilter(e.target.value)} style={{ padding: '0.75rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+          <option value="all">Tous les établissements</option>
+          <option value="issmiga">ISSMIGA</option>
+          <option value="cfp">CFP NO LIMIT</option>
+        </select>
+        <Button onClick={loadItems} variant="outline" style={{ height: 'fit-content', alignSelf: 'center' }}>Actualiser</Button>
       </div>
 
-      <div className="filters-area no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>Établissement</label>
-          <select value={institutionFilter} onChange={(event) => setInstitutionFilter(event.target.value)} style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}>
-            <option value="all">Tous</option>
-            <option value="issmiga">ISSMIGA</option>
-            <option value="cfp">CFP NO LIMIT</option>
-          </select>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+        {filtered.map(item => (
+          <div key={item.id} style={{
+            background: '#fff',
+            padding: '1.5rem',
+            borderRadius: '20px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+            border: '1px solid #f1f5f9',
+            display: 'flex',
+            gap: '2rem',
+            flexWrap: 'wrap',
+            alignItems: 'start'
+          }}>
+            {/* Photo Section */}
+            <div style={{ flexShrink: 0 }}>
+              <div style={{ width: '130px', height: '160px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+                {item.photo_url ? (
+                  <img src={item.photo_url} alt={item.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', color: '#cbd5e1' }}>
+                    <i className='bx bx-user' style={{ fontSize: '3.5rem' }} />
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+                <span style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: STATUS_OPTIONS.find(o => o.value === item.status)?.color + '20',
+                  color: STATUS_OPTIONS.find(o => o.value === item.status)?.color,
+                  textTransform: 'uppercase'
+                }}>
+                  {STATUS_OPTIONS.find(o => o.value === item.status)?.label}
+                </span>
+              </div>
+            </div>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>Statut</label>
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}>
-            <option value="all">Tous</option>
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
+            {/* Information Grid - Juxtaposed */}
+            <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ fontSize: '0.9rem' }}><strong>Nom :</strong> <span style={{ color: '#1e1b4b', fontWeight: 600 }}>{item.full_name}</span></div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Établissement :</strong> <span style={{ fontWeight: 700, color: '#141A5E' }}>{item.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</span></div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Filière :</strong> {item.formation_title || 'Non définie'}</div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Niveau :</strong> <span style={{ color: 'var(--color-magenta-600)', fontWeight: 700 }}>{item.diploma_interest?.toUpperCase() || 'N/C'}</span></div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Diplôme visé :</strong> {item.diploma_interest?.toUpperCase()}</div>
+              </div>
 
-        <div>
-          <Input id="pre-search" label="Recherche rapide" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom, e-mail ou filière" />
-        </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ fontSize: '0.9rem' }}><strong>Courriel :</strong> <span style={{ color: '#2563eb' }}>{item.email}</span></div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Téléphone :</strong> <span style={{ color: '#16a34a', fontWeight: 600 }}>{item.phone}</span></div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Ville :</strong> {item.city || 'Yaoundé'}</div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Naissance :</strong> {item.birth_date ? new Date(item.birth_date).toLocaleDateString('fr-FR') : 'Non renseignée'}</div>
+                <div style={{ fontSize: '0.9rem' }}><strong>Dossier N° :</strong> <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{item.reference_code || 'N/A'}</span></div>
+              </div>
+            </div>
+
+            {/* Details Button */}
+            <div style={{ alignSelf: 'center' }}>
+              <Button onClick={() => setSelectedItem(item)} variant="secondary" style={{ background: '#1e1b4b', color: '#fff', borderRadius: '12px', padding: '0.8rem 1.5rem' }}>
+                <i className='bx bx-list-ul' style={{ marginRight: '0.5rem' }} /> Dossier complet
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {error ? <p role="alert" style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</p> : null}
+      {selectedItem && (
+        <Modal open={true} title="Fiche de Préinscription" onClose={() => setSelectedItem(null)}>
+          <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxHeight: '85vh', overflowY: 'auto' }}>
+             {/* Modal design maintained but with full data visibility */}
+             <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap', alignItems: 'start' }}>
+              <div style={{ width: '200px', aspectRatio: '3/4', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+                {selectedItem.photo_url ? (
+                  <img src={selectedItem.photo_url} alt={selectedItem.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '4rem' }}><i className='bx bx-user' /></div>
+                )}
+              </div>
+              <div style={{ flex: 1, minWidth: '280px' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '2rem', color: '#1e1b4b', fontWeight: 800 }}>{selectedItem.full_name}</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '1.05rem' }}>
+                  <p style={{ margin: 0 }}><strong>Courriel :</strong> {selectedItem.email}</p>
+                  <p style={{ margin: 0 }}><strong>Téléphone :</strong> {selectedItem.phone}</p>
+                  <p style={{ margin: 0 }}><strong>Ville :</strong> {selectedItem.city || 'Yaoundé'}</p>
+                  <p style={{ margin: 0 }}><strong>Naissance :</strong> {selectedItem.birth_date ? new Date(selectedItem.birth_date).toLocaleDateString('fr-FR') : 'Non renseignée'}</p>
+                  <p style={{ margin: 0 }}><strong>Dossier N° :</strong> {selectedItem.reference_code || 'N/A'}</p>
+                  <p style={{ margin: 0 }}><strong>Établissement :</strong> {selectedItem.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</p>
+                </div>
+              </div>
+            </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #e2e8f0', background: '#f8fafc' }}>
-              <th style={{ padding: '1rem 0.5rem' }}>Date Inscr.</th>
-              <th style={{ padding: '1rem 0.5rem' }}>Candidat & Naissance</th>
-              <th style={{ padding: '1rem 0.5rem' }}>Tuteur / Parent</th>
-              <th style={{ padding: '1rem 0.5rem' }}>Filière & Diplôme</th>
-              <th style={{ padding: '1rem 0.5rem' }}>Établissement</th>
-              <th style={{ padding: '1rem 0.5rem' }} className="no-print">Suivi Admin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' }}>
-                <td style={{ padding: '0.85rem 0.5rem', fontSize: '0.85rem', color: '#64748b' }}>
-                  {new Date(item.created_at).toLocaleDateString('fr-FR')}
-                </td>
-                <td style={{ padding: '0.85rem 0.5rem' }}>
-                  <div style={{ fontWeight: '700', color: '#0f172a' }}>{item.full_name}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                    🎂 {item.birth_date ? new Date(item.birth_date).toLocaleDateString('fr-FR') : 'Date NC'}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 600 }}>📞 {item.phone}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>✉️ {item.email}</div>
-                </td>
-                <td style={{ padding: '0.85rem 0.5rem', fontSize: '0.85rem' }}>
-                  {item.guardian_name ? (
-                    <>
-                      <div style={{ fontWeight: 600 }}>{item.guardian_name}</div>
-                      <div style={{ color: '#64748b', fontSize: '0.8rem' }}>{item.guardian_phone}</div>
-                    </>
-                  ) : <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Non renseigné</span>}
-                </td>
-                <td style={{ padding: '0.85rem 0.5rem' }}>
-                  <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#1e293b' }}>{item.formation_title || 'Non spécifiée'}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#db2777', fontWeight: '800', textTransform: 'uppercase', marginTop: '2px' }}>
-                    {item.diploma_interest || 'CQP/DQP'}
-                  </div>
-                </td>
-                <td style={{ padding: '0.85rem 0.5rem' }}>
-                  <span style={{
-                    padding: '3px 10px',
-                    borderRadius: '6px',
-                    fontSize: '0.72rem',
-                    fontWeight: '800',
-                    background: item.institution === 'cfp' ? '#fff7ed' : '#eff6ff',
-                    color: item.institution === 'cfp' ? '#c2410c' : '#1d4ed8',
-                    border: `1px solid ${item.institution === 'cfp' ? '#fdba74' : '#bfdbfe'}`
-                  }}>
-                    {item.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}
-                  </span>
-                </td>
-                <td style={{ padding: '0.85rem 0.5rem' }} className="no-print">
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <select
-                      value={item.status || 'new'}
-                      onChange={(event) => handleStatusUpdate(item.id, event.target.value, item.admin_notes || '')}
-                      style={{
-                        padding: '0.4rem 0.5rem',
-                        borderRadius: '6px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.8rem',
-                        background: item.status === 'validated' ? '#dcfce7' : item.status === 'rejected' ? '#fee2e2' : '#fff'
-                      }}
-                    >
-                      {STATUS_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                    <textarea
-                      value={item.admin_notes || ''}
-                      placeholder="Notes de suivi..."
-                      onChange={(event) => handleStatusUpdate(item.id, item.status || 'new', event.target.value)}
-                      style={{
-                        width: '100%',
-                        minWidth: 180,
-                        padding: '0.5rem',
-                        borderRadius: '8px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.75rem',
-                        resize: 'vertical'
-                      }}
-                      rows={2}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
-                  Aucune préinscription trouvée.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            <div style={{ background: '#f0f7ff', padding: '1.75rem', borderRadius: '24px', border: '1px solid #dbeafe' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#1e1b4b', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+                <i className='bx bx-list-check' style={{ fontSize: '1.5rem' }} /> Documents fournis (Checklist)
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '1.05rem', display: 'grid', gap: '0.65rem', listStyleType: 'disc' }}>
+                {(selectedItem.documents_checklist || []).length > 0 ? (
+                  selectedItem.documents_checklist.map(doc => <li key={doc} style={{ color: '#334155', fontWeight: 500 }}>{doc}</li>)
+                ) : <li style={{ color: '#94a3b8', fontStyle: 'italic' }}>Aucun document sélectionné.</li>}
+              </ul>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ background: '#f1f5f9', padding: '1.25rem', borderRadius: '16px' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase' }}>Tuteur / Parent</h4>
+                <p style={{ margin: 0 }}><strong>Nom :</strong> {selectedItem.guardian_name || 'N/C'}</p>
+                <p style={{ margin: '0.25rem 0 0 0' }}><strong>Contact :</strong> {selectedItem.guardian_phone || 'N/C'}</p>
+              </div>
+              <div style={{ background: '#f1f5f9', padding: '1.25rem', borderRadius: '16px' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase' }}>Message du candidat</h4>
+                <p style={{ margin: 0, fontStyle: 'italic', color: '#475569' }}>{selectedItem.message || "Aucun message particulier."}</p>
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 700, color: '#1e1b4b' }}>Changer le statut</label>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {STATUS_OPTIONS.map(opt => (
+                  <button key={opt.value} onClick={() => handleStatusUpdate(selectedItem.id, opt.value)} style={{ padding: '0.7rem 1.25rem', borderRadius: '12px', border: `2px solid ${selectedItem.status === opt.value ? opt.color : '#e2e8f0'}`, background: selectedItem.status === opt.value ? opt.color : '#fff', color: selectedItem.status === opt.value ? '#fff' : opt.color, cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s' }}>
+                    {opt.label.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

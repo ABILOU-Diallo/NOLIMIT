@@ -45,10 +45,10 @@ export function CfpPage() {
               <span>Formations Qualifiantes & Diplômantes</span>
             </h2>
             <p style={{ margin: '0 0 0.75rem 0', fontSize: '1.05rem', color: '#fed7aa' }}>
-              Certificat de Qualification Professionnelle (CQP), Diplôme de Qualification Professionnelle (DQP) & des attestations de 03, 06 et 09 mois.
+              Certificat de Qualification Professionnelle (CQP), Diplôme de Qualification Professionnelle (DQP) & des attestations de formation de 03, 06 et 09 mois.
             </p>
             <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-              Durée des formations : <strong>1 an (Pratique intensive & Insertion professionnelle)</strong>
+              Durée des formations : <strong>03, 06, 09 mois et 1 an</strong>
             </p>
           </div>
 
@@ -74,19 +74,35 @@ export function CfpPage() {
             diplomaFilters={['Tous', 'CQP', 'DQP']}
           />
 
-          <h2 style={{ marginTop: '2.5rem' }}>Brochure Officielle CFP NO LIMIT</h2>
-          <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%' }}>
+          <h2 style={{ marginTop: '2.5rem' }}>Brochures & Prospectus</h2>
+          <p style={{ color: 'var(--color-muted)', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
+            Consultez les dépliants officiels du Centre de Formation Professionnelle.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '800px' }}>
             <figure className={styles.media}>
               <img
                 src={media.flyerCfp}
-                alt="Brochure officielle du Centre de Formation Professionnelle CFP NO LIMIT."
+                alt="Brochure officielle du CFP NO LIMIT en Français."
                 width="656"
                 height="872"
                 loading="lazy"
                 style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
               />
               <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
-                Prospectus CFP NO LIMIT (Filières, Modalités & Inscriptions)
+                Prospectus CFP (Version Français)
+              </figcaption>
+            </figure>
+            <figure className={styles.media}>
+              <img
+                src={media.flyerEn}
+                alt="Official CFP NO LIMIT brochure in English."
+                width="656"
+                height="872"
+                loading="lazy"
+                style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
+              />
+              <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+                Prospectus CFP (Version Anglais)
               </figcaption>
             </figure>
           </div>

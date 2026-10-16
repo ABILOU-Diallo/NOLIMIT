@@ -1,56 +1,67 @@
-﻿import { useMemo, useState, useEffect } from "react"
+﻿import { useMemo, useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import { Button } from "../ui/Button"
 import { Checkbox } from "../ui/Checkbox"
 import { Input } from "../ui/Input"
 import { LinkButton } from "../ui/LinkButton"
 import { Select } from "../ui/Select"
 import { Textarea } from "../ui/Textarea"
+import { Avatar } from "../ui/Avatar"
+import { Loader } from "../ui/Loader"
 import { site } from "../../data/site"
-import { whatsappUrl } from "../../utils/format"
-import { submitPreinscription } from "../../services/preinscriptionService"
+import { whatsappUrl, whatsappIcon } from "../../utils/format"
+import { submitPreinscription, uploadPreinscriptionPhoto } from "../../services/preinscriptionService"
 import styles from "./FormLayout.module.css"
 
 const STEPS = [
-  "Informations personnelles",
-  "Filiere & Niveau de diplome",
-  "Complements & Tuteur",
-  "Validation & Envoi",
+  { label: "Profil", icon: "bx-user" },
+  { label: "Établissement", icon: "bx-building" },
+  { label: "Filière", icon: "bx-graduation" },
+  { label: "Documents", icon: "bx-file" },
+  { label: "Tuteur", icon: "bx-group" },
+  { label: "Validation", icon: "bx-send" },
+]
+
+const REQUIRED_DOCUMENTS = [
+  "Fiche d’inscription dûment remplie",
+  "Demande d’admission rédigée par le candidat",
+  "Photocopie de l’acte de naissance",
+  "Photocopie du diplôme",
+  "Photocopie de la CNI, carte scolaire ou pièce équivalente",
+  "Deux photos 4×4 en couleur",
+  "Une enveloppe portant l’adresse du candidat",
 ]
 
 const DIPLOMAS_BY_INSTITUTION = {
   issmiga: [
-    { value: "bts",     label: "BTS - Brevet de Technicien Superieur (2 ans)" },
-    { value: "licence", label: "Licence Professionnelle (3 ans)" },
-    { value: "master",  label: "Master Professionnel (5 ans)" },
+    { value: "bts",     label: "BTS (2 ans)" },
+    { value: "licence", label: "Licence Professionnelle (1 an post-BTS)" },
+    { value: "master",  label: "Master Professionnel (2 ans post-Licence)" },
   ],
   cfp: [
-    { value: "cqp",         label: "CQP - Certificat de Qualification Professionnelle (6-9 mois)" },
-    { value: "dqp",         label: "DQP - Diplome de Qualification Professionnelle (1 an)" },
-    { value: "attestation", label: "Attestation - Formation courte (3, 6 ou 9 mois)" },
-  ],
-  langue: [
-    { value: "a1_a2",  label: "Niveaux A1-A2 (Debutant)" },
-    { value: "b1_b2",  label: "Niveaux B1-B2 (Intermediaire)" },
-    { value: "c1_c2",  label: "Niveaux C1-C2 (Avance)" },
-    { value: "toefl",  label: "TOEFL / IELTS / SAT (Anglais)" },
-    { value: "tcf",    label: "TCF / TEF (Francais)" },
-    { value: "goethe", label: "Goethe-Zertifikat / TestDaF (Allemand)" },
+    { value: "cqp",         label: "CQP (1 an)" },
+    { value: "dqp",         label: "DQP (1 an)" },
+    { value: "attestation", label: "Attestation (3, 6 ou 9 mois)" },
   ],
 }
 
-export function PreinscriptionWizard({ formations }) {
+export function PreinscriptionWizard({ formations = [] }) {
+  const safeFormations = formations || []
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [status, setStatus] = useState("idle")
   const [serverMessage, setServerMessage] = useState("")
   const [submissionResult, setSubmissionResult] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState("")
+  const fileInputRef = useRef(null)
 
   const preselectedFormation = useMemo(() => {
     const slug = params.get("formation")
-    return formations.find((item) => item.slug === slug) ?? null
-  }, [formations, params])
+    return safeFormations.find((item) => item.slug === slug) ?? null
+  }, [safeFormations, params])
 
   const {
     register,
@@ -58,17 +69,18 @@ export function PreinscriptionWizard({ formations }) {
     trigger,
     watch,
     setValue,
-    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       fullName: "",
       email: "",
       phone: "",
-      city: "Yaounde",
-      birthDate: "",
+      city: "Yaoundé",
+      institution: preselectedFormation?.institution ?? "",
       formationId: preselectedFormation?.id ?? "",
       diplomaInterest: preselectedFormation?.diploma ?? "",
+      photoUrl: "",
+      documentsChecklist: [],
       guardianName: "",
       guardianPhone: "",
       message: "",
@@ -76,254 +88,192 @@ export function PreinscriptionWizard({ formations }) {
     },
   })
 
-  const selectedFormationId = watch("formationId")
+  const values = watch()
+
+  const filteredFormations = useMemo(() => {
+    if (!values.institution) return []
+    return safeFormations.filter(f => f.institution === values.institution)
+  }, [safeFormations, values.institution])
 
   const selectedFormation = useMemo(() => {
-    if (!selectedFormationId) return null
-    return formations.find((f) => f.id === selectedFormationId) ?? null
-  }, [formations, selectedFormationId])
-
-  const selectedInstitution = selectedFormation?.institution ?? null
-
-  const availableDiplomas = useMemo(() => {
-    if (!selectedInstitution) return []
-    return DIPLOMAS_BY_INSTITUTION[selectedInstitution] ?? []
-  }, [selectedInstitution])
+    return safeFormations.find(f => f.id === values.formationId) || null
+  }, [safeFormations, values.formationId])
 
   useEffect(() => {
-    if (selectedFormation) {
-      const matching = availableDiplomas.find((d) => d.value === selectedFormation.diploma)
-      setValue("diplomaInterest", matching ? matching.value : "")
-    } else {
+    if (values.institution && selectedFormation && selectedFormation.institution !== values.institution) {
+      setValue("formationId", "")
       setValue("diplomaInterest", "")
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFormationId])
+  }, [values.institution, selectedFormation, setValue])
 
-  async function next() {
-    const fields = [
-      ["fullName", "email", "phone"],
-      ["formationId", "diplomaInterest"],
-      ["consent"],
-      [],
-    ][step]
-    const ok = await trigger(fields)
-    if (ok) setStep((v) => v + 1)
-  }
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-  async function onSubmit(values) {
-    setStatus("loading")
-    setServerMessage("")
-    const payload = { ...values, institution: selectedFormation?.institution || "issmiga" }
+    const objectUrl = URL.createObjectURL(file)
+    setPhotoPreview(objectUrl)
+
     try {
-      const result = await submitPreinscription(payload)
-      if (result.ok) { setSubmissionResult(result); setStatus("success"); return }
-      setStatus("error")
-      setServerMessage(result.message || "Une erreur est survenue. Veuillez reessayer.")
+      setUploading(true)
+      const url = await uploadPreinscriptionPhoto(file)
+      setValue("photoUrl", url)
     } catch (err) {
-      console.error(err)
-      setStatus("error")
-      setServerMessage("Une erreur inattendue est survenue. Veuillez contacter le secretariat.")
+      setServerMessage("Note : La photo n'a pas pu être envoyée au serveur, mais vous pouvez continuer.")
+    } finally {
+      setUploading(false)
     }
   }
 
-  const values = getValues()
+  const next = async () => {
+    const fieldsByStep = [
+      ["fullName", "email", "phone"],
+      ["institution"],
+      ["formationId", "diplomaInterest"],
+      [],
+      ["consent"],
+      []
+    ]
+    const ok = await trigger(fieldsByStep[step])
+    if (ok) {
+      setStep(s => s + 1)
+      window.scrollTo(0, 0)
+    }
+  }
+
+  async function onSubmit(data) {
+    try {
+      setStatus("loading")
+      const res = await submitPreinscription({
+        ...data,
+        institution: data.institution || selectedFormation?.institution || "issmiga"
+      })
+      setSubmissionResult(res)
+      setStatus("success")
+    } catch (err) {
+      setStatus("error")
+      setServerMessage("Erreur lors de la soumission. Veuillez réessayer.")
+    }
+  }
 
   if (status === "success") {
-    const refCode = submissionResult?.reference || `NL-${new Date().getFullYear()}`
-    const diplomaLabel =
-      availableDiplomas.find((d) => d.value === values.diplomaInterest)?.label ??
-      values.diplomaInterest?.toUpperCase()
-    const whatsappMsg =
-      `Bonjour, je viens d effectuer ma preinscription sur le site du Groupe NO LIMIT.\n\n` +
-      `Nom: ${values.fullName}\nRef: ${refCode}\nFormation: ${selectedFormation?.title || "Filiere"}\n` +
-      `Diplome: ${diplomaLabel}\nTelephone: ${values.phone}\n\n` +
-      `Je souhaite avoir les modalites pour finaliser mon dossier.`
-
     return (
-      <div style={{ background:"#fff", borderRadius:"16px", padding:"2.5rem", border:"1px solid var(--color-border)", boxShadow:"0 8px 32px rgba(0,0,0,0.06)", textAlign:"center", maxWidth:"42rem", margin:"0 auto" }} role="status">
-        <div style={{ width:"64px", height:"64px", borderRadius:"50%", background:"rgba(16,185,129,0.12)", color:"#10b981", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"2.2rem", margin:"0 auto 1.25rem" }}>
-          <i className="bx bx-check-circle" aria-hidden="true" />
+      <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)' }}>
+        <div style={{ width: '80px', height: '80px', background: '#dcfce7', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: '2.5rem' }}>
+          <i className='bx bx-check' />
         </div>
-        <h2 style={{ fontSize:"1.6rem", color:"var(--color-navy-900)", margin:"0 0 0.5rem 0" }}>
-          Preinscription Enregistree avec Succes !
-        </h2>
-        <p style={{ color:"var(--color-muted)", fontSize:"1.05rem", margin:"0 0 1.5rem 0" }}>
-          Felicitations <strong>{values.fullName}</strong>. Votre demande a bien ete transmise.
-        </p>
-        <div style={{ background:"var(--color-surface)", borderRadius:"12px", padding:"1.5rem", border:"1px solid var(--color-border)", textAlign:"left", marginBottom:"1.75rem", display:"flex", flexDirection:"column", gap:"0.6rem" }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", borderBottom:"1px dashed var(--color-border)", paddingBottom:"0.75rem" }}>
-            <span style={{ fontSize:"0.9rem", color:"var(--color-muted)" }}>Numero de dossier :</span>
-            <strong style={{ fontSize:"1.1rem", color:"var(--color-magenta-600)", fontFamily:"monospace" }}>{refCode}</strong>
-          </div>
-          <div style={{ fontSize:"0.95rem" }}><strong>Filiere :</strong> {selectedFormation?.title || "Formation choisie"}</div>
-          <div style={{ fontSize:"0.95rem" }}><strong>Diplome vise :</strong> {diplomaLabel || "—"}</div>
-          <div style={{ fontSize:"0.95rem" }}><strong>Etablissement :</strong> {selectedFormation?.institution === "cfp" ? "CFP NO LIMIT" : "ISSMIGA"}</div>
-          <div style={{ fontSize:"0.95rem" }}><strong>Contact :</strong> {values.phone} · {values.email}</div>
-        </div>
-        <div style={{ background:"rgba(238,47,139,0.05)", borderLeft:"4px solid var(--color-magenta-600)", borderRadius:"0 8px 8px 0", padding:"1rem 1.25rem", textAlign:"left", marginBottom:"2rem", fontSize:"0.95rem", lineHeight:"1.5" }}>
-          <strong>Prochaines etapes :</strong>
-          <ul style={{ margin:"0.5rem 0 0 1.25rem", padding:0 }}>
-            <li>Un conseiller pedagogique vous contactera pour planifier un entretien.</li>
-            <li>Rendez-vous au campus (Yaounde, derriere Tradex Emana) avec vos pieces.</li>
-            <li>Rentree academique fixee au <strong>{site.rentree.date}</strong>.</li>
-          </ul>
-        </div>
-        <div style={{ display:"flex", flexWrap:"wrap", gap:"1rem", justifyContent:"center" }}>
-          <LinkButton href={whatsappUrl(site.whatsapp.e164, whatsappMsg)} variant="secondary" target="_blank" rel="noreferrer" style={{ background:"#25D366", color:"#fff", display:"inline-flex", alignItems:"center", gap:"0.5rem" }}>
-            <i className="bx bxl-whatsapp" style={{ fontSize:"1.3rem" }} aria-hidden="true" />
-            Finaliser sur WhatsApp
-          </LinkButton>
-          <LinkButton to="/" variant="ghost">Retour a l accueil</LinkButton>
-        </div>
+        <h2>Préinscription Enregistrée !</h2>
+        <p>Numéro de dossier : <strong>{submissionResult?.reference}</strong></p>
+        <LinkButton to="/" variant="primary" style={{ marginTop: '1.5rem' }}>Retour à l'accueil</LinkButton>
       </div>
     )
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={styles.progress} aria-hidden="true">
-        {STEPS.map((label, index) => (
-          <span key={label} className={[styles.step, index <= step ? styles.active : ""].join(" ")} />
+    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.5rem', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: '20px', left: '0', right: '0', height: '2px', background: '#e2e8f0', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: '20px', left: '0', width: `${(step / (STEPS.length - 1)) * 100}%`, height: '2px', background: 'var(--color-magenta-600)', zIndex: 0, transition: 'width 0.3s ease' }} />
+
+        {STEPS.map((s, i) => (
+          <div key={i} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '50%',
+              background: i <= step ? 'var(--color-magenta-600)' : '#fff',
+              color: i <= step ? '#fff' : '#94a3b8',
+              border: i <= step ? 'none' : '2px solid #e2e8f0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.2rem'
+            }}>
+              {i < step ? <i className='bx bx-check' /> : <i className={`bx ${s.icon}`} />}
+            </div>
+            <span style={{ fontSize: '0.7rem', fontWeight: i <= step ? 700 : 500, color: i <= step ? 'var(--color-navy-900)' : '#94a3b8' }}>{s.label}</span>
+          </div>
         ))}
       </div>
-      <p style={{ fontWeight:600, color:"var(--color-navy-800)" }}>
-        Etape {step + 1} sur {STEPS.length} — {STEPS[step]}
-      </p>
 
-      {status === "error" && (
-        <div style={{ padding:"1rem", background:"var(--color-error-soft)", color:"var(--color-error)", borderRadius:"8px", marginBottom:"1rem", fontSize:"0.95rem" }} role="alert">
-          {serverMessage}
-        </div>
-      )}
+      <div style={{ background: '#fff', padding: '2rem', borderRadius: '20px', border: '1px solid #f1f5f9' }}>
+        {serverMessage && <div style={{ padding: '1rem', background: '#fff7ed', color: '#c2410c', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.85rem' }}>{serverMessage}</div>}
 
-      {/* ETAPE 0 */}
-      {step === 0 && (
-        <>
-          <Input id="fullName" label="Nom et Prenom(s) complets" required placeholder="Ex: Amina Bello" error={errors.fullName?.message} {...register("fullName", { required: "Indiquez votre nom complet." })} />
-          <Input id="email" type="email" label="Adresse E-mail" required placeholder="Ex: amina.bello@example.com" error={errors.email?.message} {...register("email", { required: "Indiquez un e-mail valide.", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Format invalide." } })} />
-          <Input id="phone" label="Telephone (WhatsApp de preference)" required placeholder="Ex: +237 678 529 675" hint="Ce numero permettra a notre equipe de vous joindre." error={errors.phone?.message} {...register("phone", { required: "Indiquez votre numero de telephone." })} />
-          <Input id="city" label="Ville de residence actuelle" placeholder="Ex: Yaounde, Douala, Bafoussam..." {...register("city")} />
-        </>
-      )}
-
-      {/* ETAPE 1 — Filiere + Diplome filtre */}
-      {step === 1 && (
-        <>
-          {preselectedFormation && (
-            <div style={{ padding:"0.85rem 1rem", background:"rgba(37,99,235,0.07)", borderLeft:"4px solid #2563eb", borderRadius:"0 8px 8px 0", marginBottom:"0.5rem", fontSize:"0.9rem", color:"var(--color-navy-900)", display:"flex", alignItems:"center", gap:"0.5rem" }}>
-              <i className="bx bx-info-circle" style={{ fontSize:"1.1rem", color:"#2563eb", flexShrink:0 }} />
-              <span>Formation pre-chargee : <strong>{preselectedFormation.title}</strong>. Vous pouvez la modifier ci-dessous.</span>
+        {step === 0 && (
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
+            <Input label="Nom complet *" {...register("fullName", { required: true })} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <Input label="Email *" type="email" {...register("email", { required: true })} />
+              <Input label="Téléphone *" {...register("phone", { required: true })} />
             </div>
-          )}
+            <Input label="Ville de résidence" {...register("city")} />
+          </div>
+        )}
 
-          <Select id="formationId" label="Choisir une Filiere / Formation" required error={errors.formationId?.message} {...register("formationId", { required: "Veuillez choisir une filiere." })}>
-            <option value="">Selectionnez une filiere...</option>
-            <optgroup label="🎓 ISSMIGA — Enseignement Superieur (BTS / Licence / Master · Laptop Offert)">
-              {formations.filter((item) => item.institution === "issmiga").map((item) => (
-                <option key={item.id} value={item.id}>{item.title}</option>
-              ))}
-            </optgroup>
-            <optgroup label="⚙️ CFP NO LIMIT — Formation Pratique (CQP / DQP · Attestation)">
-              {formations.filter((item) => item.institution === "cfp").map((item) => (
-                <option key={item.id} value={item.id}>{item.title}</option>
-              ))}
-            </optgroup>
-          </Select>
-
-          {selectedFormation && (
-            <div style={{ padding:"1rem", background: selectedFormation.institution === "issmiga" ? "rgba(238,47,139,0.07)" : "rgba(249,115,22,0.07)", borderRadius:"10px", border:`1px solid ${selectedFormation.institution === "issmiga" ? "rgba(238,47,139,0.25)" : "rgba(249,115,22,0.25)"}`, fontSize:"0.9rem", color:"var(--color-navy-900)", display:"flex", flexDirection:"column", gap:"0.3rem" }}>
-              <strong style={{ fontSize:"1rem" }}>
-                {selectedFormation.institution === "issmiga" ? "🎓" : "⚙️"} {selectedFormation.title}
-              </strong>
-              <span style={{ color:"var(--color-muted)" }}>Duree : {selectedFormation.duration}</span>
-              {selectedFormation.institution === "issmiga" && (
-                <span style={{ color:"#db2777", fontWeight:600 }}>🎁 1 Etudiant inscrit = 1 Laptop offert</span>
-              )}
-              {selectedFormation.excerpt && (
-                <p style={{ margin:"0.4rem 0 0", color:"var(--color-muted)", lineHeight:"1.55", fontSize:"0.85rem" }}>
-                  {selectedFormation.excerpt}
-                </p>
-              )}
+        {step === 1 && (
+          <div style={{ display: 'grid', gap: '1.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Établissement souhaité</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <button type="button" onClick={() => setValue("institution", "issmiga")} style={{ padding: '1.5rem', borderRadius: '16px', border: `2px solid ${values.institution === 'issmiga' ? 'var(--color-magenta-600)' : '#e2e8f0'}`, background: values.institution === 'issmiga' ? 'rgba(238,47,139,0.05)' : '#fff', cursor: 'pointer' }}>
+                <div style={{ fontSize: '2rem' }}>🎓</div>
+                <div style={{ fontWeight: 700 }}>ISSMIGA</div>
+              </button>
+              <button type="button" onClick={() => setValue("institution", "cfp")} style={{ padding: '1.5rem', borderRadius: '16px', border: `2px solid ${values.institution === 'cfp' ? 'var(--color-magenta-600)' : '#e2e8f0'}`, background: values.institution === 'cfp' ? 'rgba(238, 47, 139, 0.05)' : '#fff', cursor: 'pointer' }}>
+                <div style={{ fontSize: '2rem' }}>⚙️</div>
+                <div style={{ fontWeight: 700 }}>CFP NO LIMIT</div>
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
-          {selectedFormation ? (
-            <Select
-              id="diplomaInterest"
-              label={selectedFormation.institution === "issmiga" ? "Niveau / Diplome vise (ISSMIGA)" : "Certification visee (CFP NO LIMIT)"}
-              required
-              hint={selectedFormation.institution === "issmiga"
-                ? "ISSMIGA propose BTS (2 ans), Licence (3 ans) et Master (5 ans) pour cette filiere."
-                : "CFP NO LIMIT propose des attestations 3/6/9 mois, CQP et DQP (1 an)."}
-              error={errors.diplomaInterest?.message}
-              {...register("diplomaInterest", { required: "Choisissez le diplome ou niveau vise." })}
-            >
-              <option value="">Choisissez votre niveau...</option>
-              {availableDiplomas.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
-              ))}
+        {step === 2 && (
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
+            <Select label="Choisir votre Filière *" {...register("formationId", { required: true })}>
+              <option value="">Sélectionnez...</option>
+              {filteredFormations.map(f => <option key={f.id} value={f.id}>{f.title}</option>)}
             </Select>
-          ) : (
-            <div style={{ padding:"0.85rem 1rem", background:"var(--color-surface)", border:"1px dashed var(--color-border)", borderRadius:"8px", color:"var(--color-muted)", fontSize:"0.9rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
-              <i className="bx bx-arrow-back" />
-              Selectionnez d abord une filiere pour voir les niveaux de diplome disponibles.
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ETAPE 2 */}
-      {step === 2 && (
-        <>
-          <Input id="birthDate" type="date" label="Date de naissance (Optionnel)" {...register("birthDate")} />
-          <Input id="guardianName" label="Nom du parent ou tuteur legal (si applicable)" placeholder="Ex: M. / Mme Bello" {...register("guardianName")} />
-          <Input id="guardianPhone" label="Telephone du parent ou tuteur" placeholder="Ex: +237 677 000 111" {...register("guardianPhone")} />
-          <Textarea id="message" label="Questions particulieres ou projet professionnel (Optionnel)" placeholder="Parlez-nous brievement de vos motivations..." {...register("message")} />
-          <Checkbox id="consent" label="J accepte que le Groupe NO LIMIT conserve et traite ces informations pour l examen de mon dossier." error={errors.consent?.message} {...register("consent", { required: "Le consentement est necessaire pour soumettre votre dossier." })} />
-        </>
-      )}
-
-      {/* ETAPE 3 — Recapitulatif */}
-      {step === 3 && (
-        <div style={{ background:"var(--color-surface)", padding:"1.5rem", borderRadius:"12px", border:"1px solid var(--color-border)", display:"flex", flexDirection:"column", gap:"1rem" }}>
-          <h3 style={{ margin:0, fontSize:"1.1rem", color:"var(--color-navy-900)" }}>Recapitulatif de votre candidature</h3>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))", gap:"0.75rem", fontSize:"0.95rem" }}>
-            <div><span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>Candidat(e) :</span><strong>{values.fullName || "—"}</strong></div>
-            <div><span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>Telephone :</span><strong>{values.phone || "—"}</strong></div>
-            <div><span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>E-mail :</span><strong>{values.email || "—"}</strong></div>
-            <div><span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>Ville :</span><strong>{values.city || "Yaounde"}</strong></div>
+            <Select label="Diplôme ou Niveau visé *" {...register("diplomaInterest", { required: true })}>
+              <option value="">Sélectionnez...</option>
+              {(DIPLOMAS_BY_INSTITUTION[values.institution] || []).map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </Select>
           </div>
-          <div style={{ borderTop:"1px dashed var(--color-border)", paddingTop:"0.75rem", display:"flex", flexDirection:"column", gap:"0.4rem" }}>
-            <div>
-              <span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>Filiere choisie :</span>
-              <strong style={{ color:"var(--color-magenta-600)", fontSize:"1.05rem" }}>{selectedFormation ? selectedFormation.title : "Non selectionnee"}</strong>
+        )}
+
+        {step === 3 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', margin: '0 auto', width: '130px', height: '150px', borderRadius: '16px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#f8fafc' }}>
+                {uploading ? <Loader /> : (photoPreview || values.photoUrl) ? <img src={photoPreview || values.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className='bx bx-camera' style={{ fontSize: '2rem', color: '#94a3b8' }} />}
+              </div>
+              <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handlePhotoUpload} />
+              <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#64748b' }}>Photo d'identité (Portrait)</p>
             </div>
-            <div>
-              <span style={{ color:"var(--color-muted)", display:"block", fontSize:"0.82rem" }}>Diplome / Niveau vise :</span>
-              <strong>{availableDiplomas.find((d) => d.value === values.diplomaInterest)?.label || values.diplomaInterest?.toUpperCase() || "—"}</strong>
+            <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '16px' }}>
+              <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '1rem' }}>Pièces fournies :</p>
+              {REQUIRED_DOCUMENTS.map(doc => <Checkbox key={doc} label={doc} value={doc} {...register("documentsChecklist")} />)}
             </div>
-            <span style={{ display:"block", fontSize:"0.85rem", color:"var(--color-muted)" }}>
-              Etablissement : {selectedFormation?.institution === "cfp" ? "CFP NO LIMIT" : "ISSMIGA"}
-            </span>
           </div>
-          <p style={{ margin:0, fontSize:"0.85rem", color:"var(--color-muted)", fontStyle:"italic" }}>
-            En cliquant sur "Confirmer et envoyer", votre preinscription sera transmise a notre secretariat.
-          </p>
+        )}
+
+        {step === 4 && (
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
+            <Input label="Date de naissance" type="date" {...register("birthDate")} />
+            <Input label="Tuteur / Parent" {...register("guardianName")} />
+            <Input label="Téléphone Tuteur" {...register("guardianPhone")} />
+            <Checkbox label="J'accepte le traitement de mes données *" {...register("consent", { required: true })} />
+          </div>
+        )}
+
+        {step === 5 && (
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', background: '#f8fafc', padding: '1.5rem', borderRadius: '16px' }}>
+            <Avatar src={photoPreview || values.photoUrl} name={values.fullName} />
+            <div>
+              <h3 style={{ margin: 0 }}>{values.fullName || "Candidat"}</h3>
+              <p style={{ margin: 0, color: 'var(--color-magenta-600)', fontWeight: 700 }}>{selectedFormation?.title}</p>
+              <p style={{ margin: 0, fontSize: '0.85rem' }}>{values.institution?.toUpperCase()} · {values.diplomaInterest?.toUpperCase()}</p>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+          <Button type="button" variant="ghost" onClick={() => step > 0 ? setStep(s => s - 1) : navigate(-1)}>{step === 0 ? "Annuler" : "Précédent"}</Button>
+          {step < 5 ? <Button type="button" onClick={next}>Continuer</Button> : <Button type="submit" disabled={isSubmitting}>Confirmer l'envoi</Button>}
         </div>
-      )}
-
-      <div className={styles.actions}>
-        {step > 0 && (
-          <Button type="button" variant="outline" onClick={() => setStep((v) => v - 1)}>Precedent</Button>
-        )}
-        {step < 3 ? (
-          <Button type="button" onClick={next}>Continuer</Button>
-        ) : (
-          <Button type="submit" disabled={isSubmitting || status === "loading"}>
-            {status === "loading" ? "Transmission en cours..." : "Confirmer et envoyer la preinscription"}
-          </Button>
-        )}
       </div>
     </form>
   )

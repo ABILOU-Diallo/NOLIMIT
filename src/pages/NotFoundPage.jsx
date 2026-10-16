@@ -7,19 +7,32 @@ export function NotFoundPage() {
   return (
     <>
       <Seo
-        title="Page introuvable"
-        description="Cette page n’existe pas sur le site du Groupe NO LIMIT."
+        title="Page Introuvable — Groupe NO LIMIT"
+        description="Désolé, la page que vous recherchez n'existe pas ou a été déplacée. Utilisez nos liens pour retrouver nos formations."
         path="/404"
       />
       <PageHero
-        title="Cette page n’existe pas."
-        lede="Le lien est peut-être ancien. Vous pouvez revenir aux formations ou écrire au secrétariat."
+        title="Oups ! Page Introuvable."
+        lede="Il semble que le lien soit rompu ou que la page ait été déplacée vers une nouvelle adresse."
+        crumbs={[
+          { to: '/', label: 'Accueil' },
+          { label: '404' },
+        ]}
       />
       <PageBody>
-        <LinkButton to="/formations">Voir les formations</LinkButton>
-        <p>
-          <Link to="/contact">Contact</Link>
-        </p>
+        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+          <p style={{ fontSize: '1.2rem', color: '#64748b', marginBottom: '2rem' }}>
+            Ne vous inquiétez pas, vous pouvez toujours explorer nos programmes d'excellence :
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <LinkButton to="/formations">Nos Formations</LinkButton>
+            <LinkButton to="/le-groupe/issmiga" variant="outline">Institut ISSMIGA</LinkButton>
+            <LinkButton to="/le-groupe/cfp" variant="outline">Centre CFP</LinkButton>
+          </div>
+          <p style={{ marginTop: '3rem' }}>
+            <Link to="/contact" style={{ color: 'var(--primary)', fontWeight: 600 }}>Signaler un problème au secrétariat</Link>
+          </p>
+        </div>
       </PageBody>
     </>
   )

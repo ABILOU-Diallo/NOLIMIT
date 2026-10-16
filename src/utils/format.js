@@ -6,3 +6,7 @@ export function whatsappUrl(e164, message) {
 export function formatDiploma(code) {
   return String(code || '').toUpperCase()
 }
+
+export function whatsappIcon() {
+  return 'bx bxl-whatsapp'
+}

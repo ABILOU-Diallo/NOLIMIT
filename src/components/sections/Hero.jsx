@@ -132,7 +132,7 @@ export function Hero() {
             </div>
             <div>
               <h3>Centre Linguistique</h3>
-              <p>Allemand (A1-B2), Anglais (TOEFL-IELTS-SAT...), Français (TCF-TEF...). Préparation aux examens & accompagnements.</p>
+              <p>Allemand (A1-C2), Anglais (TOEFL-IELTS-SAT...), Français (TCF-TEF...)</p>
             </div>
           </div>
         </div>

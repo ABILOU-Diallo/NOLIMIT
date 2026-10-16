@@ -40,7 +40,7 @@ export const employabilityPath = [
   {
     id: 'orientation',
     title: 'Orientation',
-    text: 'Clarifier tes aptitudes avant le choix d’une filière.',
+    text: 'Clarifier ses aptitudes avant le choix d’une filière.',
   },
   {
     id: 'formation',
