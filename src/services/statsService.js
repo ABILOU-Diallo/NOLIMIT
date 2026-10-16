@@ -6,7 +6,9 @@ function getSessionId() {
   try {
     let id = sessionStorage.getItem(SESSION_KEY)
     if (!id) {
-      id = crypto.randomUUID()
+      id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `sess-${Math.random().toString(36).substring(2, 9)}-${Date.now()}`
       sessionStorage.setItem(SESSION_KEY, id)
     }
     return id

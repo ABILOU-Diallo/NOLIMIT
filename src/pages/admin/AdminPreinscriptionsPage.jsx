@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
-import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
 import { getPreinscriptions, updatePreinscriptionStatus } from '../../services/preinscriptionService'
 
@@ -73,64 +72,66 @@ export function AdminPreinscriptionsPage() {
         {filtered.map(item => (
           <div key={item.id} style={{
             background: '#fff',
-            padding: '1.5rem',
-            borderRadius: '20px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+            padding: '1.25rem',
+            borderRadius: '16px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
             border: '1px solid #f1f5f9',
             display: 'flex',
-            gap: '2rem',
+            gap: '1.5rem',
             flexWrap: 'wrap',
-            alignItems: 'start'
+            alignItems: 'stretch'
           }}>
-            {/* Photo Section */}
-            <div style={{ flexShrink: 0 }}>
-              <div style={{ width: '130px', height: '160px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+            {/* Photo Column */}
+            <div style={{ width: '110px', flexShrink: 0 }}>
+              <div style={{ width: '100%', aspectRatio: '3/4', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
                 {item.photo_url ? (
                   <img src={item.photo_url} alt={item.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', color: '#cbd5e1' }}>
-                    <i className='bx bx-user' style={{ fontSize: '3.5rem' }} />
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                    <i className='bx bx-user' style={{ fontSize: '3rem' }} />
                   </div>
                 )}
               </div>
               <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                <span style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 800,
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  background: STATUS_OPTIONS.find(o => o.value === item.status)?.color + '20',
-                  color: STATUS_OPTIONS.find(o => o.value === item.status)?.color,
-                  textTransform: 'uppercase'
-                }}>
-                  {STATUS_OPTIONS.find(o => o.value === item.status)?.label}
-                </span>
+                 <span style={{
+                   fontSize: '0.65rem',
+                   fontWeight: 800,
+                   padding: '3px 8px',
+                   borderRadius: '4px',
+                   background: (STATUS_OPTIONS.find(o => o.value === item.status)?.color || '#64748b') + '15',
+                   color: STATUS_OPTIONS.find(o => o.value === item.status)?.color || '#64748b',
+                   textTransform: 'uppercase'
+                 }}>
+                   {STATUS_OPTIONS.find(o => o.value === item.status)?.label || 'En attente'}
+                 </span>
               </div>
             </div>
 
-            {/* Information Grid - Juxtaposed */}
-            <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                <div style={{ fontSize: '0.9rem' }}><strong>Nom :</strong> <span style={{ color: '#1e1b4b', fontWeight: 600 }}>{item.full_name}</span></div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Établissement :</strong> <span style={{ fontWeight: 700, color: '#141A5E' }}>{item.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</span></div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Filière :</strong> {item.formation_title || 'Non définie'}</div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Niveau :</strong> <span style={{ color: 'var(--color-magenta-600)', fontWeight: 700 }}>{item.diploma_interest?.toUpperCase() || 'N/C'}</span></div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Diplôme visé :</strong> {item.diploma_interest?.toUpperCase()}</div>
+            {/* Information Grid - Responsively Side by Side */}
+            <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem 2rem' }}>
+              {/* Left Info Group */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem' }}>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Nom :</span> <span style={{ fontWeight: 700, color: '#1e1b4b' }}>{item.full_name}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Etablissement :</span> <span style={{ fontWeight: 700, color: '#141A5E' }}>{item.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Filiere :</span> <span style={{ fontWeight: 600 }}>{item.formation_title || 'N/A'}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Niveau :</span> <span style={{ color: '#db2777', fontWeight: 700 }}>{item.diploma_interest?.toUpperCase() || 'N/C'}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Diplome vise :</span> <span style={{ fontWeight: 600 }}>{item.diploma_interest?.toUpperCase() || 'N/C'}</span></div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                <div style={{ fontSize: '0.9rem' }}><strong>Courriel :</strong> <span style={{ color: '#2563eb' }}>{item.email}</span></div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Téléphone :</strong> <span style={{ color: '#16a34a', fontWeight: 600 }}>{item.phone}</span></div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Ville :</strong> {item.city || 'Yaoundé'}</div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Naissance :</strong> {item.birth_date ? new Date(item.birth_date).toLocaleDateString('fr-FR') : 'Non renseignée'}</div>
-                <div style={{ fontSize: '0.9rem' }}><strong>Dossier N° :</strong> <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{item.reference_code || 'N/A'}</span></div>
+              {/* Right Info Group */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem' }}>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Courriel :</span> <span style={{ color: '#2563eb' }}>{item.email}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Téléphone :</span> <span style={{ color: '#16a34a', fontWeight: 600 }}>{item.phone}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Ville :</span> <span>{item.city || 'Yaoundé'}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Naissance :</span> <span>{item.birth_date ? new Date(item.birth_date).toLocaleDateString('fr-FR') : 'N/C'}</span></div>
+                <div><span style={{ color: '#64748b', fontWeight: 500 }}>Dossier N° :</span> <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{item.reference_code || 'N/A'}</span></div>
               </div>
             </div>
 
-            {/* Details Button */}
-            <div style={{ alignSelf: 'center' }}>
-              <Button onClick={() => setSelectedItem(item)} variant="secondary" style={{ background: '#1e1b4b', color: '#fff', borderRadius: '12px', padding: '0.8rem 1.5rem' }}>
-                <i className='bx bx-list-ul' style={{ marginRight: '0.5rem' }} /> Dossier complet
+            {/* Quick Actions Column */}
+            <div style={{ alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <Button onClick={() => setSelectedItem(item)} variant="secondary" style={{ padding: '0.6rem 1rem', borderRadius: '10px' }}>
+                <i className='bx bx-show-alt' style={{ marginRight: '0.4rem' }} /> Détails
               </Button>
             </div>
           </div>
@@ -138,11 +139,10 @@ export function AdminPreinscriptionsPage() {
       </div>
 
       {selectedItem && (
-        <Modal open={true} title="Fiche de Préinscription" onClose={() => setSelectedItem(null)}>
+        <Modal open={true} title="Dossier complet de Préinscription" onClose={() => setSelectedItem(null)}>
           <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxHeight: '85vh', overflowY: 'auto' }}>
-             {/* Modal design maintained but with full data visibility */}
-             <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap', alignItems: 'start' }}>
-              <div style={{ width: '200px', aspectRatio: '3/4', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+            <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap', alignItems: 'start' }}>
+              <div style={{ width: '180px', aspectRatio: '3/4', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 8px 25px rgba(0,0,0,0.05)' }}>
                 {selectedItem.photo_url ? (
                   <img src={selectedItem.photo_url} alt={selectedItem.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
@@ -150,25 +150,25 @@ export function AdminPreinscriptionsPage() {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: '280px' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '2rem', color: '#1e1b4b', fontWeight: 800 }}>{selectedItem.full_name}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '1.05rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.8rem', color: '#1e1b4b', fontWeight: 800 }}>{selectedItem.full_name}</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '1rem' }}>
                   <p style={{ margin: 0 }}><strong>Courriel :</strong> {selectedItem.email}</p>
                   <p style={{ margin: 0 }}><strong>Téléphone :</strong> {selectedItem.phone}</p>
                   <p style={{ margin: 0 }}><strong>Ville :</strong> {selectedItem.city || 'Yaoundé'}</p>
                   <p style={{ margin: 0 }}><strong>Naissance :</strong> {selectedItem.birth_date ? new Date(selectedItem.birth_date).toLocaleDateString('fr-FR') : 'Non renseignée'}</p>
                   <p style={{ margin: 0 }}><strong>Dossier N° :</strong> {selectedItem.reference_code || 'N/A'}</p>
-                  <p style={{ margin: 0 }}><strong>Établissement :</strong> {selectedItem.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</p>
+                  <p style={{ margin: 0 }}><strong>École :</strong> {selectedItem.institution === 'cfp' ? 'CFP NO LIMIT' : 'ISSMIGA'}</p>
                 </div>
               </div>
             </div>
 
-            <div style={{ background: '#f0f7ff', padding: '1.75rem', borderRadius: '24px', border: '1px solid #dbeafe' }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#1e1b4b', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                <i className='bx bx-list-check' style={{ fontSize: '1.5rem' }} /> Documents fournis (Checklist)
+            <div style={{ background: '#f0f7ff', padding: '1.5rem', borderRadius: '24px', border: '1px solid #dbeafe' }}>
+              <h4 style={{ margin: '0 0 1.25rem 0', color: '#1e40af', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+                <i className='bx bx-list-check' style={{ fontSize: '1.5rem' }} /> Checklist des documents fournis
               </h4>
-              <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '1.05rem', display: 'grid', gap: '0.65rem', listStyleType: 'disc' }}>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '1rem', display: 'grid', gap: '0.5rem', listStyleType: 'disc' }}>
                 {(selectedItem.documents_checklist || []).length > 0 ? (
-                  selectedItem.documents_checklist.map(doc => <li key={doc} style={{ color: '#334155', fontWeight: 500 }}>{doc}</li>)
+                  selectedItem.documents_checklist.map(doc => <li key={doc} style={{ color: '#334155' }}>{doc}</li>)
                 ) : <li style={{ color: '#94a3b8', fontStyle: 'italic' }}>Aucun document sélectionné.</li>}
               </ul>
             </div>
@@ -180,13 +180,13 @@ export function AdminPreinscriptionsPage() {
                 <p style={{ margin: '0.25rem 0 0 0' }}><strong>Contact :</strong> {selectedItem.guardian_phone || 'N/C'}</p>
               </div>
               <div style={{ background: '#f1f5f9', padding: '1.25rem', borderRadius: '16px' }}>
-                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase' }}>Message du candidat</h4>
-                <p style={{ margin: 0, fontStyle: 'italic', color: '#475569' }}>{selectedItem.message || "Aucun message particulier."}</p>
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase' }}>Message</h4>
+                <p style={{ margin: 0, fontStyle: 'italic', color: '#475569' }}>{selectedItem.message || "Aucun message."}</p>
               </div>
             </div>
 
             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 700, color: '#1e1b4b' }}>Changer le statut</label>
+              <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 700, color: '#1e1b4b' }}>Actions Administratives</label>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 {STATUS_OPTIONS.map(opt => (
                   <button key={opt.value} onClick={() => handleStatusUpdate(selectedItem.id, opt.value)} style={{ padding: '0.7rem 1.25rem', borderRadius: '12px', border: `2px solid ${selectedItem.status === opt.value ? opt.color : '#e2e8f0'}`, background: selectedItem.status === opt.value ? opt.color : '#fff', color: selectedItem.status === opt.value ? '#fff' : opt.color, cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s' }}>

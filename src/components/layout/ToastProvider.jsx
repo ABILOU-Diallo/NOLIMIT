@@ -9,7 +9,11 @@ export function ToastProvider({ children }) {
   }, [])
 
   const push = useCallback((toast) => {
-    const id = crypto.randomUUID()
+    // Fallback pour randomUUID si le contexte n'est pas sécurisé
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2, 9)
+
     setToasts((list) => [...list, { id, ...toast }])
     window.setTimeout(() => dismiss(id), toast.duration ?? 5000)
   }, [dismiss])
