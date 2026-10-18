@@ -94,11 +94,6 @@ export function InstitutionFormationsSection({
         </div>
       </div>
 
-      <div className={styles.countInfo}>
-        <i className="bx bx-list-check" aria-hidden="true" />
-        <span><strong>{filtered.length}</strong> formation{filtered.length > 1 ? 's' : ''} disponible{filtered.length > 1 ? 's' : ''}</span>
-      </div>
-
       {filtered.length === 0 ? (
         <div className={styles.emptyState}>
           <i className="bx bx-folder-open" aria-hidden="true" />

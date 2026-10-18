@@ -1,5 +1,14 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
+const CATEGORY_LABELS = {
+  'all': 'Toutes les formations',
+  'beaute-esthetique-coiffure': 'Beauté esthétique et coiffure',
+  'administration-commerce-gestion': 'Administration commerce et gestion',
+  'informatique-creation-numerique': 'Informatique création et numérique',
+  'hotellerie-restauration-services': 'Hôtellerie restauration et services',
+  'autres-prestations-services': 'Autres prestations/services'
+};
+
 function mapCustom(row) {
   if (!row) return null
   return {
@@ -17,6 +26,21 @@ export async function getCustomFormations(includeUnpublished = false) {
     if (!error && data) return data.map(mapCustom)
   }
   return []
+}
+
+// Fonctions requises par CustomFormationsSection.jsx
+export async function getPublishedFormations() {
+  return getCustomFormations(false);
+}
+
+export async function getFormationsByCategory(category) {
+  const all = await getPublishedFormations();
+  if (category === 'all') return all;
+  return all.filter(f => f.category === category);
+}
+
+export function getCategoryLabel(category) {
+  return CATEGORY_LABELS[category] || category;
 }
 
 export async function updateCustomFormation(id, payload) {
@@ -71,3 +95,13 @@ export async function createCustomFormation(payload) {
   }
   return { ...payload, id: `custom-${Date.now()}` }
 }
+
+// Export par défaut pour satisfaire l'import dans CustomFormationsSection.jsx
+export default {
+  getCustomFormations,
+  getPublishedFormations,
+  getFormationsByCategory,
+  getCategoryLabel,
+  updateCustomFormation,
+  createCustomFormation
+};
