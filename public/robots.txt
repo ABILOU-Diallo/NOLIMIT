@@ -1,10 +1,5 @@
 User-agent: *
 Allow: /
 
-# Interdire l'indexation des pages privées et admin
-Disallow: /admin/
-Disallow: /compte/
-Disallow: /connexion
-Disallow: /inscription
-
+# Sitemap location
 Sitemap: https://www.nolimitacademy.org/sitemap.xml

@@ -122,7 +122,7 @@ export function Hero() {
             </div>
             <div>
               <h3>CFP NO LIMIT — Métiers Pratiques</h3>
-              <p>CQP & DQP (1 an) et Attestation (3, 6 et 9 mois) avec immersion professionnelle immédiate.</p>
+              <p>CQP & DQP (1 an) et Attestation (3, 6 et 9 mois) avec insertion professionnelle immédiate.</p>
             </div>
           </div>
 

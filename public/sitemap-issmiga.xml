@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Pages Institutionnelles ISSMIGA -->
+  <url><loc>https://www.issmiga.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://www.issmiga.com/le-groupe/issmiga</loc><priority>0.9</priority></url>
+  <url><loc>https://www.issmiga.com/le-groupe/promoteur</loc><priority>0.7</priority></url>
+  <url><loc>https://www.issmiga.com/admissions</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations</loc><priority>0.9</priority></url>
+  <url><loc>https://www.issmiga.com/preinscription</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/contact</loc><priority>0.7</priority></url>
+
+  <!-- Formations BTS -->
+  <url><loc>https://www.issmiga.com/formations/comptabilite-gestion-entreprises</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/banque-finances</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/ressources-humaines</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/genie-logiciel-bts</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/reseaux-securite-issmiga</loc><priority>0.8</priority></url>
+
+  <!-- Formations Licence -->
+  <url><loc>https://www.issmiga.com/formations/licence-gestion-ressources-humaines</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/licence-comptabilite-finance</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/licence-marketing-digital</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/licence-genie-logiciel</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/licence-reseaux-securite</loc><priority>0.8</priority></url>
+
+  <!-- Formations Master -->
+  <url><loc>https://www.issmiga.com/formations/master-management-projets</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/master-audit-controle-gestion</loc><priority>0.8</priority></url>
+  <url><loc>https://www.issmiga.com/formations/master-systemes-information-reseaux</loc><priority>0.8</priority></url>
+</urlset>

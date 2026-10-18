@@ -54,6 +54,7 @@ export const formations = [
   formation('gestion-administration', 'licence-comptabilite-finance', 'Licence Professionnelle en Comptabilité et Finance', 'licence', 'issmiga', '1 an (post-BTS)'),
   formation('gestion-administration', 'licence-marketing-digital', 'Licence Professionnelle en Marketing Digital', 'licence', 'issmiga', '1 an (post-BTS)'),
   formation('numerique-it', 'licence-genie-logiciel', 'Licence Professionnelle en Génie Logiciel', 'licence', 'issmiga', '1 an (post-BTS)'),
+  formation('cybersecurite', 'licence-reseaux-securite', 'Licence Professionnelle en Réseaux et Sécurité', 'licence', 'issmiga', '1 an (post-BTS)'),
 
   // MASTERS PROFESSIONNELS ISSMIGA
   formation('gestion-administration', 'master-management-projets', 'Master Professionnel en Management des Projets', 'master', 'issmiga', '2 ans'),

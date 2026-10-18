@@ -94,7 +94,7 @@ export function CfpPage() {
             </figure>
             <figure className={styles.media}>
               <img
-                src={media.flyerEn}
+                src={media.flyerCfpEn}
                 alt="Official CFP NO LIMIT brochure in English."
                 width="656"
                 height="872"

@@ -1,175 +1,73 @@
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-/**
- * Service pour gérer les formations à la carte
- */
-export const customFormationService = {
-  /**
-   * Récupérer toutes les formations à la carte publiées
-   */
-  async getPublishedFormations() {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .select('*')
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true });
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Récupérer toutes les formations à la carte (admin)
-   */
-  async getAllFormations() {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .select('*')
-      .order('sort_order', { ascending: true });
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Récupérer une formation par son slug
-   */
-  async getFormationBySlug(slug) {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Récupérer les formations par catégorie
-   */
-  async getFormationsByCategory(category) {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .select('*')
-      .eq('category', category)
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true });
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Créer une nouvelle formation (admin)
-   */
-  async createFormation(formation) {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .insert({
-        ...formation,
-        slug: formation.slug || this.generateSlug(formation.title),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Mettre à jour une formation (admin)
-   */
-  async updateFormation(id, updates) {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Supprimer une formation (admin)
-   */
-  async deleteFormation(id) {
-    const { error } = await supabase
-      .from('custom_formations')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-    return true;
-  },
-
-  /**
-   * Publier/dépublier une formation (admin)
-   */
-  async togglePublication(id, isPublished) {
-    const { data, error } = await supabase
-      .from('custom_formations')
-      .update({
-        is_published: isPublished,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Réorganiser l'ordre des formations (admin)
-   */
-  async reorderFormations(formations) {
-    const updates = formations.map((formation, index) => ({
-      id: formation.id,
-      sort_order: index
-    }));
-
-    const { error } = await supabase
-      .from('custom_formations')
-      .upsert(updates);
-
-    if (error) throw error;
-    return true;
-  },
-
-  /**
-   * Générer un slug à partir d'un titre
-   */
-  generateSlug(title) {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-  },
-
-  /**
-   * Obtenir le libellé de la catégorie
-   */
-  getCategoryLabel(category) {
-    const labels = {
-      'beaute-esthetique-coiffure': 'Beauté esthétique et coiffure',
-      'administration-commerce-gestion': 'Administration commerce et gestion',
-      'informatique-creation-numerique': 'Informatique création et numérique',
-      'hotellerie-restauration-services': 'Hôtellerie restauration et services',
-      'autres-prestations-services': 'Autres prestations/services'
-    };
-    return labels[category] || category;
+function mapCustom(row) {
+  if (!row) return null
+  return {
+    ...row,
+    isPublished: row.is_published,
+    sortOrder: row.sort_order,
   }
-};
+}
 
-export default customFormationService;
+export async function getCustomFormations(includeUnpublished = false) {
+  if (isSupabaseConfigured) {
+    let query = supabase.from('custom_formations').select('*')
+    if (!includeUnpublished) query = query.eq('is_published', true)
+    const { data, error } = await query.order('sort_order', { ascending: true })
+    if (!error && data) return data.map(mapCustom)
+  }
+  return []
+}
+
+export async function updateCustomFormation(id, payload) {
+  if (isSupabaseConfigured) {
+    const dbPayload = {
+      title: payload.title,
+      slug: payload.slug,
+      category: payload.category,
+      description_3mois: payload.description_3mois,
+      description_6mois: payload.description_6mois,
+      description_9mois: payload.description_9mois,
+      price_3mois: payload.price_3mois,
+      price_6mois: payload.price_6mois,
+      price_9mois: payload.price_9mois,
+      is_published: payload.is_published,
+      sort_order: parseInt(payload.sort_order || 0, 10),
+      updated_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabase
+      .from('custom_formations')
+      .update(dbPayload)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return mapCustom(data)
+  }
+  return { ...payload, id }
+}
+
+export async function createCustomFormation(payload) {
+  if (isSupabaseConfigured) {
+    const dbPayload = {
+      title: payload.title,
+      slug: payload.slug,
+      category: payload.category,
+      description_3mois: payload.description_3mois,
+      description_6mois: payload.description_6mois,
+      description_9mois: payload.description_9mois,
+      price_3mois: payload.price_3mois,
+      price_6mois: payload.price_6mois,
+      price_9mois: payload.price_9mois,
+      is_published: payload.is_published,
+      sort_order: parseInt(payload.sort_order || 0, 10)
+    }
+
+    const { data, error } = await supabase.from('custom_formations').insert([dbPayload]).select().single()
+    if (error) throw error
+    return mapCustom(data)
+  }
+  return { ...payload, id: `custom-${Date.now()}` }
+}
