@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import customFormationService from '../../services/customFormationService';
+import {
+  getPublishedFormations,
+  getFormationsByCategory,
+  getCategoryLabel,
+  CATEGORY_LABELS
+} from '../../services/customFormationService';
 import './CustomFormationsSection.css';
 
 /**
@@ -14,14 +19,10 @@ const CustomFormationsSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedFormation, setSelectedFormation] = useState(null);
 
-  const categories = [
-    { value: 'all', label: 'Toutes les formations' },
-    { value: 'beaute-esthetique-coiffure', label: 'Beauté esthétique et coiffure' },
-    { value: 'administration-commerce-gestion', label: 'Administration commerce et gestion' },
-    { value: 'informatique-creation-numerique', label: 'Informatique création et numérique' },
-    { value: 'hotellerie-restauration-services', label: 'Hôtellerie restauration et services' },
-    { value: 'autres-prestations-services', label: 'Autres prestations/services' }
-  ];
+  const categories = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({
+    value,
+    label
+  }));
 
   useEffect(() => {
     loadFormations();
@@ -34,9 +35,9 @@ const CustomFormationsSection = () => {
       
       let data;
       if (selectedCategory === 'all') {
-        data = await customFormationService.getPublishedFormations();
+        data = await getPublishedFormations();
       } else {
-        data = await customFormationService.getFormationsByCategory(selectedCategory);
+        data = await getFormationsByCategory(selectedCategory);
       }
       
       setFormations(data);
@@ -48,27 +49,11 @@ const CustomFormationsSection = () => {
     }
   };
 
-  const groupedFormations = formations.reduce((acc, formation) => {
-    const categoryLabel = customFormationService.getCategoryLabel(formation.category);
-    if (!acc[categoryLabel]) {
-      acc[acc.length] = { label: categoryLabel, items: [] };
-      const found = acc.find(g => g.label === categoryLabel);
-      if (found) found.items.push(formation);
-      else {
-          const newGroup = { label: categoryLabel, items: [formation] };
-          acc.push(newGroup);
-      }
-    } else {
-       // logic was a bit flawed above, let's fix
-    }
-    return acc;
-  }, []);
-
   // Correct grouping logic
   const groupByCategory = (list) => {
       const groups = {};
       list.forEach(f => {
-          const label = customFormationService.getCategoryLabel(f.category);
+          const label = getCategoryLabel(f.category);
           if (!groups[label]) groups[label] = [];
           groups[label].push(f);
       });

@@ -36,19 +36,6 @@ export function ActualiteDetailPage() {
     )
   }
 
-  // JSON-LD pour l'article de presse
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: article.title,
-    image: [article.image_url],
-    datePublished: article.published_at || article.created_at,
-    author: {
-      '@type': 'Organization',
-      name: 'Groupe NO LIMIT',
-    },
-  }
-
   function renderMediaItem(item, index, total, isOverlay = false) {
     const url = item?.url || item
     if (!url) return null
@@ -114,11 +101,9 @@ export function ActualiteDetailPage() {
   function renderFacebookGrid() {
     let mediaList = []
 
-    // Priorité à la galerie si elle contient des éléments
     if (Array.isArray(article.gallery) && article.gallery.length > 0) {
       mediaList = article.gallery
     } else {
-      // Fallback sur les anciens champs cover/video
       if (article.video_url) mediaList.push({ url: article.video_url, type: 'video' })
       if (article.image_url) mediaList.push({ url: article.image_url, type: 'image' })
     }
@@ -131,7 +116,7 @@ export function ActualiteDetailPage() {
         display: 'grid',
         gridTemplateColumns: count === 1 ? '1fr' : '1fr 1fr',
         gap: '4px',
-        height: count === 1 ? 'auto' : '450px', // Hauteur stable pour la grille
+        height: count === 1 ? 'auto' : '450px',
         borderRadius: '16px',
         overflow: 'hidden',
         marginBottom: '2.5rem',
@@ -154,13 +139,7 @@ export function ActualiteDetailPage() {
 
   return (
     <>
-      <Seo
-        title={article.title}
-        description={article.excerpt}
-        path={`/actualites/${slug}`}
-        image={article.image_url}
-        jsonLd={jsonLd}
-      />
+      <Seo title={article.title} description={article.excerpt} path={`/actualites/${slug}`} />
       <PageHero
         title={article.title}
         lede={article.category || 'Actualité'}

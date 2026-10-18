@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const CATEGORY_LABELS = {
+export const CATEGORY_LABELS = {
   'all': 'Toutes les formations',
   'beaute-esthetique-coiffure': 'Beauté esthétique et coiffure',
   'administration-commerce-gestion': 'Administration commerce et gestion',
@@ -19,16 +19,21 @@ function mapCustom(row) {
 }
 
 export async function getCustomFormations(includeUnpublished = false) {
-  if (isSupabaseConfigured) {
-    let query = supabase.from('custom_formations').select('*')
-    if (!includeUnpublished) query = query.eq('is_published', true)
-    const { data, error } = await query.order('sort_order', { ascending: true })
-    if (!error && data) return data.map(mapCustom)
+  if (isSupabaseConfigured && supabase) {
+    try {
+      let query = supabase.from('custom_formations').select('*')
+      if (!includeUnpublished) query = query.eq('is_published', true)
+      const { data, error } = await query.order('sort_order', { ascending: true })
+      if (error) throw error
+      return (data || []).map(mapCustom)
+    } catch (e) {
+      console.error("Erreur custom formations:", e)
+      return []
+    }
   }
   return []
 }
 
-// Fonctions requises par CustomFormationsSection.jsx
 export async function getPublishedFormations() {
   return getCustomFormations(false);
 }
@@ -44,7 +49,7 @@ export function getCategoryLabel(category) {
 }
 
 export async function updateCustomFormation(id, payload) {
-  if (isSupabaseConfigured) {
+  if (isSupabaseConfigured && supabase) {
     const dbPayload = {
       title: payload.title,
       slug: payload.slug,
@@ -74,7 +79,7 @@ export async function updateCustomFormation(id, payload) {
 }
 
 export async function createCustomFormation(payload) {
-  if (isSupabaseConfigured) {
+  if (isSupabaseConfigured && supabase) {
     const dbPayload = {
       title: payload.title,
       slug: payload.slug,
@@ -95,13 +100,3 @@ export async function createCustomFormation(payload) {
   }
   return { ...payload, id: `custom-${Date.now()}` }
 }
-
-// Export par défaut pour satisfaire l'import dans CustomFormationsSection.jsx
-export default {
-  getCustomFormations,
-  getPublishedFormations,
-  getFormationsByCategory,
-  getCategoryLabel,
-  updateCustomFormation,
-  createCustomFormation
-};

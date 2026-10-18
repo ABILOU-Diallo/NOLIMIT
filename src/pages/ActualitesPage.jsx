@@ -8,7 +8,6 @@ import { getPublishedArticles } from '../services/actualiteService'
 import { site } from '../data/site'
 import { ASYNC } from '../utils/asyncState'
 import { useLockBody } from '../hooks/useLockBody'
-import styles from '../components/layout/PageHero.module.css'
 
 // Construit la liste complète de medias d'un article avec normalisation
 function buildMediaList(article) {
@@ -32,7 +31,6 @@ export function ActualitesPage() {
   const { state, data, error } = useAsyncData(getPublishedArticles, [])
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [mediaIndex, setMediaIndex]       = useState(0)
-  const [showFullDesc, setShowFullDesc]   = useState(false)
 
   useLockBody(selectedIndex !== null)
 
@@ -41,7 +39,6 @@ export function ActualitesPage() {
     if (selectedIndex === null || !data) return
     setSelectedIndex(prev => (prev + 1) % data.length)
     setMediaIndex(0)
-    setShowFullDesc(false)
   }, [selectedIndex, data])
 
   const handlePrev = useCallback((e) => {
@@ -49,13 +46,11 @@ export function ActualitesPage() {
     if (selectedIndex === null || !data) return
     setSelectedIndex(prev => (prev - 1 + data.length) % data.length)
     setMediaIndex(0)
-    setShowFullDesc(false)
   }, [selectedIndex, data])
 
   const handleClose = () => {
     setSelectedIndex(null)
     setMediaIndex(0)
-    setShowFullDesc(false)
   }
 
   useEffect(() => {
@@ -117,7 +112,7 @@ export function ActualitesPage() {
     <>
       <Seo
         title="Actualités et Événements du Campus — Groupe NO LIMIT"
-        description={`Découvrez les dernières actualités d'ISSMIGA et du CFP NO LIMIT à Yaoundé : vie étudiante, remises de diplômes, et annonces importantes.`}
+        description={`Découvrez les dernières actualités d'ISSMIGA et du CFP NO LIMIT à Yaoundé.`}
         path="/actualites"
       />
       <PageHero
@@ -127,7 +122,7 @@ export function ActualitesPage() {
       />
       <PageBody>
         {state === ASYNC.loading ? <Loader /> : null}
-        {state === ASYNC.error ? <p role="alert">Erreur de chargement.</p> : null}
+        {state === ASYNC.error ? <p role="alert">Erreur de chargement des actualités.</p> : null}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {data?.map((article, index) => (
@@ -144,15 +139,20 @@ export function ActualitesPage() {
 
         {selectedArticle && (
           <div onClick={handleClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(10px)' }}>
-            <button onClick={handleClose} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer' }}>×</button>
+            <button onClick={handleClose} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', zIndex: 1001 }}>×</button>
             <div onClick={e => e.stopPropagation()} style={{ maxWidth: '1000px', width: '100%', background: '#fff', borderRadius: '20px', overflow: 'hidden' }}>
               <div style={{ background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
                 {renderLightboxMedia(currentMedia, selectedArticle)}
               </div>
               <div style={{ padding: '1.5rem' }}>
-                <h3>{selectedArticle.title}</h3>
-                <p>{selectedArticle.content}</p>
-                <Link to={`/actualites/${selectedArticle.slug}`} onClick={handleClose} style={{ color: 'var(--primary)', fontWeight: 700 }}>Lire la suite →</Link>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                   <div>
+                      <h3 style={{ margin: 0 }}>{selectedArticle.title}</h3>
+                      <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{selectedArticle.category}</span>
+                   </div>
+                   <Link to={`/actualites/${selectedArticle.slug}`} onClick={handleClose} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>Détails →</Link>
+                </div>
+                <p style={{ color: '#334155', lineHeight: '1.6' }}>{selectedArticle.excerpt || selectedArticle.content?.substring(0, 200) + '...'}</p>
               </div>
             </div>
           </div>

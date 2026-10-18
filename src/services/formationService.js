@@ -31,7 +31,7 @@ export async function getPoles(includeUnpublished = false) {
       const { data, error } = await query.order('sort_order', { ascending: true })
       if (!error && data) return data
     } catch (e) {
-      console.warn("Erreur réseau Supabase (Pôles), utilisation des données locales.");
+      console.warn("Utilisation des pôles locaux.");
     }
   }
   return localPoles
@@ -45,7 +45,7 @@ export async function getFormations(includeUnpublished = false) {
       const { data, error } = await query.order('sort_order', { ascending: true })
       if (!error && data) return data.map(mapFormation)
     } catch (e) {
-      console.warn("Erreur réseau Supabase (Formations), utilisation des données locales.");
+      console.error("Utilisation des formations locales.");
     }
   }
   return localFormations
@@ -79,9 +79,10 @@ export async function getCustomFormations(includeUnpublished = false) {
       let query = supabase.from('custom_formations').select('*')
       if (!includeUnpublished) query = query.eq('is_published', true)
       const { data, error } = await query.order('sort_order', { ascending: true })
-      if (!error && data) return data
+      if (error) throw error
+      return (data || [])
     } catch (e) {
-      console.warn("Erreur réseau Supabase (Custom Formations).");
+      console.warn("Erreur réseau Custom Formations.");
     }
   }
   return []
@@ -125,7 +126,6 @@ export async function createFormation(payload) {
       duration: payload.duration,
       excerpt: payload.excerpt,
       description: payload.description,
-      presentation: payload.presentation,
       is_published: payload.is_published,
       sort_order: parseInt(payload.sort_order || 0, 10)
     }
