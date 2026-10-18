@@ -48,26 +48,20 @@ export function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || category;
 }
 
-export async function updateCustomFormation(id, payload) {
+export async function createFormation(payload) {
   if (isSupabaseConfigured && supabase) {
-    const dbPayload = {
-      title: payload.title,
-      slug: payload.slug,
-      category: payload.category,
-      description_3mois: payload.description_3mois,
-      description_6mois: payload.description_6mois,
-      description_9mois: payload.description_9mois,
-      price_3mois: payload.price_3mois,
-      price_6mois: payload.price_6mois,
-      price_9mois: payload.price_9mois,
-      is_published: payload.is_published,
-      sort_order: parseInt(payload.sort_order || 0, 10),
-      updated_at: new Date().toISOString()
-    }
+    const { data, error } = await supabase.from('custom_formations').insert([payload]).select().single()
+    if (error) throw error
+    return mapCustom(data)
+  }
+  return { ...payload, id: `custom-${Date.now()}` }
+}
 
+export async function updateFormation(id, payload) {
+  if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from('custom_formations')
-      .update(dbPayload)
+      .update({ ...payload, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single()
@@ -78,25 +72,18 @@ export async function updateCustomFormation(id, payload) {
   return { ...payload, id }
 }
 
-export async function createCustomFormation(payload) {
+export async function deleteFormation(id) {
   if (isSupabaseConfigured && supabase) {
-    const dbPayload = {
-      title: payload.title,
-      slug: payload.slug,
-      category: payload.category,
-      description_3mois: payload.description_3mois,
-      description_6mois: payload.description_6mois,
-      description_9mois: payload.description_9mois,
-      price_3mois: payload.price_3mois,
-      price_6mois: payload.price_6mois,
-      price_9mois: payload.price_9mois,
-      is_published: payload.is_published,
-      sort_order: parseInt(payload.sort_order || 0, 10)
-    }
-
-    const { data, error } = await supabase.from('custom_formations').insert([dbPayload]).select().single()
+    const { error } = await supabase.from('custom_formations').delete().eq('id', id)
     if (error) throw error
-    return mapCustom(data)
   }
-  return { ...payload, id: `custom-${Date.now()}` }
+  return true
+}
+
+export async function togglePublication(id, is_published) {
+  if (isSupabaseConfigured && supabase) {
+    const { error } = await supabase.from('custom_formations').update({ is_published }).eq('id', id)
+    if (error) throw error
+  }
+  return true
 }

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import customFormationService from '../../services/customFormationService';
+import {
+  getCustomFormations,
+  getCategoryLabel,
+  createFormation,
+  updateFormation,
+  deleteFormation,
+  togglePublication,
+  CATEGORY_LABELS
+} from '../../services/customFormationService';
 import './AdminCustomFormationsPage.css';
 
 /**
@@ -21,13 +29,10 @@ const AdminCustomFormationsPage = () => {
     is_published: false
   });
 
-  const categories = [
-    { value: 'beaute-esthetique-coiffure', label: 'Beauté esthétique et coiffure' },
-    { value: 'administration-commerce-gestion', label: 'Administration commerce et gestion' },
-    { value: 'informatique-creation-numerique', label: 'Informatique création et numérique' },
-    { value: 'hotellerie-restauration-services', label: 'Hôtellerie restauration et services' },
-    { value: 'autres-prestations-services', label: 'Autres prestations/services' }
-  ];
+  const categories = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({
+    value,
+    label
+  }));
 
   useEffect(() => {
     loadFormations();
@@ -37,7 +42,8 @@ const AdminCustomFormationsPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await customFormationService.getAllFormations();
+      // On utilise getCustomFormations(true) pour voir aussi les non-publiées en admin
+      const data = await getCustomFormations(true);
       setFormations(data);
     } catch (err) {
       console.error('Erreur lors du chargement:', err);
@@ -77,250 +83,123 @@ const AdminCustomFormationsPage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingFormation(null);
-    setFormData({
-      title: '',
-      category: 'beaute-esthetique-coiffure',
-      description_3mois: '',
-      description_6mois: '',
-      description_9mois: '',
-      faisabilite: '',
-      is_published: false
-    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingFormation) {
-        await customFormationService.updateFormation(editingFormation.id, formData);
+        await updateFormation(editingFormation.id, formData);
       } else {
-        await customFormationService.createFormation(formData);
+        await createFormation(formData);
       }
       handleCloseModal();
       loadFormations();
     } catch (err) {
       console.error('Erreur lors de la sauvegarde:', err);
-      alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
+      alert('Erreur lors de la sauvegarde.');
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
-      return;
-    }
+  const handleDeleteItem = async (id) => {
+    if (!window.confirm('Supprimer définitivement ?')) return;
     try {
-      await customFormationService.deleteFormation(id);
+      await deleteFormation(id);
       loadFormations();
     } catch (err) {
-      console.error('Erreur lors de la suppression:', err);
       alert('Erreur lors de la suppression.');
     }
   };
 
-  const handleTogglePublication = async (id, isPublished) => {
+  const handleToggle = async (id, currentStatus) => {
     try {
-      await customFormationService.togglePublication(id, isPublished);
+      await togglePublication(id, !currentStatus);
       loadFormations();
     } catch (err) {
-      console.error('Erreur lors de la modification:', err);
-      alert('Erreur lors de la modification.');
+      alert('Erreur lors du changement de statut.');
     }
   };
 
   const groupedFormations = formations.reduce((acc, formation) => {
-    const categoryLabel = customFormationService.getCategoryLabel(formation.category);
-    if (!acc[categoryLabel]) {
-      acc[categoryLabel] = [];
-    }
-    acc[categoryLabel].push(formation);
+    const label = getCategoryLabel(formation.category);
+    if (!acc[label]) acc[label] = [];
+    acc[label].push(formation);
     return acc;
   }, {});
 
-  if (loading) {
-    return (
-      <div className="admin-custom-formations-page">
-        <div className="container">
-          <div className="loading">Chargement...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="admin-custom-formations-page">
-        <div className="container">
-          <div className="error">{error}</div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div style={{ padding: '2rem' }}>Chargement...</div>;
 
   return (
-    <div className="admin-custom-formations-page">
-      <div className="container">
-        <div className="page-header">
-          <h1>Gestion des formations à la carte</h1>
-          <button
-            className="btn btn-primary"
-            onClick={() => handleOpenModal()}
-          >
-            + Nouvelle formation
-          </button>
-        </div>
-
-        <div className="formations-container">
-          {Object.entries(groupedFormations).map(([category, formations]) => (
-            <div key={category} className="category-section">
-              <h2 className="category-heading">{category}</h2>
-              <div className="formations-table-wrapper">
-                <table className="formations-table">
-                  <thead>
-                    <tr>
-                      <th>Titre</th>
-                      <th>Publié</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formations.map(formation => (
-                      <tr key={formation.id}>
-                        <td>{formation.title}</td>
-                        <td>
-                          <button
-                            className={`status-badge ${formation.is_published ? 'published' : 'draft'}`}
-                            onClick={() => handleTogglePublication(formation.id, !formation.is_published)}
-                          >
-                            {formation.is_published ? 'Publié' : 'Brouillon'}
-                          </button>
-                        </td>
-                        <td>
-                          <div className="action-buttons">
-                            <button
-                              className="btn btn-sm btn-edit"
-                              onClick={() => handleOpenModal(formation)}
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              className="btn btn-sm btn-delete"
-                              onClick={() => handleDelete(formation.id)}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="admin-custom-formations-page" style={{ padding: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+        <h1>Formations à la carte</h1>
+        <button className="btn btn-primary" onClick={() => handleOpenModal()}>+ Nouveau</button>
       </div>
 
+      {Object.entries(groupedFormations).map(([category, items]) => (
+        <div key={category} style={{ marginBottom: '2.5rem' }}>
+          <h2 style={{ fontSize: '1.2rem', color: '#64748b', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>{category}</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr style={{ textAlign: 'left', fontSize: '0.85rem', color: '#94a3b8' }}>
+                <th style={{ padding: '0.75rem' }}>TITRE</th>
+                <th style={{ padding: '0.75rem' }}>STATUT</th>
+                <th style={{ padding: '0.75rem', textAlign: 'right' }}>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map(f => (
+                <tr key={f.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '0.75rem', fontWeight: 600 }}>{f.title}</td>
+                  <td style={{ padding: '0.75rem' }}>
+                    <button
+                      onClick={() => handleToggle(f.id, f.is_published)}
+                      style={{
+                        padding: '0.2rem 0.6rem', borderRadius: '12px', border: 'none', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
+                        background: f.is_published ? '#dcfce7' : '#fee2e2',
+                        color: f.is_published ? '#166534' : '#991b1b'
+                      }}
+                    >
+                      {f.is_published ? 'PUBLIÉ' : 'BROUILLON'}
+                    </button>
+                  </td>
+                  <td style={{ padding: '0.75rem', textAlign: 'right' }}>
+                    <button onClick={() => handleOpenModal(f)} style={{ marginRight: '0.5rem', color: '#2563eb', border: 'none', background: 'none', cursor: 'pointer' }}>Modifier</button>
+                    <button onClick={() => handleDeleteItem(f.id)} style={{ color: '#dc2626', border: 'none', background: 'none', cursor: 'pointer' }}>Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+
       {showModal && (
-        <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={handleCloseModal}>×</button>
-            <h2 className="modal-title">
-              {editingFormation ? 'Modifier la formation' : 'Nouvelle formation'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="formation-form">
-              <div className="form-group">
-                <label htmlFor="title">Titre *</label>
-                <input
-                  type="text"
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Catégorie *</label>
-                <select
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  required
-                >
-                  {categories.map(cat => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description_3mois">Description 3 mois *</label>
-                <textarea
-                  id="description_3mois"
-                  value={formData.description_3mois}
-                  onChange={(e) => setFormData({...formData, description_3mois: e.target.value})}
-                  required
-                  rows="3"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description_6mois">Description 6 mois *</label>
-                <textarea
-                  id="description_6mois"
-                  value={formData.description_6mois}
-                  onChange={(e) => setFormData({...formData, description_6mois: e.target.value})}
-                  required
-                  rows="3"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description_9mois">Description 9 mois *</label>
-                <textarea
-                  id="description_9mois"
-                  value={formData.description_9mois}
-                  onChange={(e) => setFormData({...formData, description_9mois: e.target.value})}
-                  required
-                  rows="3"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="faisabilite">Faisabilité *</label>
-                <textarea
-                  id="faisabilite"
-                  value={formData.faisabilite}
-                  onChange={(e) => setFormData({...formData, faisabilite: e.target.value})}
-                  required
-                  rows="3"
-                />
-              </div>
-
-              <div className="form-group checkbox-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_published}
-                    onChange={(e) => setFormData({...formData, is_published: e.target.checked})}
-                  />
-                  Publier cette formation
-                </label>
-              </div>
-
-              <div className="form-actions">
-                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
-                  Annuler
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingFormation ? 'Mettre à jour' : 'Créer'}
-                </button>
-              </div>
-            </form>
-          </div>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2>{editingFormation ? 'Modifier' : 'Ajouter'} une formation</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+              <input
+                placeholder="Titre" required
+                value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+                style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+              />
+              <select
+                value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}
+                style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+              >
+                {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              </select>
+              <textarea placeholder="Description 3 mois" value={formData.description_3mois} onChange={e => setFormData({...formData, description_3mois: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+              <textarea placeholder="Description 6 mois" value={formData.description_6mois} onChange={e => setFormData({...formData, description_6mois: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+              <textarea placeholder="Description 9 mois" value={formData.description_9mois} onChange={e => setFormData({...formData, description_9mois: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+              <label><input type="checkbox" checked={formData.is_published} onChange={e => setFormData({...formData, is_published: e.target.checked})} /> Publier immédiatement</label>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+              <button type="submit" style={{ flex: 1, padding: '0.75rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Enregistrer</button>
+              <button type="button" onClick={handleCloseModal} style={{ flex: 1, padding: '0.75rem', background: '#f1f5f9', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Annuler</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

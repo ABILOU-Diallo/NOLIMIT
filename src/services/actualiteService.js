@@ -1,7 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const LOCAL_ACTUALITES_KEY = 'issmiga_actualites_v1'
-
 function mapFromDb(item) {
   if (!item) return null
   let gallery = []
@@ -31,15 +29,15 @@ function mapFromDb(item) {
 function mapToDb(payload) {
   const title = payload.title || ''
   return {
-    title:        title,
-    slug:         payload.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `act-${Date.now()}`,
-    category:     payload.category || 'Vie du campus',
-    excerpt:      payload.excerpt || '',
-    body:         payload.content || '',
-    cover_path:   payload.image_url || null,
-    video_url:    payload.video_url || null,
-    status:       payload.status || 'draft',
-    gallery:      payload.gallery || [],
+    title: title,
+    slug: payload.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `act-${Date.now()}`,
+    category: payload.category || 'Vie du campus',
+    excerpt: payload.excerpt || '',
+    body: payload.content || '',
+    cover_path: payload.image_url || null,
+    video_url: payload.video_url || null,
+    status: payload.status || 'draft',
+    gallery: payload.gallery || [],
     published_at: payload.status === 'published' ? new Date().toISOString() : null,
   }
 }
@@ -76,7 +74,7 @@ export async function getAllArticles() {
       if (error) throw error
       return (data || []).map(mapFromDb)
     } catch (e) {
-      console.error("Erreur lors de la récupération des actualités:", e.message)
+      console.error("Erreur actualités:", e.message)
       return []
     }
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Loader } from '../../components/ui/Loader';
 import { Button } from '../../components/ui/Button';
-import orientationService from '../../services/orientationService';
+import { getAllRequests, updateRequestStatus, deleteRequest } from '../../services/orientationService';
 
 export function AdminOrientationsPage() {
   const [requests, setRequests] = useState([]);
@@ -11,7 +11,7 @@ export function AdminOrientationsPage() {
   const loadRequests = async () => {
     try {
       setLoading(true);
-      const data = await orientationService.getAllRequests();
+      const data = await getAllRequests();
       setRequests(data);
     } catch (err) {
       setError('Erreur lors du chargement des demandes.');
@@ -26,7 +26,7 @@ export function AdminOrientationsPage() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await orientationService.updateRequestStatus(id, newStatus);
+      await updateRequestStatus(id, newStatus);
       loadRequests();
     } catch (err) {
       alert('Erreur lors de la mise à jour du statut.');
@@ -36,7 +36,7 @@ export function AdminOrientationsPage() {
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer cette demande ?')) return;
     try {
-      await orientationService.deleteRequest(id);
+      await deleteRequest(id);
       loadRequests();
     } catch (err) {
       alert('Erreur lors de la suppression.');

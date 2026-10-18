@@ -6,7 +6,7 @@ import { Seo } from '../components/layout/Seo';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Textarea';
-import orientationService from '../services/orientationService';
+import { submitRequest } from '../services/orientationService';
 import styles from '../components/forms/FormLayout.module.css';
 
 export function OrientationRequestPage() {
@@ -33,7 +33,7 @@ export function OrientationRequestPage() {
     setStatus('loading');
     setError('');
     try {
-      await orientationService.submitRequest({
+      await submitRequest({
         ...data,
         formationTitle,
         formationSlug
