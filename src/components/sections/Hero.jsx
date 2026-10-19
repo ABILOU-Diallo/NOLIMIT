@@ -29,7 +29,7 @@ export function Hero() {
           </p>
 
           <p className={styles.lead}>
-            L’institut supérieur <strong>(ISSMIGA)</strong> et le centre professionnel <strong>(CFP NO LIMIT)</strong> réunis pour vous offrir des parcours diplômants, pratiques et directement connectés à l’emploi.
+            L’institut supérieur <strong>(ISSMIGA)</strong> et le centre de formation professionnelle <strong>(CFP NO LIMIT)</strong> réunis pour vous offrir des parcours diplômants, pratiques et directement connectés à l’emploi.
           </p>
 
           <div className={styles.actions}>

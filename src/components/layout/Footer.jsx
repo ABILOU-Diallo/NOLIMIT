@@ -130,7 +130,7 @@ export function Footer() {
               </div>
 
               <p style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.85)', marginTop: '0.85rem' }}>
-                Centre de Formation Professionnelle NO LIMIT. Pratique métier, diplômes d’État en 1 an et immersion professionnelle directe.
+                Centre de Formation Professionnelle NO LIMIT. Pratique métier, diplômes d’État en 1 an et insertion professionnelle directe.
               </p>
               <p style={{ display: 'flex', gap: '0.4rem', alignItems: 'flex-start', marginTop: '0.75rem' }}>
                 <i className="bx bx-map-pin" style={{ fontSize: '1.2rem', flexShrink: 0, marginTop: '0.1rem' }} aria-hidden="true" />

@@ -33,7 +33,7 @@ export function CfpPage() {
       />
       <PageHero
         title="CFP NO LIMIT"
-        lede="Centre de Formation Professionnelle agréé MINEFOP à Emana."
+        lede="Centre de Formation Professionnelle agréé MINEFOP situé à Emana."
         logo={media.cfp}
         logoAlt="Logo officiel CFP NO LIMIT"
         crumbs={[{ to: '/', label: 'Accueil' }, { to: '/le-groupe', label: 'Le Groupe' }, { label: 'CFP NO LIMIT' }]}
@@ -52,7 +52,7 @@ export function CfpPage() {
               marginBottom: '2rem'
             }}>
               <h2 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', fontSize: '1.4rem' }}>
-                Formations Certifiantes (Cycles 1 an)
+                Formations qualifiantes (Cycles 1 an)
               </h2>
               <p style={{ margin: 0, fontSize: '1rem', color: '#fed7aa' }}>
                 Diplômes d'État : **CQP** (Certificat de Qualification) et **DQP** (Diplôme de Qualification).

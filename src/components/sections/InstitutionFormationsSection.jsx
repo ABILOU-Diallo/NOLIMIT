@@ -113,10 +113,12 @@ export function InstitutionFormationsSection({
                     >
                       {diplomaUpper}
                     </span>
-                    <span className={styles.durationBadge}>
-                      <i className="bx bx-time-five" />
-                      {f.duration || '1 an'}
-                    </span>
+                    {institution !== 'cfp' && (
+                      <span className={styles.durationBadge}>
+                        <i className="bx bx-time-five" />
+                        {f.duration || '1 an'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
