@@ -66,8 +66,28 @@ export function IssmigaPage() {
             />
           )}
 
-          <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-            <LinkButton to="/preinscription">S’inscrire à ISSMIGA</LinkButton>
+          {/* BROCHURES ISSMIGA */}
+          <h2 style={{ marginTop: '5rem', textAlign: 'center', fontSize: '1.75rem' }}>Documents Officiels</h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: '2rem',
+            maxWidth: '900px',
+            margin: '2rem auto 0',
+            padding: '0 1rem'
+          }}>
+            <figure style={{ margin: 0 }}>
+              <img src={media.flyerFr} alt="Brochure ISSMIGA FR" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Brochure (Français)</figcaption>
+            </figure>
+            <figure style={{ margin: 0 }}>
+              <img src={media.flyerEn} alt="Brochure ISSMIGA EN" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Brochure (English)</figcaption>
+            </figure>
+          </div>
+
+          <div style={{ marginTop: '4rem', textAlign: 'center', padding: '0 1rem' }}>
+            <LinkButton to="/preinscription" style={{ width: '100%', maxWidth: '400px' }}>S’inscrire à ISSMIGA</LinkButton>
           </div>
         </div>
       </PageBody>
