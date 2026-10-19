@@ -159,11 +159,22 @@ export function PreinscriptionWizard({ formations = [] }) {
     return (
       <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)' }}>
         <div style={{ width: '80px', height: '80px', background: '#dcfce7', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: '2.5rem' }}>
-          <i className='bx bx-check' />
+          <i className='bx bx-check-shield' />
         </div>
-        <h2>Préinscription Enregistrée !</h2>
-        <p>Numéro de dossier : <strong>{submissionResult?.reference}</strong></p>
-        <LinkButton to="/" variant="primary" style={{ marginTop: '1.5rem' }}>Retour à l'accueil</LinkButton>
+        <h2 style={{ color: 'var(--color-navy-900)', marginBottom: '1rem' }}>Félicitations ! Votre demande est enregistrée</h2>
+        <p style={{ color: '#64748b', maxWidth: '500px', margin: '0 auto 1.5rem', lineHeight: '1.6' }}>
+          Le Groupe NO LIMIT a bien reçu votre dossier de préinscription. Nous sommes ravis de vous compter parmi nos futurs étudiants.
+        </p>
+        <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', display: 'inline-block', marginBottom: '1.5rem' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Référence du dossier</span>
+          <strong style={{ fontSize: '1.25rem', color: 'var(--color-magenta-600)' }}>{submissionResult?.reference}</strong>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <LinkButton to="/" variant="ghost">Retour à l'accueil</LinkButton>
+          <a href={whatsappUrl(site.phone, `Bonjour, j'ai effectué ma préinscription au Groupe NO LIMIT sous la référence ${submissionResult?.reference}.`)} target="_blank" rel="noopener" className="button button-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: 700 }}>
+            {whatsappIcon} Confirmer sur WhatsApp
+          </a>
+        </div>
       </div>
     )
   }

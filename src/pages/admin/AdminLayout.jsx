@@ -3,6 +3,7 @@ import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Loader } from '../../components/ui/Loader'
 import { useAuth } from '../../hooks/useAuth'
 import { useLockBody } from '../../hooks/useLockBody'
+import { HIDDEN_ADMIN_EMAIL } from '../../services/authService'
 import '../../styles/admin.css'
 
 const SIDEBAR_KEY = 'issmiga_admin_sidebar_collapsed'
@@ -86,7 +87,13 @@ export function AdminLayout() {
       ? { label: 'Super Admin', color: '#7c3aed', bg: '#ede9fe', icon: 'bx-bolt-circle' }
       : { label: 'Administrateur', color: '#3b82f6', bg: '#dbeafe', icon: 'bx-shield' }
 
-  const initials = (profile?.full_name || email || 'A')
+  // Masquage de l'email spécifique dans les initiales et l'affichage
+  const isMaintenanceUser = email?.toLowerCase().trim() === HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
+
+  const displayFullName = isMaintenanceUser ? 'Maintenance Admin' : (profile?.full_name || 'Administrateur')
+  const displayEmail = isMaintenanceUser ? 'Mode invisible actif' : email
+
+  const initials = isMaintenanceUser ? 'MA' : (profile?.full_name || email || 'A')
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
@@ -155,8 +162,8 @@ export function AdminLayout() {
         <div className="admin-sidebar-user">
           <div className="admin-sidebar-user-avatar">{initials || 'A'}</div>
           <div className="admin-sidebar-user-info">
-            <div className="admin-sidebar-user-name">{profile?.full_name || 'Administrateur'}</div>
-            <div className="admin-sidebar-user-email">{email}</div>
+            <div className="admin-sidebar-user-name">{displayFullName}</div>
+            <div className="admin-sidebar-user-email">{displayEmail}</div>
           </div>
           <button type="button" className="admin-signout-btn" onClick={signOut} aria-label="Déconnexion">
             <i className="bx bx-log-out" />

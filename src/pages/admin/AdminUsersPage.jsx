@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
@@ -19,6 +19,13 @@ const ROLE_BADGE_COLORS = {
   admin: { bg: '#eff6ff', color: '#1e40af', border: '#dbeafe' },
   student: { bg: '#f0fdf4', color: '#166534', border: '#dcfce7' },
   visitor: { bg: '#f8fafc', color: '#475569', border: '#f1f5f9' },
+}
+
+const STATUS_LABELS = {
+  new: 'Nouveau',
+  contacted: 'Contacté',
+  validated: 'Validé',
+  rejected: 'Refusé'
 }
 
 function RoleBadge({ role }) {
@@ -42,6 +49,104 @@ function RoleBadge({ role }) {
   )
 }
 
+/**
+ * Composant de création isolé pour garantir la fluidité de saisie
+ */
+function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
+  const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '', role: 'student' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (form.password.length < 6) return setError('Le mot de passe doit faire au moins 6 caractères.')
+    setLoading(true)
+    setError('')
+    try {
+      const created = await adminCreateUser(form)
+      onSuccess(created)
+      setForm({ full_name: '', email: '', phone: '', password: '', role: 'student' })
+    } catch (err) {
+      setError(err.message || 'Erreur lors de la création.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (open ? (
+    <Modal open={open} title="Créer un nouveau compte" onClose={onClose}>
+      <form onSubmit={handleSubmit} style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <Input
+            label="Nom complet *"
+            name="full_name"
+            required
+            placeholder="Ex: Nom de l'utilisateur"
+            value={form.full_name}
+            onChange={handleChange}
+          />
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Rôle assigné</label>
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff' }}
+            >
+              <option value="student">Étudiant</option>
+              <option value="admin">Administrateur</option>
+              {isSuperAdmin && <option value="super_admin">Super Administrateur</option>}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <Input
+            label="Adresse Email *"
+            name="email"
+            type="email"
+            required
+            placeholder="contact@nolimitacademy.org"
+            value={form.email}
+            onChange={handleChange}
+          />
+          <Input
+            label="Téléphone (Optionnel)"
+            name="phone"
+            placeholder="6XX XXX XXX"
+            value={form.phone}
+            onChange={handleChange}
+          />
+        </div>
+
+        <Input
+          label="Mot de passe *"
+          name="password"
+          type="password"
+          required
+          placeholder="Min 6 caractères"
+          value={form.password}
+          onChange={handleChange}
+        />
+
+        {error && <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</p>}
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <Button variant="outline" full onClick={onClose} disabled={loading} type="button">Annuler</Button>
+          <Button type="submit" full disabled={loading}>
+            {loading ? 'Création...' : 'Créer l\'utilisateur'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  ) : null)
+}
+
 export function AdminUsersPage() {
   const { isSuperAdmin, isAdmin } = useAuth()
   const [users, setUsers] = useState([])
@@ -49,14 +154,10 @@ export function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-
-  // Modales
   const [selectedUser, setSelectedUser] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [newUserData, setNewUserData] = useState({ full_name: '', email: '', password: '', role: 'student' })
-  const [isCreating, setIsCreating] = useState(false)
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true)
       const data = await getUsers({ hideOwner: false })
@@ -66,32 +167,34 @@ export function AdminUsersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { loadUsers() }, [])
+  useEffect(() => { loadUsers() }, [loadUsers])
 
   const filtered = useMemo(
     () => users.filter((u) => {
-      const haystack = `${u.full_name ?? ''} ${u.email ?? ''}`.toLowerCase()
+      const haystack = `${u.full_name ?? ''} ${u.email ?? ''} ${u.phone ?? ''} ${u.preinscriptions?.map(p => p.formation_id).join(' ') || ''}`.toLowerCase()
       return haystack.includes(query.trim().toLowerCase())
     }),
     [query, users],
   )
 
-  function feedback(msg, isError = false) {
-    if (isError) { setError(msg); setSuccess('') }
-    else { setSuccess(msg); setError('') }
-    setTimeout(() => { setError(''); setSuccess('') }, 3000)
-  }
+  const handleUserCreated = useCallback((newUser) => {
+    setUsers(prev => [newUser, ...prev])
+    setShowAddModal(false)
+    setSuccess('Félicitations ! Le compte a été créé avec succès.')
+    setTimeout(() => setSuccess(''), 4000)
+  }, [])
+
+  const closeAddModal = useCallback(() => setShowAddModal(false), [])
 
   const handleRoleChange = async (userId, newRole) => {
     try {
       await updateUserRole(userId, newRole)
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u))
-      feedback('Rôle mis à jour.')
-    } catch (err) {
-      feedback('Erreur lors du changement de rôle.', true)
-    }
+      setSuccess('Rôle mis à jour.')
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) { setError('Erreur de mise à jour.') }
   }
 
   const handleStatusToggle = async (userId, currentStatus) => {
@@ -99,10 +202,7 @@ export function AdminUsersPage() {
       const nextStatus = !currentStatus
       await updateUserStatus(userId, nextStatus)
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: nextStatus } : u))
-      feedback(nextStatus ? 'Compte activé.' : 'Compte bloqué.')
-    } catch (err) {
-      feedback('Erreur de statut.', true)
-    }
+    } catch (err) { setError('Erreur de statut.') }
   }
 
   const handleDelete = async (user) => {
@@ -110,38 +210,7 @@ export function AdminUsersPage() {
     try {
       await deleteUser(user.id)
       setUsers(prev => prev.filter(u => u.id !== user.id))
-      feedback('Utilisateur supprimé.')
-    } catch (err) {
-      feedback('Suppression impossible.', true)
-    }
-  }
-
-  const handleAddUser = async (e) => {
-    e.preventDefault()
-    if (newUserData.password.length < 6) {
-      return feedback('Le mot de passe doit faire au moins 6 caractères.', true)
-    }
-
-    setIsCreating(true)
-    try {
-      const created = await adminCreateUser(newUserData)
-      setUsers([created, ...users])
-      setShowAddModal(false)
-      setNewUserData({ full_name: '', email: '', password: '', role: 'student' })
-      feedback('Utilisateur ajouté avec succès.')
-    } catch (err) {
-      console.error(err)
-      feedback(err.message || 'Erreur lors de la création.', true)
-    } finally {
-      setIsCreating(false)
-    }
-  }
-
-  const canManage = (target) => {
-    if (target.role === 'owner') return false
-    if (isSuperAdmin) return true // Le SuperAdmin peut tout gérer sauf owner
-    if (isAdmin && target.role === 'student') return true // L'admin gère les étudiants
-    return false
+    } catch (err) { setError('Suppression impossible.') }
   }
 
   if (loading) return <Loader label="Chargement des comptes..." />
@@ -151,24 +220,17 @@ export function AdminUsersPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Gestion des Utilisateurs</h2>
-          <p style={{ color: '#64748b' }}>Supervision des accès et des rôles de la plateforme.</p>
+          <p style={{ color: '#64748b' }}>Suivi des accès ({filtered.length} affichés).</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Button variant="outline" onClick={() => { setNewUserData({...newUserData, role: 'student', password: ''}); setShowAddModal(true) }}>
-            <i className="bx bx-plus" /> Ajouter Étudiant
-          </Button>
-          {isSuperAdmin && (
-            <Button onClick={() => { setNewUserData({...newUserData, role: 'admin', password: ''}); setShowAddModal(true) }}>
-              <i className="bx bx-shield-plus" /> Ajouter Admin
-            </Button>
-          )}
+          <Button onClick={() => setShowAddModal(true)}><i className="bx bx-plus" /> Nouvel Utilisateur</Button>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <div style={{ flex: '1' }}>
           <Input
-            placeholder="Rechercher un nom ou un email..."
+            placeholder="Rechercher nom, email, téléphone ou formation..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             style={{ marginBottom: 0 }}
@@ -177,14 +239,15 @@ export function AdminUsersPage() {
         <Button variant="ghost" onClick={loadUsers}><i className="bx bx-refresh" /> Actualiser</Button>
       </div>
 
-      {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid #fee2e2' }}>{error}</div>}
-      {success && <div style={{ background: '#f0fdf4', color: '#166534', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid #dcfce7' }}>{success}</div>}
+      {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: '1rem', borderRadius: '12px', marginBottom: '1rem' }}>{error}</div>}
+      {success && <div style={{ background: '#f0fdf4', color: '#166534', padding: '1rem', borderRadius: '12px', marginBottom: '1rem' }}>{success}</div>}
 
-      <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>UTILISATEUR</th>
+              <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>DERNIER VŒU</th>
               <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>RÔLE</th>
               <th style={{ padding: '1.25rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>STATUT</th>
               <th style={{ padding: '1.25rem', textAlign: 'right', color: '#64748b', fontSize: '0.85rem' }}>ACTIONS</th>
@@ -195,50 +258,27 @@ export function AdminUsersPage() {
               <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ fontWeight: 700 }}>{u.full_name || 'Inconnu'}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{u.email}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#6366f1' }}>{u.email}</div>
                 </td>
                 <td style={{ padding: '1.25rem' }}>
-                  {canManage(u) ? (
-                    <select
-                      value={u.role}
-                      onChange={e => handleRoleChange(u.id, e.target.value)}
-                      style={{ padding: '0.25rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    >
-                      <option value="student">Étudiant</option>
-                      <option value="admin">Administrateur</option>
-                      {isSuperAdmin && <option value="super_admin">Super Admin</option>}
-                    </select>
-                  ) : <RoleBadge role={u.role} />}
+                  {u.preinscriptions?.length > 0 ? <span style={{ fontSize: '0.8rem' }}>{u.preinscriptions[0].formation_id}</span> : <em style={{ color: '#94a3b8' }}>Aucun</em>}
+                </td>
+                <td style={{ padding: '1.25rem' }}>
+                  <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} style={{ padding: '0.35rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <option value="student">Étudiant</option>
+                    <option value="admin">Administrateur</option>
+                    {isSuperAdmin && <option value="super_admin">Super Admin</option>}
+                  </select>
                 </td>
                 <td style={{ padding: '1.25rem', textAlign: 'center' }}>
-                  <button
-                    onClick={() => canManage(u) && handleStatusToggle(u.id, u.is_active)}
-                    disabled={!canManage(u)}
-                    style={{
-                      background: u.is_active !== false ? '#dcfce7' : '#fee2e2',
-                      color: u.is_active !== false ? '#166534' : '#991b1b',
-                      border: 'none', padding: '0.3rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700,
-                      cursor: canManage(u) ? 'pointer' : 'not-allowed'
-                    }}
-                  >
+                  <button onClick={() => handleStatusToggle(u.id, u.is_active)} style={{ background: u.is_active !== false ? '#dcfce7' : '#fee2e2', color: u.is_active !== false ? '#166534' : '#991b1b', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 800 }}>
                     {u.is_active !== false ? 'ACTIF' : 'BLOQUÉ'}
                   </button>
                 </td>
                 <td style={{ padding: '1.25rem', textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <button onClick={() => setSelectedUser(u)} style={{ color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer' }} title="Voir">
-                      <i className="bx bx-show" style={{ fontSize: '1.2rem' }} />
-                    </button>
-                    {canManage(u) && (
-                      <>
-                        <button onClick={() => handleStatusToggle(u.id, u.is_active)} style={{ color: '#f59e0b', background: 'none', border: 'none', cursor: 'pointer' }} title={u.is_active ? "Bloquer" : "Débloquer"}>
-                          <i className={`bx ${u.is_active !== false ? 'bx-block' : 'bx-check-circle'}`} style={{ fontSize: '1.2rem' }} />
-                        </button>
-                        <button onClick={() => handleDelete(u)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }} title="Supprimer">
-                          <i className="bx bx-trash" style={{ fontSize: '1.2rem' }} />
-                        </button>
-                      </>
-                    )}
+                    <button onClick={() => setSelectedUser(u)} style={{ color: '#0f172a', background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.4rem' }}><i className="bx bx-show" style={{ fontSize: '1.2rem' }} /></button>
+                    <button onClick={() => handleDelete(u)} style={{ color: '#ef4444', background: '#fef2f2', border: 'none', borderRadius: '8px', padding: '0.4rem' }}><i className="bx bx-trash" style={{ fontSize: '1.2rem' }} /></button>
                   </div>
                 </td>
               </tr>
@@ -247,55 +287,16 @@ export function AdminUsersPage() {
         </table>
       </div>
 
-      {/* Modale Voir Utilisateur */}
+      <AddUserModal open={showAddModal} onClose={closeAddModal} onSuccess={handleUserCreated} isSuperAdmin={isSuperAdmin} />
+
       {selectedUser && (
-        <Modal open={!!selectedUser} title="Détails de l'utilisateur" onClose={() => setSelectedUser(null)}>
+        <Modal open={!!selectedUser} title="Détails" onClose={() => setSelectedUser(null)}>
           <div style={{ padding: '1rem' }}>
             <p><strong>Nom :</strong> {selectedUser.full_name}</p>
             <p><strong>Email :</strong> {selectedUser.email}</p>
-            <p><strong>Rôle :</strong> {ROLE_LABELS[selectedUser.role]}</p>
-            <p><strong>Statut :</strong> {selectedUser.is_active !== false ? 'Actif' : 'Bloqué'}</p>
-            <p><strong>Date inscription :</strong> {new Date(selectedUser.created_at).toLocaleDateString()}</p>
-            <Button full onClick={() => setSelectedUser(null)} style={{ marginTop: '1rem' }}>Fermer</Button>
+            <p><strong>Tel :</strong> {selectedUser.phone || 'N/A'}</p>
+            <Button full onClick={() => setSelectedUser(null)}>Fermer</Button>
           </div>
-        </Modal>
-      )}
-
-      {/* Modale Ajouter Utilisateur */}
-      {showAddModal && (
-        <Modal open={showAddModal} title={`Ajouter un ${ROLE_LABELS[newUserData.role]}`} onClose={() => setShowAddModal(false)}>
-          <form onSubmit={handleAddUser} style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Input
-              label="Nom complet"
-              required
-              value={newUserData.full_name}
-              onChange={e => setNewUserData({...newUserData, full_name: e.target.value})}
-            />
-            <Input
-              label="Adresse Email"
-              type="email"
-              required
-              value={newUserData.email}
-              onChange={e => setNewUserData({...newUserData, email: e.target.value})}
-            />
-            <Input
-              label="Mot de passe"
-              type="password"
-              required
-              placeholder="Min 6 caractères"
-              value={newUserData.password}
-              onChange={e => setNewUserData({...newUserData, password: e.target.value})}
-            />
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <Button variant="outline" full onClick={() => setShowAddModal(false)} disabled={isCreating}>Annuler</Button>
-              <Button type="submit" full disabled={isCreating}>
-                {isCreating ? 'Création...' : 'Créer le compte'}
-              </Button>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginTop: '0.5rem' }}>
-              L'utilisateur pourra se connecter immédiatement avec ces identifiants.
-            </p>
-          </form>
         </Modal>
       )}
     </div>

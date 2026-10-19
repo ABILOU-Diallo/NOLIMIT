@@ -3,14 +3,29 @@ import { IconButton } from './IconButton'
 import { useLockBody } from '../../hooks/useLockBody'
 import styles from './Modal.module.css'
 
+/**
+ * Composant Modal optimisé pour ne pas voler le focus lors de la saisie dans les formulaires
+ */
 export function Modal({ open, title, onClose, children }) {
   const ref = useRef(null)
+  const isInitiallyFocused = useRef(false)
   useLockBody(open)
 
   useEffect(() => {
-    if (!open) return undefined
-    const node = ref.current
-    node?.focus()
+    if (!open) {
+      isInitiallyFocused.current = false
+      return undefined
+    }
+
+    // On ne donne le focus au conteneur de la modale QUE lors de l'ouverture
+    // Cela évite de perdre le focus des inputs lors des re-rendus (pendant la saisie clavier)
+    if (!isInitiallyFocused.current) {
+      const timer = setTimeout(() => {
+        ref.current?.focus()
+        isInitiallyFocused.current = true
+      }, 50)
+      return () => clearTimeout(timer)
+    }
 
     function onKey(event) {
       if (event.key === 'Escape') onClose()
@@ -32,6 +47,7 @@ export function Modal({ open, title, onClose, children }) {
         aria-labelledby="modal-title"
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
+        style={{ outline: 'none' }}
       >
         <div className={styles.header}>
           <h2 id="modal-title" className={styles.title}>
@@ -41,7 +57,9 @@ export function Modal({ open, title, onClose, children }) {
             <span aria-hidden="true">×</span>
           </IconButton>
         </div>
-        {children}
+        <div className={styles.body}>
+          {children}
+        </div>
       </div>
     </div>
   )

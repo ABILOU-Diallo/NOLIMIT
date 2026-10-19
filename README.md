@@ -5,13 +5,23 @@ Situé à Yaoundé, derrière Tradex Emana.
 
 ## 🚀 Fonctionnalités Clés
 
-- **Catalogue de Formations** : Gestion des cycles Diplômants (BTS, DQP) et des Certifications internationales (Formations à la carte).
-- **Actualités Multi-médias** : Système de publication supportant images et vidéos avec affichage intelligent (grille type réseau social "Facebook style").
-- **Gestion RBAC (Contrôle d'accès)** :
-  - **Owner / SuperAdmin** : Gestion totale, création d'administrateurs, configuration système.
-  - **Admin** : Gestion des actualités, des formations et des étudiants.
-  - **Student** : Espace personnel et suivi des préinscriptions.
-- **Tableau de Bord** : Statistiques de visites et suivi des conversions en temps réel via fonctions RPC Supabase.
+- **Catalogue de Formations Dynamique** : 
+  - Gestion des cycles Diplômants (BTS, Licence, Master) pour **ISSMIGA**.
+  - Formations professionnelles (CQP, DQP) pour le **CFP NO LIMIT**.
+  - Catalogue "À la carte" pour les certifications internationales et langues.
+- **Gestion des Utilisateurs & CRM Intégré** : 
+  - **Suivi des Candidatures** : Visualisation directe des vœux de formation depuis la liste des utilisateurs.
+  - **Dossier Candidat Complet** : Accès aux documents, motivations et informations de contact en un clic.
+  - **Exportation Intelligente** : Génération de fichiers **CSV/Excel** filtrés pour le suivi commercial.
+  - **Actions de Contact Rapide** : Intégration `tel:` et `mailto:` pour appeler ou écrire aux candidats instantanément.
+  - **Confidentialité Administrative** : Masquage technique des comptes super-administrateurs de maintenance.
+- **Parcours d'Inscription Optimisé** :
+  - **Wizard Multi-étapes** : Formulaire guidé avec téléchargement de photo et checklist de documents.
+  - **Validation WhatsApp** : Bouton de confirmation directe vers le secrétariat après soumission.
+- **Gestion de Contenu (CMS)** :
+  - Système d'actualités supportant images et vidéos (YouTube/Vimeo).
+  - Gestion des témoignages et des pôles de formation.
+- **Contrôle d'Accès (RBAC)** : Hiérarchie stricte (Owner, SuperAdmin, Admin, Student).
 
 ## 🛠 Stack Technique
 
@@ -44,7 +54,8 @@ Pour initialiser la base de données, exécutez les scripts dans l'ordre suivant
 1. `supabase/migrations/20260917_init.sql` (Schéma de base)
 2. `supabase/migrations/20260924011101_roles_hierarchy.sql` (Types de rôles)
 3. `supabase/migrations/20261015_add_video_and_levels.sql` (Supports médias et filières)
-4. `backend/seed.sql` (Données de démonstration)
+4. **Correction Relationnelle** : Exécuter `ALTER TABLE public.preinscriptions ADD CONSTRAINT preinscriptions_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id);`
+5. `backend/seed.sql` (Données initiales et actualités)
 
 ## 🌐 Déploiement
 
@@ -53,4 +64,4 @@ Le projet est optimisé pour Vercel. Lors du déploiement :
 2. Vérifier que la version de Node.js est définie sur **20.x**.
 
 ---
-*Note : Le propriétaire actuel configuré est `tantchou@yahoo.com`.*
+*Note : Le propriétaire principal configuré est `tantchou@yahoo.com`.*

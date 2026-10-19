@@ -28,9 +28,12 @@ export function ContactForm() {
 
   if (status === 'success') {
     return (
-      <div className={styles.success} role="status">
-        <h2>Message envoyé</h2>
-        <p>Le secrétariat vous répondra aux horaires d’ouverture, 8h – 17h.</p>
+      <div className={styles.success} role="status" style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📩</div>
+        <h2 style={{ color: 'var(--color-navy-900)' }}>Demande transmise avec succès</h2>
+        <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+          Merci d'avoir contacté le Groupe NO LIMIT. Notre équipe administrative a bien reçu votre message et vous apportera une réponse dans les plus brefs délais, généralement sous 24h à 48h ouvrées.
+        </p>
       </div>
     )
   }
@@ -44,36 +47,45 @@ export function ContactForm() {
       ) : null}
       <Input
         id="fullName"
-        label="Nom"
+        label="Nom complet"
         required
+        placeholder="Votre nom et prénom"
         error={errors.fullName?.message}
-        {...register('fullName', { required: 'Indiquez votre nom.' })}
+        {...register('fullName', { required: 'Indiquez votre nom complet.' })}
       />
       <Input
         id="email"
         type="email"
-        label="E-mail"
+        label="Adresse E-mail"
         required
+        placeholder="votre.email@domaine.com"
         error={errors.email?.message}
-        {...register('email', { required: 'Indiquez un e-mail.' })}
+        {...register('email', { required: 'Indiquez une adresse e-mail valide.' })}
       />
-      <Input id="phone" label="Téléphone" {...register('phone')} />
+      <Input
+        id="phone"
+        label="Téléphone"
+        placeholder="Ex: 6XX XXX XXX"
+        {...register('phone')}
+      />
       <Input
         id="subject"
-        label="Objet"
+        label="Objet du message"
         required
+        placeholder="Sujet de votre demande"
         error={errors.subject?.message}
-        {...register('subject', { required: 'Indiquez un objet.' })}
+        {...register('subject', { required: 'Indiquez l\'objet de votre message.' })}
       />
       <Textarea
         id="message"
-        label="Message"
+        label="Votre Message"
         required
+        placeholder="Comment pouvons-nous vous aider ?"
         error={errors.message?.message}
-        {...register('message', { required: 'Écrivez votre message.' })}
+        {...register('message', { required: 'Merci de saisir votre message.' })}
       />
-      <Button type="submit" disabled={isSubmitting || status === 'loading'}>
-        {status === 'loading' ? 'Envoi…' : 'Envoyer'}
+      <Button type="submit" disabled={isSubmitting || status === 'loading'} full>
+        {status === 'loading' ? 'Envoi en cours...' : 'Envoyer ma demande'}
       </Button>
     </form>
   )

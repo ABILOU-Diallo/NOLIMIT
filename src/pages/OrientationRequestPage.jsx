@@ -25,7 +25,7 @@ export function OrientationRequestPage() {
       phone: '',
       city: 'Yaoundé',
       preferredDuration: '6 mois',
-      message: formationTitle ? `Je souhaite avoir plus d'informations sur la formation : ${formationTitle}` : ''
+      message: formationTitle ? `Je souhaite obtenir un entretien pour discuter de mon projet concernant la formation : ${formationTitle}` : ''
     }
   });
 
@@ -41,7 +41,7 @@ export function OrientationRequestPage() {
       setStatus('success');
     } catch (err) {
       console.error(err);
-      setError('Une erreur est survenue lors de l\'envoi de votre demande.');
+      setError('Désolé, une erreur technique a empêché l\'envoi de votre demande. Veuillez réessayer ou nous contacter par téléphone.');
       setStatus('error');
     }
   };
@@ -49,16 +49,16 @@ export function OrientationRequestPage() {
   if (status === 'success') {
     return (
       <>
-        <Seo title="Demande d'entretien envoyée" path="/demande-entretien" />
-        <PageHero title="Demande reçue" lede="Votre demande d'entretien d'orientation a été transmise." />
+        <Seo title="Demande d'entretien transmise" path="/demande-entretien" />
+        <PageHero title="Demande reçue" lede="Votre parcours commence ici." />
         <PageBody>
           <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-            <i className="bx bx-check-circle" style={{ fontSize: '4rem', color: '#10b981', marginBottom: '1rem' }} />
-            <h2>Merci, nous vous recontacterons !</h2>
-            <p style={{ color: '#64748b', marginBottom: '2rem' }}>
-              Un conseiller d'orientation du CFP NO LIMIT examinera votre demande et vous contactera par téléphone ou e-mail sous 24h à 48h.
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤝</div>
+            <h2>Merci pour votre confiance</h2>
+            <p style={{ color: '#64748b', marginBottom: '2rem', maxWidth: '500px', margin: '0 auto 2rem', lineHeight: '1.6' }}>
+              Votre demande d'entretien d'orientation a été transmise à notre service pédagogique. Un conseiller du **Groupe NO LIMIT** vous contactera sous peu pour fixer un rendez-vous et vous aider à bâtir votre avenir professionnel.
             </p>
-            <Button onClick={() => navigate('/formations-a-la-carte')}>Retour aux formations</Button>
+            <Button onClick={() => navigate('/formations-a-la-carte')}>Découvrir d'autres formations</Button>
           </div>
         </PageBody>
       </>
@@ -68,13 +68,13 @@ export function OrientationRequestPage() {
   return (
     <>
       <Seo
-        title="Entretien d'Orientation Personnalisé — CFP NO LIMIT Yaoundé"
-        description="Prenez rendez-vous pour un entretien d'orientation gratuit. Nos conseillers vous aident à choisir la formation professionnelle adaptée à votre projet."
+        title="Entretien d'Orientation Personnalisé — Groupe NO LIMIT"
+        description="Construisez votre projet professionnel avec l'aide de nos conseillers. Prenez rendez-vous pour un entretien d'orientation gratuit à Yaoundé."
         path="/demande-entretien"
       />
       <PageHero
         title="Entretien d'Orientation"
-        lede="Échangez avec un conseiller pour construire votre parcours sur mesure."
+        lede="Échangeons ensemble pour bâtir votre projet professionnel sur mesure."
         crumbs={[
           { to: '/', label: 'Accueil' },
           { to: '/formations-a-la-carte', label: 'Formations à la carte' },
@@ -84,17 +84,19 @@ export function OrientationRequestPage() {
       <PageBody>
         <div className={styles.container} style={{ maxWidth: '600px', margin: '0 auto' }}>
           <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-            <h3>Parlez-nous de votre projet</h3>
+            <h3>Votre profil & motivations</h3>
 
             {formationTitle && (
-              <div style={{ padding: '1rem', background: '#eef2ff', borderRadius: '8px', marginBottom: '1.5rem', borderLeft: '4px solid #4f46e5' }}>
-                <strong>Formation visée :</strong> {formationTitle}
+              <div style={{ padding: '1rem', background: '#f5f3ff', borderRadius: '12px', marginBottom: '1.5rem', borderLeft: '4px solid var(--color-magenta-600)' }}>
+                <span style={{ fontSize: '0.8rem', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase' }}>Formation sélectionnée :</span>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1e1b4b', marginTop: '4px' }}>{formationTitle}</div>
               </div>
             )}
 
             <Input
               label="Nom complet *"
-              {...register('fullName', { required: 'Ce champ est requis' })}
+              placeholder="Votre nom et prénom"
+              {...register('fullName', { required: 'Votre nom est indispensable pour vous identifier' })}
               error={errors.fullName?.message}
             />
 
@@ -102,41 +104,44 @@ export function OrientationRequestPage() {
               <Input
                 label="E-mail *"
                 type="email"
+                placeholder="votre.email@domaine.com"
                 {...register('email', { required: 'E-mail requis', pattern: { value: /^\S+@\S+$/i, message: 'E-mail invalide' } })}
                 error={errors.email?.message}
               />
               <Input
                 label="Téléphone *"
-                {...register('phone', { required: 'Téléphone requis' })}
+                placeholder="6XX XXX XXX"
+                {...register('phone', { required: 'Nous avons besoin de votre numéro pour vous appeler' })}
                 error={errors.phone?.message}
               />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <Input label="Ville" {...register('city')} />
+              <Input label="Ville actuelle" placeholder="Yaoundé, Douala..." {...register('city')} />
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem' }}>Durée souhaitée</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem' }}>Durée d'apprentissage souhaitée</label>
                 <select
                   {...register('preferredDuration')}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff' }}
                 >
-                  <option value="3 mois">3 mois (Initiation)</option>
-                  <option value="6 mois">6 mois (Perfectionnement)</option>
-                  <option value="9 mois">9 mois (Expertise)</option>
+                  <option value="3 mois">Formation intensive (3 mois)</option>
+                  <option value="6 mois">Spécialisation (6 mois)</option>
+                  <option value="9 mois">Expertise métier (9 mois)</option>
                 </select>
               </div>
             </div>
 
             <Textarea
-              label="Vos motivations / questions"
+              label="Parlez-nous de votre projet ou posez vos questions"
+              placeholder="Décrivez brièvement vos attentes..."
               rows={4}
               {...register('message')}
             />
 
-            {error && <p style={{ color: '#ef4444', fontSize: '0.9rem' }}>{error}</p>}
+            {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', padding: '0.5rem', background: '#fef2f2', borderRadius: '8px' }}>{error}</p>}
 
             <Button type="submit" full disabled={status === 'loading'}>
-              {status === 'loading' ? 'Envoi...' : 'Envoyer ma demande d\'entretien'}
+              {status === 'loading' ? 'Transmission en cours...' : 'Envoyer ma demande d\'entretien'}
             </Button>
           </form>
         </div>
