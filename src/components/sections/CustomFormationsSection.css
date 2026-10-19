@@ -1,5 +1,5 @@
 .custom-formations-section {
-  padding: 4rem 0;
+  padding: clamp(2rem, 8vw, 4rem) 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
@@ -7,7 +7,13 @@
 .custom-formations-section .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .custom-formations-section .container {
+    padding: 0 2rem;
+  }
 }
 
 .section-header {
@@ -16,14 +22,14 @@
 }
 
 .section-header h2 {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: white;
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -54,14 +60,15 @@
 }
 
 .category-select {
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.1);
   color: white;
   font-size: 1rem;
   cursor: pointer;
-  min-width: 250px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .category-select option {
@@ -78,12 +85,12 @@
 .category-group {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: clamp(1rem, 4vw, 1.5rem);
   backdrop-filter: blur(10px);
 }
 
 .category-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: white;
@@ -93,7 +100,7 @@
 
 .formations-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 1rem;
 }
 
@@ -104,6 +111,9 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .formation-card:hover {
@@ -115,35 +125,38 @@
 .formation-title {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   color: white;
+  line-height: 1.3;
 }
 
 .formation-durations {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .duration-badge {
   background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: white;
+  white-space: nowrap;
 }
 
 .info-section {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 2rem;
+  padding: clamp(1.25rem, 5vw, 2rem);
   backdrop-filter: blur(10px);
   margin-top: 2rem;
 }
 
 .info-section h3 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: white;
@@ -153,10 +166,11 @@
   line-height: 1.6;
   margin-bottom: 1rem;
   color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
 }
 
 .contact-info {
-  font-size: 1.1rem;
+  font-size: 1rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -170,18 +184,18 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 .modal-content {
   background: white;
   border-radius: 16px;
-  padding: 2rem;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
@@ -192,155 +206,112 @@
 
 .modal-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #f0f0f0;
   border: none;
-  font-size: 2rem;
+  font-size: 1.75rem;
   cursor: pointer;
-  color: #666;
-  width: 40px;
-  height: 40px;
+  color: #333;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background 0.3s ease;
-}
-
-.modal-close:hover {
-  background: #f0f0f0;
+  z-index: 10;
 }
 
 .modal-title {
-  font-size: 1.75rem;
+  font-size: clamp(1.3rem, 5vw, 1.75rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: #667eea;
-  padding-right: 2rem;
+  color: #4f46e5;
+  padding-right: 2.5rem;
+  line-height: 1.2;
 }
 
 .duration-options {
   display: grid;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .duration-option {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 1.25rem;
-  border-left: 4px solid #667eea;
+  padding: 1.15rem;
+  border-left: 4px solid #4f46e5;
 }
 
 .duration-option h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #333;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: #111;
 }
 
 .duration-option p {
+  font-size: 0.92rem;
   line-height: 1.5;
-  color: #666;
+  color: #444;
 }
 
 .faisabilite-section {
-  background: #fff3cd;
+  background: #fffbeb;
   border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 2rem;
-  border-left: 4px solid #ffc107;
+  padding: 1.15rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #f59e0b;
 }
 
 .faisabilite-section h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #856404;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: #92400e;
 }
 
 .faisabilite-section p {
+  font-size: 0.92rem;
   line-height: 1.5;
-  color: #856404;
+  color: #92400e;
 }
 
 .modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 500px) {
+  .modal-actions {
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .contact-button, .register-button {
-  padding: 1rem 1.5rem;
+  padding: 0.85rem 1.25rem;
   border: none;
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
+  width: 100%;
 }
 
 .contact-button {
-  background: #eef2ff;
-  color: #4f46e5;
-  border: 1px solid #c7d2fe;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
 .register-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4f46e5;
   color: white;
 }
 
-.contact-button:hover, .register-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.loading,
-.error {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-}
-
-.error {
-  color: #ff6b6b;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .section-header h2 {
-    font-size: 2rem;
-  }
-
-  .formations-list {
-    grid-template-columns: 1fr;
-  }
-
-  .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .modal-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .category-select {
-    width: 100%;
-  }
-
-  .modal-content {
-    padding: 1.5rem;
-  }
-
-  .modal-title {
-    font-size: 1.5rem;
-  }
-
-  .duration-options {
-    grid-template-columns: 1fr;
-  }
-}
+/* Fin des styles */
