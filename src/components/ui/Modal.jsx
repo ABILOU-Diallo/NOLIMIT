@@ -4,33 +4,35 @@ import { useLockBody } from '../../hooks/useLockBody'
 import styles from './Modal.module.css'
 
 /**
- * Composant Modal optimisé pour ne pas voler le focus lors de la saisie dans les formulaires
+ * Composant Modal optimisé pour ne pas interrompre la saisie dans les formulaires
  */
 export function Modal({ open, title, onClose, children }) {
   const ref = useRef(null)
   const isInitiallyFocused = useRef(false)
   useLockBody(open)
 
+  // Gestion du focus initial (Accessibilité)
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      if (!isInitiallyFocused.current) {
+        // Un léger délai assure que le DOM est prêt avant de donner le focus au conteneur
+        const timer = setTimeout(() => {
+          ref.current?.focus()
+          isInitiallyFocused.current = true
+        }, 50)
+        return () => clearTimeout(timer)
+      }
+    } else {
       isInitiallyFocused.current = false
-      return undefined
     }
+  }, [open])
 
-    // On ne donne le focus au conteneur de la modale QUE lors de l'ouverture
-    // Cela évite de perdre le focus des inputs lors des re-rendus (pendant la saisie clavier)
-    if (!isInitiallyFocused.current) {
-      const timer = setTimeout(() => {
-        ref.current?.focus()
-        isInitiallyFocused.current = true
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-
+  // Gestion de la touche Echap
+  useEffect(() => {
+    if (!open) return
     function onKey(event) {
       if (event.key === 'Escape') onClose()
     }
-
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])

