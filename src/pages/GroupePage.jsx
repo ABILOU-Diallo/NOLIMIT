@@ -27,7 +27,7 @@ export function GroupePage() {
           <Card to="/le-groupe/cfp">
             <h2>CFP NO LIMIT</h2>
             <p className={styles.muted}>
-              Centre de formation professionnelle agréé MINEFOP. CQP et DQP.
+              Centre de formation professionnelle agréé MINEFOP. CQP (Certificat de Qualification Professionnel) et DQP (Diplôme de Qualification Professionnel).
             </p>
           </Card>
           <Card to="/le-groupe/issmiga">

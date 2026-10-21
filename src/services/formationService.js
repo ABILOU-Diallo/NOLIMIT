@@ -1,4 +1,4 @@
-import { formations as localFormations } from '../data/formations'
+import { allFormations as localFormations } from '../data/formations'
 import { poles as localPoles } from '../data/poles'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
@@ -75,7 +75,7 @@ export async function getFormations(includeUnpublished = false) {
     if (a.institution !== b.institution) {
       return a.institution === 'cfp' ? -1 : 1
     }
-    return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' })
+    return (a.title || '').localeCompare(b.title || '', 'fr', { sensitivity: 'base' })
   })
 }
 

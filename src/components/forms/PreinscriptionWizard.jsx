@@ -40,8 +40,8 @@ const DIPLOMAS_BY_INSTITUTION = {
     { value: "master",  label: "Master Professionnel (2 ans post-Licence)" },
   ],
   cfp: [
-    { value: "cqp",         label: "CQP - Certificat de Qualification Professionnelle (1 an)" },
-    { value: "dqp",         label: "DQP - Diplôme de Qualification Professionnelle (1 an)" },
+    { value: "cqp",         label: "CQP - Certificat de Qualification Professionnel (1 an)" },
+    { value: "dqp",         label: "DQP - Diplôme de Qualification Professionnel (1 an)" },
     { value: "attestation", label: "Attestation (3, 6 ou 9 mois)" },
   ],
 }

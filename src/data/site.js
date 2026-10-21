@@ -30,8 +30,8 @@ export const site = {
     iso: '2026-10-15',
   },
   diplomas: [
-    { code: 'CQP', name: 'Certificat de Qualification Professionnelle', duration: '1 an', school: 'CFP NO LIMIT' },
-    { code: 'DQP', name: 'Diplôme de Qualification Professionnelle', duration: '1 an', school: 'CFP NO LIMIT' },
+    { code: 'CQP', name: 'Certificat de Qualification Professionnel', duration: '1 an', school: 'CFP NO LIMIT' },
+    { code: 'DQP', name: 'Diplôme de Qualification Professionnel', duration: '1 an', school: 'CFP NO LIMIT' },
     { code: 'BTS', name: 'Brevet de Technicien Supérieur', duration: '2 ans', school: 'ISSMIGA' },
     { code: 'Licence', name: 'Licence Professionnelle', duration: '3 ans / 1 an post-BTS', school: 'ISSMIGA' },
     { code: 'Master', name: 'Master Professionnel', duration: '2 ans post-Licence', school: 'ISSMIGA' },
@@ -40,7 +40,7 @@ export const site = {
   agrementMinesup: 'Arrêté N° 24-00555/L/MINESUP/SG/DDES/ESUP/SDA/AOSB',
   cfp: {
     name: 'CFP NO LIMIT',
-    fullName: 'Centre de Formation Professionnelle NO LIMIT',
+    fullName: 'Centre de Formation Professionnel NO LIMIT',
     url: 'https://www.cfpnolimit.com',
     slogan: 'Formation pratique, métiers d’avenir & insertion immédiate',
     agrement: 'Arrêté N°24-00000049/MINEFOP/SG/DFOP/SDOP/SARPRP',
