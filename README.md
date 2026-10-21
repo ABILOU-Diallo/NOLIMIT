@@ -7,7 +7,7 @@ Situé à Yaoundé, derrière Tradex Emana.
 
 - **Catalogue de Formations Dynamique** : 
   - Gestion des cycles Diplômants (BTS, Licence, Master) pour **ISSMIGA**.
-  - Formations professionnelles (CQP, DQP) pour le **CFP NO LIMIT**.
+  - Formations de Qualification Professionnelle (**CQP**, **DQP**) pour le **CFP NO LIMIT**.
   - Catalogue "À la carte" pour les certifications internationales et langues.
 - **Gestion des Utilisateurs & CRM Intégré** : 
   - **Suivi des Candidatures** : Visualisation directe des vœux de formation depuis la liste des utilisateurs.

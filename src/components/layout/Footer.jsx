@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { site } from '../../data/site'
 import styles from './Footer.module.css'
 
-export default function Footer() {
+export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
