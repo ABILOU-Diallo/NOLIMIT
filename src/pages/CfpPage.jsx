@@ -54,7 +54,7 @@ export function CfpPage() {
                 Formations qualifiantes (Cycles 1 an)
               </h2>
               <p style={{ margin: 0, fontSize: '0.95rem', color: '#fed7aa', lineHeight: 1.4 }}>
-                Diplômes d'État : <strong>CQP</strong> (Certificat de Qualification) et <strong>DQP</strong> (Diplôme de Qualification).
+                Diplômes d'État : <strong>CQP</strong> (Certificat de Qualification Professionnelle) et <strong>DQP</strong> (Diplôme de Qualification Professionnelle).
               </p>
             </div>
 

@@ -23,6 +23,15 @@ function mapFormation(row) {
   }
 }
 
+/**
+ * Tri alphabétique universel pour les formations
+ */
+const sortAlphabetically = (list) => {
+  return [...list].sort((a, b) =>
+    (a.title || '').localeCompare(b.title || '', 'fr', { sensitivity: 'base' })
+  )
+}
+
 export async function getPoles(includeUnpublished = false) {
   if (isSupabaseConfigured && supabase) {
     try {
@@ -37,18 +46,37 @@ export async function getPoles(includeUnpublished = false) {
   return localPoles
 }
 
+/**
+ * Récupère les formations triées par institution (CFP d'abord) puis A-Z
+ */
 export async function getFormations(includeUnpublished = false) {
+  let results = []
+
   if (isSupabaseConfigured && supabase) {
     try {
       let query = supabase.from('formations').select('*')
       if (!includeUnpublished) query = query.eq('is_published', true)
-      const { data, error } = await query.order('sort_order', { ascending: true })
-      if (!error && data) return data.map(mapFormation)
+
+      const { data, error } = await query
+      if (!error && data) {
+        results = data.map(mapFormation)
+      } else {
+        results = localFormations
+      }
     } catch (e) {
-      console.error("Utilisation des formations locales.");
+      results = localFormations
     }
+  } else {
+    results = localFormations
   }
-  return localFormations
+
+  // Tri par institution (CFP avant ISSMIGA) puis alphabétique
+  return results.sort((a, b) => {
+    if (a.institution !== b.institution) {
+      return a.institution === 'cfp' ? -1 : 1
+    }
+    return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' })
+  })
 }
 
 export async function getFormationBySlug(slug) {
@@ -60,7 +88,7 @@ export function searchFormations(list, query = '', poleId = '', institution = 'a
   const q = (query || '').trim().toLowerCase()
   const items = Array.isArray(list) ? list : []
 
-  return items.filter((item) => {
+  const filtered = items.filter((item) => {
     if (!item) return false
     const poleOk = !poleId || item.poleId === poleId || item.pole_id === poleId
     const institutionOk = !institution || institution === 'all' || item.institution === institution
@@ -71,16 +99,21 @@ export function searchFormations(list, query = '', poleId = '', institution = 'a
     const textOk = !q || (item.title || '').toLowerCase().includes(q) || (item.excerpt || '').toLowerCase().includes(q)
     return poleOk && institutionOk && levelOk && textOk
   })
+
+  return sortAlphabetically(filtered)
 }
 
+/**
+ * Récupère les formations à la carte triées A-Z
+ */
 export async function getCustomFormations(includeUnpublished = false) {
   if (isSupabaseConfigured && supabase) {
     try {
       let query = supabase.from('custom_formations').select('*')
       if (!includeUnpublished) query = query.eq('is_published', true)
-      const { data, error } = await query.order('sort_order', { ascending: true })
+      const { data, error } = await query
       if (error) throw error
-      return (data || [])
+      return sortAlphabetically(data || [])
     } catch (e) {
       console.warn("Erreur réseau Custom Formations.");
     }

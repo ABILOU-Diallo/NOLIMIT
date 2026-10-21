@@ -27,13 +27,22 @@ export const poles = [
     sortOrder: 3,
   },
   {
+    id: 'tourisme-hotellerie',
+    slug: 'tourisme-hotellerie',
+    name: 'Tourisme & Hôtellerie',
+    tagline: 'L’art de l’accueil et de la gastronomie.',
+    description:
+      'Hôtellerie, restauration, tourisme et arts culinaires : des métiers de passion et de service.',
+    sortOrder: 4,
+  },
+  {
     id: 'creatif-service',
     slug: 'creatif-service',
     name: 'Métiers créatifs & de service',
     tagline: 'Donner forme à l’image, au son et au mouvement.',
     description:
       'Infographie, montage audiovisuel et motion design au service des organisations.',
-    sortOrder: 4,
+    sortOrder: 5,
   },
   {
     id: 'sante-qhse-social',
@@ -42,6 +51,6 @@ export const poles = [
     tagline: 'Soin, qualité, hygiène, sécurité et environnement.',
     description:
       'Des filières liées à la santé de proximité et à la maîtrise des risques en entreprise.',
-    sortOrder: 5,
+    sortOrder: 6,
   },
 ]
