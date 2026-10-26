@@ -3,7 +3,7 @@ import { poles as localPoles } from '../data/poles'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 function mapFormation(row) {
-  if (!row) return null
+  if (!row) return null;
   return {
     id: row.id,
     poleId: row.pole_id || row.poleId,
@@ -16,11 +16,13 @@ function mapFormation(row) {
     diploma: row.diploma,
     institution: row.institution || 'cfp',
     duration: row.duration,
-    skills: Array.isArray(row.skills) ? row.skills : [],
-    outlets: Array.isArray(row.outlets) ? row.outlets : [],
+    // Map database columns "competences" and "debouches" to UI fields "skills" and "outlets"
+    // If the JSONB arrays are empty, fall back to the legacy columns "skills" and "outlets"
+    skills: Array.isArray(row.competences) && row.competences.length ? row.competences : (Array.isArray(row.skills) ? row.skills : []),
+    outlets: Array.isArray(row.debouches) && row.debouches.length ? row.debouches : (Array.isArray(row.outlets) ? row.outlets : []),
     isPublished: row.is_published ?? true,
     sortOrder: row.sort_order ?? 0,
-  }
+  };
 }
 
 /**
