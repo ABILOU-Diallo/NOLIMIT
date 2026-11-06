@@ -21,7 +21,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js', 'recharts']
+    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js']
   },
   build: {
     reportCompressedSize: false,

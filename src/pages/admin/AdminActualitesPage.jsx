@@ -8,13 +8,21 @@ import {
   uploadArticleMedia,
 } from '../../services/actualiteService'
 
+const CATEGORIES = [
+  'Vie du campus',
+  'Événements',
+  'Admissions',
+  'Formations',
+  'Annonces',
+]
+
 const blankForm = {
   title: '',
   slug: '',
   category: 'Vie du campus',
   excerpt: '',
   content: '',
-  status: 'draft',
+  status: 'published',
   image_url: '',
   video_url: '',
   gallery: [],
@@ -63,6 +71,7 @@ export function AdminActualitesPage() {
     const pending = mediaQueue.filter(m => !m.uploaded)
     if (!pending.length) return
     setUploading(true)
+    setError('')
     try {
       const { uploaded } = await uploadArticleMedia(pending.map(m => m.file))
       setForm(f => ({
@@ -72,7 +81,7 @@ export function AdminActualitesPage() {
       }))
       setMediaQueue(q => q.map(m => ({ ...m, uploaded: true })))
     } catch (err) {
-      setError("Erreur d'upload")
+      setError("Erreur d'upload : " + (err.message || ''))
     } finally {
       setUploading(false)
     }
@@ -81,20 +90,34 @@ export function AdminActualitesPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
+    setError('')
+    setSuccess('')
     try {
       if (editingId) {
         await updateArticle(editingId, form)
-        setSuccess('Mis à jour !')
+        setSuccess('Article mis à jour avec succès !')
       } else {
         await createArticle(form)
-        setSuccess('Publié !')
+        setSuccess(form.status === 'published' ? 'Article publié avec succès !' : 'Brouillon enregistré avec succès !')
       }
       resetForm()
-      loadArticles()
+      await loadArticles()
     } catch (err) {
-      setError(err.message)
+      setError(err.message || "Erreur lors de l'enregistrement.")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'article "${title}" ?`)) return
+    try {
+      await deleteArticle(id)
+      setSuccess('Article supprimé avec succès.')
+      if (editingId === id) resetForm()
+      await loadArticles()
+    } catch (err) {
+      setError("Erreur lors de la suppression : " + (err.message || ''))
     }
   }
 
@@ -106,61 +129,209 @@ export function AdminActualitesPage() {
 
   const handleEdit = (art) => {
     setEditingId(art.id)
-    setForm(art)
-    setMediaQueue(art.gallery.map((m, i) => ({ ...m, id: i, uploaded: true })))
-    window.scrollTo(0,0)
+    setForm({
+      title: art.title || '',
+      slug: art.slug || '',
+      category: art.category || 'Vie du campus',
+      excerpt: art.excerpt || '',
+      content: art.content || '',
+      status: art.status || 'published',
+      image_url: art.image_url || '',
+      video_url: art.video_url || '',
+      gallery: art.gallery || [],
+    })
+    const galleryItems = Array.isArray(art.gallery)
+      ? art.gallery.map((m, i) => ({
+          ...(typeof m === 'string' ? { url: m, type: 'image' } : m),
+          id: i,
+          uploaded: true
+        }))
+      : []
+    setMediaQueue(galleryItems)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   if (loading) return <Loader label="Connexion au serveur..." />
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <style>{`
         .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 1rem 0; }
-        .thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #eee; border: 2px solid transparent; }
-        .thumb.active { border-color: blue; }
+        .thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #eee; border: 2px solid transparent; position: relative; }
+        .thumb.active { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.3); }
         .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; }
       `}</style>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
-        <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: '12px' }}>
-          <h2>{editingId ? 'Modifier Article' : 'Nouvel Article'}</h2>
+      {error && (
+        <div style={{ background: '#fee2e2', border: '1px solid #f87171', color: '#991b1b', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          {error}
+        </div>
+      )}
 
-          <Input label="Titre" name="title" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
+      {success && (
+        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          {success}
+        </div>
+      )}
 
-          <div className="media-grid">
-            {mediaQueue.map(m => (
-              <div key={m.id} className={`thumb ${form.image_url === m.url ? 'active' : ''}`} onClick={() => setForm({...form, image_url: m.url})}>
-                {m.type === 'video' ? <video src={m.url} /> : <img src={m.url} />}
-              </div>
-            ))}
-            <div className="thumb" onClick={() => fileInputRef.current.click()} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px dashed #ccc' }}>
-              <i className="bx bx-plus" />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem' }}>
+        <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#0f172a' }}>
+            {editingId ? 'Modifier Article' : 'Nouvel Article'}
+          </h2>
+
+          <Input
+            label="Titre de l'article"
+            name="title"
+            value={form.title}
+            onChange={e => setForm({ ...form, title: e.target.value })}
+            placeholder="Ex : Remise des ordinateurs aux étudiants"
+            required
+          />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Catégorie</label>
+              <select
+                value={form.category}
+                onChange={e => setForm({ ...form, category: e.target.value })}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '0.95rem' }}
+              >
+                {CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Statut de publication</label>
+              <select
+                value={form.status}
+                onChange={e => setForm({ ...form, status: e.target.value })}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '0.95rem', fontWeight: 600, color: form.status === 'published' ? '#166534' : '#64748b' }}
+              >
+                <option value="published">🟢 Publié (visible sur le site)</option>
+                <option value="draft">⚪ Brouillon (non visible)</option>
+              </select>
             </div>
           </div>
 
-          <input type="file" ref={fileInputRef} hidden multiple onChange={handleFileSelect} />
-          {mediaQueue.some(m => !m.uploaded) && <Button onClick={handleUploadQueue} disabled={uploading}>Envoyer les médias</Button>}
+          <div style={{ marginTop: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>
+              Photos et Vidéos
+            </label>
+            <div className="media-grid">
+              {mediaQueue.map(m => (
+                <div key={m.id} className={`thumb ${form.image_url === m.url ? 'active' : ''}`} onClick={() => setForm({ ...form, image_url: m.url })}>
+                  {m.type === 'video' ? <video src={m.url} /> : <img src={m.url} alt="" />}
+                  {form.image_url === m.url && (
+                    <span style={{ position: 'absolute', bottom: 4, left: 4, background: '#2563eb', color: '#fff', fontSize: '0.65rem', padding: '2px 5px', borderRadius: '4px' }}>
+                      Couverture
+                    </span>
+                  )}
+                </div>
+              ))}
+              <div
+                className="thumb"
+                onClick={() => fileInputRef.current.click()}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px dashed #cbd5e1', background: '#f8fafc' }}
+              >
+                <i className="bx bx-plus" style={{ fontSize: '1.8rem', color: '#64748b' }} />
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Ajouter</span>
+              </div>
+            </div>
 
-          <Textarea label="Contenu" rows={10} value={form.content} onChange={e => setForm({...form, content: e.target.value})} required />
+            <input type="file" ref={fileInputRef} hidden multiple accept="image/*,video/*" onChange={handleFileSelect} />
+            {mediaQueue.some(m => !m.uploaded) && (
+              <Button type="button" onClick={handleUploadQueue} disabled={uploading} style={{ marginBottom: '1rem' }}>
+                {uploading ? 'Téléversement en cours...' : 'Envoyer les fichiers vers le serveur'}
+              </Button>
+            )}
+          </div>
 
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-            <Button type="submit" disabled={saving}>{saving ? 'Envoi...' : 'Enregistrer'}</Button>
-            {editingId && <Button variant="outline" onClick={resetForm}>Annuler</Button>}
+          <div style={{ marginTop: '1rem' }}>
+            <Input
+              label="Résumé court (optionnel — affiché sur la vignette)"
+              name="excerpt"
+              value={form.excerpt}
+              onChange={e => setForm({ ...form, excerpt: e.target.value })}
+              placeholder="Un résumé bref de 1 à 2 phrases..."
+            />
+          </div>
+
+          <div style={{ marginTop: '1rem' }}>
+            <Textarea
+              label="Contenu complet de l'article"
+              rows={8}
+              value={form.content}
+              onChange={e => setForm({ ...form, content: e.target.value })}
+              placeholder="Rédigez le texte complet de votre actualité ici..."
+              required
+            />
+          </div>
+
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+            <Button type="submit" disabled={saving}>
+              {saving ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : (form.status === 'published' ? 'Publier l’article' : 'Enregistrer le brouillon'))}
+            </Button>
+            {editingId && (
+              <Button type="button" variant="outline" onClick={resetForm}>
+                Annuler la modification
+              </Button>
+            )}
           </div>
         </form>
 
-        <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '12px' }}>
-          <h3>Articles Récents</h3>
-          {articles.map(a => (
-            <div key={a.id} style={{ display: 'flex', gap: '10px', marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
-              <img src={a.image_url || '/placeholder.png'} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
-              <div>
-                <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{a.title}</div>
-                <button onClick={() => handleEdit(a)} style={{ color: 'blue', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Editer</button>
+        <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', maxHeight: '85vh', overflowY: 'auto' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '1rem', color: '#0f172a' }}>Articles ({articles.length})</h3>
+          {articles.length === 0 ? (
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Aucun article trouvé.</p>
+          ) : (
+            articles.map(a => (
+              <div key={a.id} style={{ display: 'flex', gap: '12px', marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '6px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {a.image_url ? (
+                    <img src={a.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <i className="bx bx-news" style={{ fontSize: '1.5rem', color: '#94a3b8' }} />
+                  )}
+                </div>
+                <div style={{ flexGrow: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {a.title}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      background: a.status === 'published' ? '#dcfce7' : '#f1f5f9',
+                      color: a.status === 'published' ? '#166534' : '#64748b'
+                    }}>
+                      {a.status === 'published' ? 'Publié' : 'Brouillon'}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{a.category}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                    <button
+                      onClick={() => handleEdit(a)}
+                      style={{ color: '#2563eb', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem', padding: 0, fontWeight: 500 }}
+                    >
+                      Modifier
+                    </button>
+                    <span style={{ color: '#cbd5e1' }}>•</span>
+                    <button
+                      onClick={() => handleDelete(a.id, a.title)}
+                      style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem', padding: 0, fontWeight: 500 }}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

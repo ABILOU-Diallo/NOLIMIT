@@ -121,17 +121,27 @@ export function ActualitesPage() {
         crumbs={[{ to: '/', label: 'Accueil' }, { label: 'Actualités' }]}
       />
       <PageBody>
-        {state === ASYNC.loading ? <Loader /> : null}
-        {state === ASYNC.error ? <p role="alert">Erreur de chargement des actualités.</p> : null}
+        {state === ASYNC.loading ? <Loader label="Chargement des actualités..." /> : null}
+        {state === ASYNC.error ? <p role="alert" style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>Erreur de chargement des actualités.</p> : null}
+
+        {state !== ASYNC.loading && (!data || data.length === 0) ? (
+          <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#64748b' }}>
+            <i className="bx bx-news" style={{ fontSize: '3.5rem', marginBottom: '1rem', display: 'block', color: '#cbd5e1' }} />
+            <h3 style={{ fontSize: '1.25rem', color: '#334155', marginBottom: '0.5rem' }}>Aucune actualité pour le moment</h3>
+            <p>Revenez très bientôt pour découvrir la vie du campus et les annonces officielles.</p>
+          </div>
+        ) : null}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {data?.map((article, index) => (
-            <article key={article.id} onClick={() => setSelectedIndex(index)} style={{ cursor: 'zoom-in', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+            <article key={article.id} onClick={() => setSelectedIndex(index)} style={{ cursor: 'zoom-in', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
               {renderCardMedia(article)}
-              <div style={{ padding: '1.25rem' }}>
+              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-magenta-600)', fontWeight: 700, textTransform: 'uppercase' }}>{article.category}</span>
                 <h2 style={{ fontSize: '1.1rem', margin: '0.5rem 0' }}>{article.title}</h2>
-                <p style={{ fontSize: '0.9rem', color: '#64748b' }}>{article.excerpt}</p>
+                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5, marginTop: 'auto' }}>
+                  {article.excerpt || (article.content ? article.content.substring(0, 140) + '...' : '')}
+                </p>
               </div>
             </article>
           ))}
