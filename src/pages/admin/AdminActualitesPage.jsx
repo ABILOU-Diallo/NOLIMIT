@@ -39,7 +39,9 @@ export function AdminActualitesPage() {
 
   const [mediaQueue, setMediaQueue] = useState([])
   const [uploading, setUploading]   = useState(false)
+  const [replacementTarget, setReplacementTarget] = useState(null)
   const fileInputRef = useRef(null)
+  const replacementInputRef = useRef(null)
 
   async function loadArticles() {
     try {
@@ -65,6 +67,44 @@ export function AdminActualitesPage() {
       uploaded: false
     }))
     setMediaQueue(q => [...q, ...newItems])
+    e.target.value = ''
+  }
+
+  const handleReplaceMedia = async (e) => {
+    const file = e.target.files?.[0]
+    const target = replacementTarget
+    e.target.value = ''
+    if (!file || !target) return
+
+    setUploading(true)
+    setError('')
+    try {
+      const { uploaded } = await uploadArticleMedia([file])
+      const replacement = uploaded[0]
+      if (!replacement) throw new Error("Le média n'a pas pu être téléversé.")
+
+      if (target.kind === 'cover') {
+        setForm(f => ({ ...f, image_url: replacement.url }))
+      } else {
+        const index = mediaQueue.findIndex(m => m.id === target.id)
+        if (index === -1 || index >= form.gallery.length) throw new Error("Le média à remplacer n'existe plus.")
+
+        setForm(f => ({
+          ...f,
+          image_url: f.image_url === target.url && replacement.type === 'image' ? replacement.url : f.image_url,
+          video_url: f.video_url === target.url ? (replacement.type === 'video' ? replacement.url : '') : f.video_url,
+          gallery: f.gallery.map((media, i) => i === index ? replacement : media),
+        }))
+        setMediaQueue(queue => queue.map(m => m.id === target.id
+          ? { ...m, url: replacement.url, type: replacement.type, uploaded: true }
+          : m))
+      }
+    } catch (err) {
+      setError("Erreur lors du remplacement du média : " + (err.message || ''))
+    } finally {
+      setReplacementTarget(null)
+      setUploading(false)
+    }
   }
 
   const handleUploadQueue = async () => {
@@ -125,6 +165,7 @@ export function AdminActualitesPage() {
     setForm(blankForm)
     setEditingId(null)
     setMediaQueue([])
+    setReplacementTarget(null)
   }
 
   const handleEdit = (art) => {
@@ -221,6 +262,25 @@ export function AdminActualitesPage() {
               Photos et Vidéos
             </label>
             <div className="media-grid">
+              {form.image_url && !mediaQueue.some(m => m.url === form.image_url) && (
+                <div className="thumb active">
+                  <img src={form.image_url} alt="Couverture actuelle" />
+                  <span style={{ position: 'absolute', bottom: 4, left: 4, background: '#2563eb', color: '#fff', fontSize: '0.65rem', padding: '2px 5px', borderRadius: '4px' }}>
+                    Couverture
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Remplacer le média de couverture"
+                    onClick={() => {
+                      setReplacementTarget({ kind: 'cover' })
+                      replacementInputRef.current?.click()
+                    }}
+                    style={{ position: 'absolute', top: 4, right: 4, border: 0, borderRadius: 4, padding: '4px 6px', background: '#0f172a', color: '#fff', fontSize: '0.65rem', cursor: 'pointer' }}
+                  >
+                    Remplacer
+                  </button>
+                </div>
+              )}
               {mediaQueue.map(m => (
                 <div key={m.id} className={`thumb ${form.image_url === m.url ? 'active' : ''}`} onClick={() => setForm({ ...form, image_url: m.url })}>
                   {m.type === 'video' ? <video src={m.url} /> : <img src={m.url} alt="" />}
@@ -229,6 +289,19 @@ export function AdminActualitesPage() {
                       Couverture
                     </span>
                   )}
+                  <button
+                    type="button"
+                    aria-label={`Remplacer le média ${m.type === 'video' ? 'vidéo' : 'image'}`}
+                    disabled={!m.uploaded || uploading}
+                    onClick={e => {
+                      e.stopPropagation()
+                      setReplacementTarget({ kind: 'gallery', id: m.id, url: m.url, type: m.type })
+                      replacementInputRef.current?.click()
+                    }}
+                    style={{ position: 'absolute', top: 4, right: 4, border: 0, borderRadius: 4, padding: '4px 6px', background: '#0f172a', color: '#fff', fontSize: '0.65rem', cursor: m.uploaded && !uploading ? 'pointer' : 'not-allowed', opacity: m.uploaded && !uploading ? 1 : 0.6 }}
+                  >
+                    Remplacer
+                  </button>
                 </div>
               ))}
               <div
@@ -242,6 +315,13 @@ export function AdminActualitesPage() {
             </div>
 
             <input type="file" ref={fileInputRef} hidden multiple accept="image/*,video/*" onChange={handleFileSelect} />
+            <input
+              type="file"
+              ref={replacementInputRef}
+              hidden
+              accept={replacementTarget?.kind === 'gallery' && replacementTarget.type === 'video' ? 'video/*' : 'image/*'}
+              onChange={handleReplaceMedia}
+            />
             {mediaQueue.some(m => !m.uploaded) && (
               <Button type="button" onClick={handleUploadQueue} disabled={uploading} style={{ marginBottom: '1rem' }}>
                 {uploading ? 'Téléversement en cours...' : 'Envoyer les fichiers vers le serveur'}
