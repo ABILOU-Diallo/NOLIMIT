@@ -59,7 +59,7 @@ export function Hero() {
           <div className={styles.showcaseCard}>
             <figure className={styles.photo}>
               <img
-                src={media.heroGroup}
+                src={media.heroImage}
                 alt="L’équipe, l’administration et les étudiants du Groupe NO LIMIT et ISSMIGA réunis sur le campus à Yaoundé."
                 width="1200"
                 height="800"
