@@ -6,7 +6,6 @@ import { Checkbox } from "../ui/Checkbox"
 import { Input } from "../ui/Input"
 import { LinkButton } from "../ui/LinkButton"
 import { Select } from "../ui/Select"
-import { Textarea } from "../ui/Textarea"
 import { Avatar } from "../ui/Avatar"
 import { Loader } from "../ui/Loader"
 import { site } from "../../data/site"
@@ -46,8 +45,8 @@ const DIPLOMAS_BY_INSTITUTION = {
   ],
 }
 
-export function PreinscriptionWizard({ formations = [] }) {
-  const safeFormations = formations || []
+export function PreinscriptionWizard({ formations }) {
+  const safeFormations = useMemo(() => Array.isArray(formations) ? formations : [], [formations])
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
@@ -69,7 +68,7 @@ export function PreinscriptionWizard({ formations = [] }) {
     trigger,
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       fullName: "",
@@ -118,6 +117,7 @@ export function PreinscriptionWizard({ formations = [] }) {
       const url = await uploadPreinscriptionPhoto(file)
       setValue("photoUrl", url)
     } catch (err) {
+      console.error("Erreur d'envoi de la photo de préinscription :", err)
       setServerMessage("Note : La photo n'a pas pu être envoyée au serveur, mais vous pouvez continuer.")
     } finally {
       setUploading(false)
@@ -150,6 +150,7 @@ export function PreinscriptionWizard({ formations = [] }) {
       setSubmissionResult(res)
       setStatus("success")
     } catch (err) {
+      console.error("Erreur de soumission de la préinscription :", err)
       setStatus("error")
       setServerMessage("Erreur lors de la soumission. Veuillez réessayer.")
     }
@@ -249,7 +250,7 @@ export function PreinscriptionWizard({ formations = [] }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ textAlign: 'center' }}>
               <div onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', margin: '0 auto', width: '130px', height: '150px', borderRadius: '16px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#f8fafc' }}>
-                {uploading ? <Loader /> : (photoPreview || values.photoUrl) ? <img src={photoPreview || values.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className='bx bx-camera' style={{ fontSize: '2rem', color: '#94a3b8' }} />}
+                {uploading ? <Loader /> : (photoPreview || values.photoUrl) ? <img src={photoPreview || values.photoUrl} alt="Aperçu de la photo du candidat" width="130" height="150" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className='bx bx-camera' style={{ fontSize: '2rem', color: '#94a3b8' }} />}
               </div>
               <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handlePhotoUpload} />
               <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#64748b' }}>Photo d'identité (Portrait)</p>

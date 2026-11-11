@@ -85,32 +85,54 @@ export async function trackPageView(path) {
       referrer: typeof document !== 'undefined' ? document.referrer || null : null,
       user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
     })
-  } catch {
-    // tracking never blocks navigation
+  } catch (error) {
+    console.warn('Le suivi de visite n’a pas pu être enregistré :', error)
   }
 }
 
 export async function getDashboardSeries(days = 30) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.rpc('get_admin_dashboard_series', { days })
-    if (!error && data) return fillDays(data, days)
+    if (error) throw error
+    return fillDays(data || [], days)
   }
   return demoSeries(days)
+}
+
+export async function getDashboardCounts() {
+  if (!isSupabaseConfigured) {
+    return {
+      users: 0,
+      preinscriptions: 0,
+      pendingPreinscriptions: 0,
+      articles: 0,
+      publishedArticles: 0,
+      contacts: 0,
+      pendingContacts: 0,
+    }
+  }
+
+  const { data, error } = await supabase.rpc('get_admin_dashboard_counts')
+  if (error) throw error
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row) throw new Error('Les statistiques administrateur sont indisponibles.')
+  return {
+    users: Number(row.users || 0),
+    preinscriptions: Number(row.preinscriptions || 0),
+    pendingPreinscriptions: Number(row.pending_preinscriptions || 0),
+    articles: Number(row.articles || 0),
+    publishedArticles: Number(row.published_articles || 0),
+    contacts: Number(row.contacts || 0),
+    pendingContacts: Number(row.pending_contacts || 0),
+  }
 }
 
 export async function getTopPages(limit = 8) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.rpc('get_top_pages', { days: 30, result_limit: limit })
-    if (!error && data) {
-      return data.map((row) => ({ path: row.path, views: Number(row.views || 0) }))
-    }
+    if (error) throw error
+    return (data || []).map((row) => ({ path: row.path, views: Number(row.views || 0) }))
   }
 
-  return [
-    { path: '/', views: 128 },
-    { path: '/formations', views: 86 },
-    { path: '/preinscription', views: 64 },
-    { path: '/actualites', views: 41 },
-    { path: '/contact', views: 33 },
-  ]
+  return []
 }

@@ -1,4 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { fetchAllPages } from '../utils/requestCache'
+
+const COMMENT_COLUMNS = 'id,article_id,author_name,author_email,content,is_blocked,blocked_reason,blocked_at,created_at'
 
 const LOCAL_COMMENTS_KEY = 'issmiga_comments_v1'
 
@@ -27,6 +30,7 @@ export async function getPublicComments(articleId) {
       .eq('article_id', articleId)
       .eq('is_blocked', false)
       .order('created_at', { ascending: false })
+      .limit(50)
     if (error) throw error
     return data ?? []
   }
@@ -45,7 +49,11 @@ export async function createComment(payload) {
   }
 
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase.from('comments').insert(row).select().single()
+    const { data, error } = await supabase
+      .from('comments')
+      .insert(row)
+      .select('id,article_id,author_name,content,created_at')
+      .single()
     if (error) throw error
     return data
   }
@@ -57,11 +65,11 @@ export async function createComment(payload) {
 
 export async function getAllComments() {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase
+    const data = await fetchAllPages((from, to) => supabase
       .from('comments')
-      .select('*, actualites(title, slug)')
+      .select(`${COMMENT_COLUMNS},actualites(title,slug)`)
       .order('created_at', { ascending: false })
-    if (error) throw error
+      .range(from, to))
     return data ?? []
   }
   return getLocalComments()

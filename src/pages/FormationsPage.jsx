@@ -12,7 +12,7 @@ import { formatDiploma } from '../utils/format'
 import { ASYNC } from '../utils/asyncState'
 import styles from '../components/layout/PageHero.module.css'
 import CustomFormationsSection from '../components/sections/CustomFormationsSection'
-import formationsHero from '../assets/formations-hero.png'
+import formationsHero from '../assets/formations-hero.webp'
 
 export function FormationsPage() {
   const [query, setQuery] = useState('')

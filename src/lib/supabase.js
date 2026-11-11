@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Lecture hybride (VITE_ ou SUPABASE_)
-const rawUrl = import.meta.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL
-const rawKey = import.meta.env.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
+const rawUrl = import.meta.env.VITE_SUPABASE_URL
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 const url = rawUrl?.trim().replace(/['"]/g, '')
 const anonKey = rawKey?.trim().replace(/['"]/g, '')

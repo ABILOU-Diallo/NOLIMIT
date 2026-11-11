@@ -12,6 +12,18 @@ export function ActualiteDetailPage() {
 
   if (state === ASYNC.loading) return <Loader label="Chargement de l'article" />
 
+  if (state === ASYNC.error) {
+    return (
+      <PageBody>
+        <div role="alert" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+          <h2>Impossible de charger cette actualité</h2>
+          <p>Veuillez réessayer plus tard.</p>
+          <Link to="/actualites">Retour aux actualités</Link>
+        </div>
+      </PageBody>
+    )
+  }
+
   if (!article) {
     return (
       <PageBody>
@@ -78,7 +90,7 @@ export function ActualiteDetailPage() {
         }
         return <video src={url} controls={!isOverlay} muted={isOverlay} style={mediaStyle} />
       }
-      return <img src={url} alt="" style={mediaStyle} />
+      return <img src={url} alt="" width="1200" height="900" loading="lazy" decoding="async" style={mediaStyle} />
     }
 
     return (

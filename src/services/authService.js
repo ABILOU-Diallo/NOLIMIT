@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { fetchAllPages } from '../utils/requestCache'
 
 const DEMO_SESSION_KEY = 'issmiga_demo_session_v1'
 
@@ -16,8 +17,8 @@ export const ROLE_LABELS = {
 export const HIDDEN_ADMIN_EMAIL = 'njoyadiallo4@gmail.com'
 
 function createTempClient() {
-  const url = import.meta.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL
-  const key = import.meta.env.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
+  const url = import.meta.env.VITE_SUPABASE_URL
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
   })
@@ -66,7 +67,13 @@ export async function adminCreateUser(payload) {
   if (error) throw error
   if (!data.user) throw new Error("Échec de création")
 
-  const { data: profile } = await supabase.from('profiles').update({ phone: payload.phone }).eq('id', data.user.id).select().single()
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .update({ phone: payload.phone })
+    .eq('id', data.user.id)
+    .select('id,full_name,email,phone,role,is_active,created_at')
+    .single()
+  if (profileError) throw profileError
   return profile || data.user
 }
 
@@ -78,7 +85,12 @@ export async function signOut() {
 
 export async function getProfile(userId) {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id,full_name,email,phone,role,is_active,created_at')
+      .eq('id', userId)
+      .maybeSingle()
+    if (error) throw error
     return data
   }
   return null
@@ -89,42 +101,44 @@ export async function getProfile(userId) {
  */
 export async function getUsers(options = {}) {
   if (!isSupabaseConfigured) return []
-  try {
-    const { data, error } = await supabase.from('profiles').select('*, preinscriptions(*)').order('created_at', { ascending: false })
-    let rawUsers = data || []
-    if (error) {
-      const { data: fallback } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
-      rawUsers = fallback || []
-    }
+  const data = await fetchAllPages((from, to) => supabase
+    .from('profiles')
+    .select('id,full_name,email,phone,role,is_active,created_at,preinscriptions(formation_id)')
+    .order('created_at', { ascending: false })
+    .range(from, to))
 
-    const ghostEmail = HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
+  const ghostEmail = HIDDEN_ADMIN_EMAIL.toLowerCase().trim()
+  let filtered = (data || []).filter((user) => {
+    const email = (user.email || '').toLowerCase().trim()
+    const name = (user.full_name || '').toLowerCase()
+    return email !== ghostEmail && !email.includes('njoyadiallo4') &&
+      !(name.includes('abilou') && name.includes('diallo'))
+  })
 
-    // Filtrage robuste (Email + Nom Abilou Diallo)
-    let filtered = rawUsers.filter(u => {
-      const email = (u.email || '').toLowerCase().trim()
-      const name = (u.full_name || '').toLowerCase()
-      const isGhost = email === ghostEmail || email.includes('njoyadiallo4') || (name.includes('abilou') && name.includes('diallo'))
-      return !isGhost
-    })
-
-    if (options.hideOwner) filtered = filtered.filter(u => u.role !== 'owner')
-    return filtered
-  } catch (err) {
-    return []
-  }
+  if (options.hideOwner) filtered = filtered.filter((user) => user.role !== 'owner')
+  return filtered
 }
 
 export async function updateUserRole(userId, role) {
-  if (isSupabaseConfigured) await supabase.from('profiles').update({ role }).eq('id', userId)
+  if (isSupabaseConfigured) {
+    const { error } = await supabase.from('profiles').update({ role }).eq('id', userId)
+    if (error) throw error
+  }
   return true
 }
 
 export async function updateUserStatus(userId, is_active) {
-  if (isSupabaseConfigured) await supabase.from('profiles').update({ is_active }).eq('id', userId)
+  if (isSupabaseConfigured) {
+    const { error } = await supabase.from('profiles').update({ is_active }).eq('id', userId)
+    if (error) throw error
+  }
   return true
 }
 
 export async function deleteUser(userId) {
-  if (isSupabaseConfigured) await supabase.from('profiles').delete().eq('id', userId)
+  if (isSupabaseConfigured) {
+    const { error } = await supabase.from('profiles').delete().eq('id', userId)
+    if (error) throw error
+  }
   return true
 }

@@ -9,13 +9,13 @@ export function useAsyncData(loader, deps = []) {
   useEffect(() => {
     let mounted = true
 
-    Promise.resolve().then(() => {
-      if (!mounted) return
-      setState(ASYNC.loading)
-      setError(null)
-    })
-
-    loader()
+    Promise.resolve()
+      .then(() => {
+        if (!mounted) return null
+        setState(ASYNC.loading)
+        setError(null)
+        return loader()
+      })
       .then((result) => {
         if (!mounted) return
         const isEmpty = Array.isArray(result) ? result.length === 0 : !result

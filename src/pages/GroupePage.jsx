@@ -48,6 +48,7 @@ export function GroupePage() {
               width="656"
               height="872"
               loading="lazy"
+              decoding="async"
               style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
             />
             <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
@@ -61,6 +62,7 @@ export function GroupePage() {
               width="656"
               height="872"
               loading="lazy"
+              decoding="async"
               style={{ borderRadius: '12px', width: '100%', height: 'auto' }}
             />
             <figcaption style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>

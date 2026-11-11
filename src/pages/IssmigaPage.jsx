@@ -77,11 +77,11 @@ export function IssmigaPage() {
             padding: '0 1rem'
           }}>
             <figure style={{ margin: 0 }}>
-              <img src={media.flyerFr} alt="Brochure ISSMIGA FR" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <img src={media.flyerFr} alt="Brochure ISSMIGA FR" width="656" height="872" loading="lazy" decoding="async" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
               <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Brochure (Français)</figcaption>
             </figure>
             <figure style={{ margin: 0 }}>
-              <img src={media.flyerEn} alt="Brochure ISSMIGA EN" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <img src={media.flyerEn} alt="Brochure ISSMIGA EN" width="656" height="872" loading="lazy" decoding="async" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
               <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Brochure (English)</figcaption>
             </figure>
           </div>

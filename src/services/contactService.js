@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { fetchAllPages } from '../utils/requestCache'
 
 export async function submitContact(payload) {
   if (!isSupabaseConfigured) {
@@ -33,13 +34,11 @@ export async function submitContact(payload) {
 export async function getContacts() {
   if (!isSupabaseConfigured) return []
 
-  const { data, error } = await supabase
+  return fetchAllPages((from, to) => supabase
     .from('contacts')
-    .select('*')
+    .select('id,full_name,email,phone,subject,message,status,created_at')
     .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return data ?? []
+    .range(from, to))
 }
 
 export async function updateContactStatus(id, status) {
@@ -47,7 +46,7 @@ export async function updateContactStatus(id, status) {
     .from('contacts')
     .update({ status })
     .eq('id', id)
-    .select()
+    .select('id,status')
     .single()
 
   if (error) throw error

@@ -1,6 +1,6 @@
-import anglaisImg from '../assets/anglais.png'
-import allemandImg from '../assets/allemand.png'
-import francaisImg from '../assets/francais.png'
+import anglaisImg from '../assets/anglais.webp'
+import allemandImg from '../assets/allemand.webp'
+import francaisImg from '../assets/francais.webp'
 
 export const languages = [
   {

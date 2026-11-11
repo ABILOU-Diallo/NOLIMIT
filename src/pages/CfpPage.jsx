@@ -1,7 +1,6 @@
 import { useMemo, lazy, Suspense } from 'react'
 import { PageBody, PageHero } from '../components/layout/PageHero'
 import { Seo } from '../components/layout/Seo'
-import { site } from '../data/site'
 import { media } from '../data/media'
 import { LinkButton } from '../components/ui/LinkButton'
 import { Loader } from '../components/ui/Loader'
@@ -97,11 +96,11 @@ export function CfpPage() {
             padding: '0 1rem'
           }}>
             <figure style={{ margin: 0 }}>
-              <img src={media.flyerCfp} alt="Prospectus FR" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <img src={media.flyerCfp} alt="Prospectus FR" width="721" height="1024" loading="lazy" decoding="async" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
               <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Prospectus (Français)</figcaption>
             </figure>
             <figure style={{ margin: 0 }}>
-              <img src={media.flyerCfpEn} alt="Prospectus EN" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+              <img src={media.flyerCfpEn} alt="Prospectus EN" width="772" height="1080" loading="lazy" decoding="async" style={{ borderRadius: '16px', width: '100%', height: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
               <figcaption style={{ textAlign: 'center', marginTop: '1rem', fontWeight: 600 }}>Prospectus (English)</figcaption>
             </figure>
           </div>

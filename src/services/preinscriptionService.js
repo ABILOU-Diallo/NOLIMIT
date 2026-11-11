@@ -1,22 +1,25 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { fetchAllPages } from '../utils/requestCache'
+import { compressImage } from '../utils/compressImage'
 
 const LOCAL_PREINSCRIPTIONS_KEY = 'issmiga_preinscriptions_v1'
 
 export async function uploadPreinscriptionPhoto(file) {
-  if (!isSupabaseConfigured) return URL.createObjectURL(file)
+  const uploadFile = await compressImage(file)
+  if (!isSupabaseConfigured) return URL.createObjectURL(uploadFile)
   try {
-    const ext = file.name.split('.').pop()
+    const ext = uploadFile.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
     const filePath = `photos/${fileName}`
     const { error: uploadError } = await supabase.storage
       .from('preinscriptions')
-      .upload(filePath, file)
+      .upload(filePath, uploadFile)
     if (uploadError) throw uploadError
     const { data } = supabase.storage.from('preinscriptions').getPublicUrl(filePath)
     return data.publicUrl
   } catch (err) {
     console.warn("Échec upload photo, utilisation URL locale", err)
-    return URL.createObjectURL(file)
+    throw err
   }
 }
 
@@ -29,17 +32,16 @@ function getLocalPreinscriptions() {
 
 export async function getPreinscriptions() {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase
+    const data = await fetchAllPages((from, to) => supabase
       .from('preinscriptions')
-      .select('*, formations(title, institution)')
+      .select('id,user_id,full_name,email,phone,city,birth_date,guardian_name,guardian_phone,institution,formation_id,diploma_interest,message,consent,status,admin_notes,created_at,updated_at,photo_url,documents_checklist,reference_code,formations(title,institution)')
       .order('created_at', { ascending: false })
-    if (!error && data) {
-      return data.map(item => ({
+      .range(from, to))
+    return data.map((item) => ({
         ...item,
         formation_title: item.formations?.title || 'Filière non spécifiée',
         institution: item.formations?.institution || item.institution
       }))
-    }
   }
   return getLocalPreinscriptions()
 }

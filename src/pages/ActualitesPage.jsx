@@ -5,7 +5,6 @@ import { Seo } from '../components/layout/Seo'
 import { Loader } from '../components/ui/Loader'
 import { useAsyncData } from '../hooks/useAsyncData'
 import { getPublishedArticles } from '../services/actualiteService'
-import { site } from '../data/site'
 import { ASYNC } from '../utils/asyncState'
 import { useLockBody } from '../hooks/useLockBody'
 
@@ -28,7 +27,7 @@ function buildMediaList(article) {
 }
 
 export function ActualitesPage() {
-  const { state, data, error } = useAsyncData(getPublishedArticles, [])
+  const { state, data } = useAsyncData(getPublishedArticles, [])
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [mediaIndex, setMediaIndex]       = useState(0)
 
@@ -83,7 +82,7 @@ export function ActualitesPage() {
       }
       return <video src={url} controls autoPlay style={{ maxHeight: '72vh', maxWidth: '100%', borderRadius: '10px' }} />
     }
-    return <img src={url} alt={article.title} style={{ maxHeight: '72vh', maxWidth: '100%', borderRadius: '8px' }} />
+    return <img src={url} alt={article.title} width="960" height="600" style={{ maxHeight: '72vh', maxWidth: '100%', borderRadius: '8px' }} />
   }
 
   function renderCardMedia(article) {
@@ -96,7 +95,7 @@ export function ActualitesPage() {
       const isVideo = type === 'video'
       return (
         <div key={index} style={{ position: 'relative', width: '100%', height: '100%', background: '#0b1120', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {isVideo ? <i className="bx bx-play-circle" style={{ fontSize: '3rem', color: '#fff', zIndex: 2 }} /> : <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+          {isVideo ? <i className="bx bx-play-circle" style={{ fontSize: '3rem', color: '#fff', zIndex: 2 }} /> : <img src={url} alt="" width="640" height="400" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
           {isOverlay && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.5rem', fontWeight: 'bold', zIndex: 10 }}>+{count - 2}</div>}
         </div>
       )

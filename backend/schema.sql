@@ -75,7 +75,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Profiles Policies
-CREATE POLICY "Public Profiles Read" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users Read Own Profile" ON public.profiles FOR SELECT
+  USING (auth.uid() = id OR public.is_admin(auth.uid()));
 CREATE POLICY "Users Update Own Profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Admins Manage All Profiles" ON public.profiles FOR ALL USING (public.is_admin(auth.uid()));
 

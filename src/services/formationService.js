@@ -1,6 +1,13 @@
 import { allFormations as localFormations } from '../data/formations'
 import { poles as localPoles } from '../data/poles'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { getCachedRequest, invalidateCachedRequests, fetchAllPages } from '../utils/requestCache'
+
+const POLE_COLUMNS = 'id,slug,name,tagline,description,sort_order,is_published'
+const FORMATION_COLUMNS = 'id,pole_id,slug,title,excerpt,description,presentation,level,diploma,institution,duration,skills,outlets,competences,debouches,is_published,sort_order'
+const CUSTOM_FORMATION_COLUMNS = 'id,slug,title,category,description_3mois,description_6mois,description_9mois,faisabilite,is_published,sort_order,created_at,updated_at'
+const FORMATION_PAGE_SIZE = 200
+const CUSTOM_FORMATION_PAGE_SIZE = 200
 
 function mapFormation(row) {
   if (!row) return null;
@@ -34,46 +41,50 @@ const sortAlphabetically = (list) => {
   )
 }
 
-export async function getPoles(includeUnpublished = false) {
+async function loadPoles(includeUnpublished) {
   if (isSupabaseConfigured && supabase) {
     try {
-      let query = supabase.from('formation_poles').select('*')
+      let query = supabase.from('formation_poles').select(POLE_COLUMNS)
       if (!includeUnpublished) query = query.eq('is_published', true)
-      const { data, error } = await query.order('sort_order', { ascending: true })
+      const { data, error } = await query.order('sort_order', { ascending: true }).limit(100)
       if (!error && data) return data
-    } catch (e) {
-      console.warn("Utilisation des pôles locaux.");
+      if (error) throw error
+    } catch (error) {
+      console.error('Erreur de chargement des pôles Supabase :', error)
     }
   }
   return localPoles
 }
 
+export function getPoles(includeUnpublished = false) {
+  if (includeUnpublished) return loadPoles(true)
+  return getCachedRequest('public:poles', () => loadPoles(false))
+}
+
 /**
  * Récupère les formations triées par institution (CFP d'abord) puis A-Z
  */
-export async function getFormations(includeUnpublished = false) {
-  let results = []
-
+async function loadFormations(includeUnpublished) {
   if (isSupabaseConfigured && supabase) {
     try {
-      let query = supabase.from('formations').select('*')
+      let query = supabase.from('formations').select(FORMATION_COLUMNS)
       if (!includeUnpublished) query = query.eq('is_published', true)
 
-      const { data, error } = await query
-      if (!error && data) {
-        results = data.map(mapFormation)
-      } else {
-        results = localFormations
-      }
-    } catch (e) {
-      results = localFormations
+      const results = (await fetchAllPages((from, to) => query.range(from, to), FORMATION_PAGE_SIZE))
+        .map(mapFormation)
+      return results.sort((a, b) => {
+        if (a.institution !== b.institution) {
+          return a.institution === 'cfp' ? -1 : 1
+        }
+        return (a.title || '').localeCompare(b.title || '', 'fr', { sensitivity: 'base' })
+      })
+    } catch (error) {
+      console.error('Erreur de chargement des formations Supabase :', error)
     }
-  } else {
-    results = localFormations
   }
 
   // Tri par institution (CFP avant ISSMIGA) puis alphabétique
-  return results.sort((a, b) => {
+  return [...localFormations].sort((a, b) => {
     if (a.institution !== b.institution) {
       return a.institution === 'cfp' ? -1 : 1
     }
@@ -81,9 +92,22 @@ export async function getFormations(includeUnpublished = false) {
   })
 }
 
+export function getFormations(includeUnpublished = false) {
+  if (includeUnpublished) return loadFormations(true)
+  return getCachedRequest('public:formations', () => loadFormations(false))
+}
+
 export async function getFormationBySlug(slug) {
-  const all = await getFormations(true)
-  return all.find((item) => item.slug === slug) ?? null
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('formations')
+      .select(FORMATION_COLUMNS)
+      .eq('slug', slug)
+      .maybeSingle()
+    if (error) throw error
+    if (data) return mapFormation(data)
+  }
+  return localFormations.find((item) => item.slug === slug) ?? null
 }
 
 export function searchFormations(list, query = '', poleId = '', institution = 'all', level = 'all') {
@@ -111,13 +135,14 @@ export function searchFormations(list, query = '', poleId = '', institution = 'a
 export async function getCustomFormations(includeUnpublished = false) {
   if (isSupabaseConfigured && supabase) {
     try {
-      let query = supabase.from('custom_formations').select('*')
+      let query = supabase.from('custom_formations').select(CUSTOM_FORMATION_COLUMNS)
       if (!includeUnpublished) query = query.eq('is_published', true)
-      const { data, error } = await query
-      if (error) throw error
+      const orderedQuery = query.order('sort_order', { ascending: true })
+      const data = await fetchAllPages((from, to) => orderedQuery.range(from, to), CUSTOM_FORMATION_PAGE_SIZE)
       return sortAlphabetically(data || [])
-    } catch (e) {
-      console.warn("Erreur réseau Custom Formations.");
+    } catch (error) {
+      console.error('Erreur de chargement des formations à la carte :', error)
+      throw error
     }
   }
   return []
@@ -142,8 +167,10 @@ export async function updateFormation(id, payload) {
       dbPayload.institution = payload.institution
       dbPayload.duration = payload.duration
     }
-    const { data, error } = await supabase.from(table).update(dbPayload).eq('id', id).select().single()
+    const columns = isCustom ? CUSTOM_FORMATION_COLUMNS : FORMATION_COLUMNS
+    const { data, error } = await supabase.from(table).update(dbPayload).eq('id', id).select(columns).single()
     if (error) throw error
+    invalidateCachedRequests('public:')
     return isCustom ? data : mapFormation(data)
   }
   return { ...payload, id }
@@ -164,8 +191,13 @@ export async function createFormation(payload) {
       is_published: payload.is_published,
       sort_order: parseInt(payload.sort_order || 0, 10)
     }
-    const { data, error } = await supabase.from('formations').insert([dbPayload]).select().single()
+    const { data, error } = await supabase
+      .from('formations')
+      .insert([dbPayload])
+      .select(FORMATION_COLUMNS)
+      .single()
     if (error) throw error
+    invalidateCachedRequests('public:')
     return mapFormation(data)
   }
   return { ...payload, id: `form-${Date.now()}` }
@@ -176,6 +208,7 @@ export async function deleteFormation(id) {
     const table = String(id).startsWith('custom-') ? 'custom_formations' : 'formations'
     const { error } = await supabase.from(table).delete().eq('id', id)
     if (error) throw error
+    invalidateCachedRequests('public:')
   }
   return true
 }

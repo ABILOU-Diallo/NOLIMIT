@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
@@ -20,19 +20,24 @@ export function AdminPreinscriptionsPage() {
   const [query, setQuery] = useState('')
   const [selectedItem, setSelectedItem] = useState(null)
 
-  async function loadItems() {
+  const loadItems = useCallback(async () => {
     try {
       setLoading(true)
+      setError('')
       const data = await getPreinscriptions()
       setItems(data)
     } catch (err) {
+      console.error('Erreur de chargement des préinscriptions :', err)
       setError('Erreur de chargement.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { loadItems() }, [])
+  useEffect(() => {
+    const timer = window.setTimeout(loadItems, 0)
+    return () => window.clearTimeout(timer)
+  }, [loadItems])
 
   const filtered = useMemo(() => {
     return items.filter((item) => {
@@ -47,7 +52,10 @@ export function AdminPreinscriptionsPage() {
       await updatePreinscriptionStatus(id, status, selectedItem?.admin_notes || '')
       setItems(prev => prev.map(i => i.id === id ? { ...i, status } : i))
       if (selectedItem?.id === id) setSelectedItem(prev => ({ ...prev, status }))
-    } catch (err) { alert("Erreur de mise à jour") }
+    } catch (err) {
+      console.error('Erreur de mise à jour de la préinscription :', err)
+      alert("Erreur de mise à jour")
+    }
   }
 
   if (loading) return <Loader label="Chargement des préinscriptions..." />
@@ -57,6 +65,8 @@ export function AdminPreinscriptionsPage() {
       <header style={{ marginBottom: '2rem' }}>
         <h2 style={{ margin: 0, fontSize: '1.8rem', color: '#1e1b4b' }}>Registre des Préinscriptions</h2>
       </header>
+
+      {error && <p role="alert" style={{ color: '#dc2626' }}>{error}</p>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
         <Input placeholder="Rechercher par nom..." value={query} onChange={e => setQuery(e.target.value)} />
@@ -85,7 +95,7 @@ export function AdminPreinscriptionsPage() {
             <div style={{ width: '110px', flexShrink: 0 }}>
               <div style={{ width: '100%', aspectRatio: '3/4', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
                 {item.photo_url ? (
-                  <img src={item.photo_url} alt={item.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={item.photo_url} alt={item.full_name} width="110" height="147" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
                     <i className='bx bx-user' style={{ fontSize: '3rem' }} />
@@ -144,7 +154,7 @@ export function AdminPreinscriptionsPage() {
             <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap', alignItems: 'start' }}>
               <div style={{ width: '180px', aspectRatio: '3/4', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 8px 25px rgba(0,0,0,0.05)' }}>
                 {selectedItem.photo_url ? (
-                  <img src={selectedItem.photo_url} alt={selectedItem.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={selectedItem.photo_url} alt={selectedItem.full_name} width="320" height="427" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '4rem' }}><i className='bx bx-user' /></div>
                 )}

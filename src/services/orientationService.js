@@ -1,7 +1,9 @@
 import { supabase } from '../lib/supabase';
+import { fetchAllPages } from '../utils/requestCache'
 
 export async function submitRequest(payload) {
-  const { data, error } = await supabase
+  if (!supabase) throw new Error('Le service de demandes est indisponible.')
+  const { error } = await supabase
     .from('orientation_requests')
     .insert([{
       full_name: payload.fullName,
@@ -13,41 +15,38 @@ export async function submitRequest(payload) {
       preferred_duration: payload.preferredDuration,
       message: payload.message,
       status: 'pending'
-    }])
-    .select()
-    .single();
+    }]);
 
   if (error) throw error;
-  return data;
+  return { ok: true };
 }
 
 export async function getAllRequests() {
-  const { data, error } = await supabase
+  if (!supabase) throw new Error('Le service de demandes est indisponible.')
+  return fetchAllPages((from, to) => supabase
     .from('orientation_requests')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return data;
+    .select('id,full_name,email,phone,city,formation_title,formation_slug,preferred_duration,message,status,admin_notes,created_at,updated_at')
+    .order('created_at', { ascending: false })
+    .range(from, to))
 }
 
 export async function updateRequestStatus(id, status, adminNotes = '') {
-  const { data, error } = await supabase
+  if (!supabase) throw new Error('Le service de demandes est indisponible.')
+  const { error } = await supabase
     .from('orientation_requests')
     .update({
       status,
       admin_notes: adminNotes,
       updated_at: new Date().toISOString()
     })
-    .eq('id', id)
-    .select()
-    .single();
+    .eq('id', id);
 
   if (error) throw error;
-  return data;
+  return true;
 }
 
 export async function deleteRequest(id) {
+  if (!supabase) throw new Error('Le service de demandes est indisponible.')
   const { error } = await supabase
     .from('orientation_requests')
     .delete().eq('id', id);

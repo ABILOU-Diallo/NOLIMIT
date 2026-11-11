@@ -33,6 +33,7 @@ export function BouncingBallsPortal() {
                 width="90"
                 height="90"
                 loading="eager"
+                decoding="async"
               />
               <div className={styles.ballGloss} />
             </div>
@@ -69,6 +70,7 @@ export function BouncingBallsPortal() {
                 width="90"
                 height="90"
                 loading="eager"
+                decoding="async"
               />
               <div className={styles.ballGloss} />
             </div>

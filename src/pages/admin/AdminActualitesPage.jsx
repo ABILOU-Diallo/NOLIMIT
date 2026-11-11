@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Loader } from '../../components/ui/Loader'
@@ -43,7 +43,7 @@ export function AdminActualitesPage() {
   const fileInputRef = useRef(null)
   const replacementInputRef = useRef(null)
 
-  async function loadArticles() {
+  const loadArticles = useCallback(async () => {
     try {
       setLoading(true)
       const data = await getAllArticles()
@@ -53,9 +53,12 @@ export function AdminActualitesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { loadArticles() }, [])
+  useEffect(() => {
+    const timer = window.setTimeout(loadArticles, 0)
+    return () => window.clearTimeout(timer)
+  }, [loadArticles])
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files || [])
@@ -113,13 +116,19 @@ export function AdminActualitesPage() {
     setUploading(true)
     setError('')
     try {
-      const { uploaded } = await uploadArticleMedia(pending.map(m => m.file))
+      const { uploaded, failed } = await uploadArticleMedia(pending.map(m => m.file))
       setForm(f => ({
         ...f,
         image_url: f.image_url || (uploaded.find(u => u.type === 'image')?.url),
-        gallery: [...(f.gallery || []), ...uploaded]
+        gallery: [...(f.gallery || []), ...uploaded.map(({ url, type }) => ({ url, type }))]
       }))
-      setMediaQueue(q => q.map(m => ({ ...m, uploaded: true })))
+      const succeededIds = new Set(uploaded.map(({ index }) => pending[index]?.id).filter(Boolean))
+      setMediaQueue(q => q.map(m => succeededIds.has(m.id)
+        ? { ...m, uploaded: true, url: uploaded.find(({ index }) => pending[index]?.id === m.id)?.url || m.url }
+        : m))
+      if (failed.length) {
+        setError(`${failed.length} fichier(s) n’ont pas pu être téléversés : ${failed.map(({ message }) => message).join(' ')}`)
+      }
     } catch (err) {
       setError("Erreur d'upload : " + (err.message || ''))
     } finally {
@@ -264,7 +273,7 @@ export function AdminActualitesPage() {
             <div className="media-grid">
               {form.image_url && !mediaQueue.some(m => m.url === form.image_url) && (
                 <div className="thumb active">
-                  <img src={form.image_url} alt="Couverture actuelle" />
+                  <img src={form.image_url} alt="Couverture actuelle" width="160" height="100" loading="lazy" decoding="async" />
                   <span style={{ position: 'absolute', bottom: 4, left: 4, background: '#2563eb', color: '#fff', fontSize: '0.65rem', padding: '2px 5px', borderRadius: '4px' }}>
                     Couverture
                   </span>
@@ -283,7 +292,7 @@ export function AdminActualitesPage() {
               )}
               {mediaQueue.map(m => (
                 <div key={m.id} className={`thumb ${form.image_url === m.url ? 'active' : ''}`} onClick={() => setForm({ ...form, image_url: m.url })}>
-                  {m.type === 'video' ? <video src={m.url} /> : <img src={m.url} alt="" />}
+                  {m.type === 'video' ? <video src={m.url} /> : <img src={m.url} alt="" width="160" height="100" loading="lazy" decoding="async" />}
                   {form.image_url === m.url && (
                     <span style={{ position: 'absolute', bottom: 4, left: 4, background: '#2563eb', color: '#fff', fontSize: '0.65rem', padding: '2px 5px', borderRadius: '4px' }}>
                       Couverture
@@ -371,7 +380,7 @@ export function AdminActualitesPage() {
               <div key={a.id} style={{ display: 'flex', gap: '12px', marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', alignItems: 'flex-start' }}>
                 <div style={{ width: '56px', height: '56px', borderRadius: '6px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {a.image_url ? (
-                    <img src={a.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={a.image_url} alt="" width="320" height="200" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <i className="bx bx-news" style={{ fontSize: '1.5rem', color: '#94a3b8' }} />
                   )}

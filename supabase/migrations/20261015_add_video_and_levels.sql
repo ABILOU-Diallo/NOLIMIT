@@ -32,9 +32,7 @@ ALTER TABLE public.formations ADD COLUMN IF NOT EXISTS level text DEFAULT 'Pro';
 ALTER TABLE public.formations ADD COLUMN IF NOT EXISTS presentation text;
 ALTER TABLE public.formations ADD COLUMN IF NOT EXISTS institution text DEFAULT 'cfp';
 
--- 4. Politiques de sécurité PERMISSIVES pour le développement
--- Ceci garantit que les insertions fonctionnent même si l'auth est mal configurée
-ALTER TABLE public.actualites DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.formations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.formation_poles DISABLE ROW LEVEL SECURITY;
--- Note: Pensez à les réactiver (ENABLE) avant la mise en production réelle.
+-- Keep the role-specific policies from the initial migration active.
+ALTER TABLE public.actualites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.formations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.formation_poles ENABLE ROW LEVEL SECURITY;

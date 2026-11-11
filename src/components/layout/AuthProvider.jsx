@@ -18,21 +18,28 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true
 
-    getSession().then(async (current) => {
-      if (!mounted) return
-      setSession(current)
-      if (current?.user) {
-        const nextProfile = await getProfile(current.user.id)
-        if (mounted) setProfile(nextProfile)
-      }
-      setReady(true)
-    })
+    getSession()
+      .then(async (current) => {
+        if (!mounted) return
+        setSession(current)
+        if (current?.user) {
+          const nextProfile = await getProfile(current.user.id)
+          if (mounted) setProfile(nextProfile)
+        }
+      })
+      .catch((error) => {
+        console.error('Erreur de restauration de session :', error)
+      })
+      .finally(() => {
+        if (mounted) setReady(true)
+      })
 
     const unsubscribe = onAuthChange(async (next) => {
-      setSession(next)
-      if (next?.user) {
-        setProfile(await getProfile(next.user.id))
-      } else {
+      try {
+        setSession(next)
+        setProfile(next?.user ? await getProfile(next.user.id) : null)
+      } catch (error) {
+        console.error('Erreur de chargement du profil :', error)
         setProfile(null)
       }
     })

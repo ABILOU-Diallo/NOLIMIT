@@ -32,6 +32,7 @@ export function PromoterSection() {
                 width="540"
                 height="614"
                 loading="lazy"
+                decoding="async"
               />
               <figcaption className={styles.portraitCaption}>
                 <strong>{promoter.name}</strong>

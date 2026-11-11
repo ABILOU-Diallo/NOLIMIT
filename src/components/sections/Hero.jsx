@@ -64,6 +64,7 @@ export function Hero() {
                 width="1024"
                 height="1024"
                 fetchPriority="high"
+                decoding="async"
               />
             </figure>
           </div>
@@ -76,6 +77,7 @@ export function Hero() {
                 width="1024"
                 height="768"
                 loading="lazy"
+                decoding="async"
               />
             </figure>
           </div>

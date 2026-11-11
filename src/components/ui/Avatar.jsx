@@ -13,7 +13,7 @@ export function Avatar({ name = '', src, alt }) {
 
   return (
     <span className={styles.avatar}>
-      {src ? <img src={src} alt={alt || safeName} /> : initials}
+      {src ? <img src={src} alt={alt || safeName} width="48" height="48" loading="lazy" decoding="async" /> : initials}
     </span>
   )
 }

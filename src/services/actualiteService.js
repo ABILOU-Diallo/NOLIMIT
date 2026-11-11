@@ -1,4 +1,10 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { getCachedRequest, invalidateCachedRequests, fetchAllPages } from '../utils/requestCache'
+import { compressImage } from '../utils/compressImage'
+
+const ARTICLE_COLUMNS = 'id,title,slug,category,excerpt,body,cover_path,video_url,gallery,status,published_at,created_at,updated_at'
+const ADMIN_PAGE_SIZE = 200
+const PUBLIC_PAGE_SIZE = 20
 
 export const fallbackArticles = [
   {
@@ -102,15 +108,21 @@ function mapToDb(payload) {
 
 export async function uploadArticleMedia(files) {
   const fileArray = Array.from(files)
-  const results = await Promise.allSettled(fileArray.map(uploadSingleFile))
+  const results = await Promise.allSettled(fileArray.map(async (file) => {
+    const uploadFile = file.type.startsWith('image/') ? await compressImage(file) : file
+    return uploadSingleFile(uploadFile)
+  }))
   const uploaded = []
+  const failed = []
   results.forEach((result, i) => {
     if (result.status === 'fulfilled') {
       const type = fileArray[i].type.startsWith('video') ? 'video' : 'image'
-      uploaded.push({ url: result.value, type })
+      uploaded.push({ url: result.value, type, index: i })
+    } else {
+      failed.push({ index: i, message: result.reason?.message || 'Échec du téléversement.' })
     }
   })
-  return { uploaded }
+  return { uploaded, failed }
 }
 
 async function uploadSingleFile(file) {
@@ -119,73 +131,65 @@ async function uploadSingleFile(file) {
   const folder = file.type.startsWith('video') ? 'videos' : 'covers'
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
   const filePath = `${folder}/${fileName}`
-  const { error } = await supabase.storage.from('actualites').upload(filePath, file)
+  const { error } = await supabase.storage.from('article-images').upload(filePath, file)
   if (error) throw error
-  const { data } = supabase.storage.from('actualites').getPublicUrl(filePath)
+  const { data } = supabase.storage.from('article-images').getPublicUrl(filePath)
   return data.publicUrl
 }
 
 export async function getAllArticles() {
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase.from('actualites').select('*').order('created_at', { ascending: false })
-      if (error) throw error
-      if (data && data.length > 0) {
-        return data.map(mapFromDb)
-      }
-    } catch (e) {
-      console.error("Erreur récupération actualités Supabase:", e.message || e)
-    }
+    const data = await fetchAllPages((from, to) => supabase
+      .from('actualites')
+      .select(ARTICLE_COLUMNS)
+      .order('created_at', { ascending: false })
+      .range(from, to), ADMIN_PAGE_SIZE)
+    return data.map(mapFromDb)
   }
   return fallbackArticles
 }
 
-export async function getPublishedArticles() {
+async function loadPublishedArticles() {
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('actualites')
-        .select('*')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('actualites')
+      .select(ARTICLE_COLUMNS)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(PUBLIC_PAGE_SIZE)
 
-      if (error) throw error
-      if (data && data.length > 0) {
-        return data.map(mapFromDb)
-      }
-    } catch (e) {
-      console.error("Erreur récupération actualités publiées Supabase:", e.message || e)
-    }
+    if (error) throw error
+    return (data || []).map(mapFromDb)
   }
-  const all = await getAllArticles()
-  const published = all.filter(a => a.status === 'published')
-  return published.length > 0 ? published : fallbackArticles
+  return fallbackArticles
+}
+
+export function getPublishedArticles() {
+  return getCachedRequest('public:articles', loadPublishedArticles)
 }
 
 export async function getArticleBySlug(slug) {
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('actualites')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle()
-
-      if (!error && data) {
-        return mapFromDb(data)
-      }
-    } catch (e) {
-      console.warn("Erreur getArticleBySlug Supabase:", e.message || e)
-    }
+    const { data, error } = await supabase
+      .from('actualites')
+      .select(ARTICLE_COLUMNS)
+      .eq('slug', slug)
+      .maybeSingle()
+    if (error) throw error
+    return data ? mapFromDb(data) : null
   }
-  const all = await getAllArticles()
-  return all.find(a => a.slug === slug) || null
+  return fallbackArticles.find((article) => article.slug === slug) || null
 }
 
 export async function createArticle(payload) {
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase.from('actualites').insert([mapToDb(payload)]).select().single()
+    const { data, error } = await supabase
+      .from('actualites')
+      .insert([mapToDb(payload)])
+      .select(ARTICLE_COLUMNS)
+      .single()
     if (error) throw error
+    invalidateCachedRequests('public:articles')
     return mapFromDb(data)
   }
   return { ...payload, id: `act-${Date.now()}`, created_at: new Date().toISOString() }
@@ -193,8 +197,14 @@ export async function createArticle(payload) {
 
 export async function updateArticle(id, payload) {
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase.from('actualites').update(mapToDb(payload)).eq('id', id).select().single()
+    const { data, error } = await supabase
+      .from('actualites')
+      .update(mapToDb(payload))
+      .eq('id', id)
+      .select(ARTICLE_COLUMNS)
+      .single()
     if (error) throw error
+    invalidateCachedRequests('public:articles')
     return mapFromDb(data)
   }
   return { id, ...payload }
@@ -204,6 +214,7 @@ export async function deleteArticle(id) {
   if (isSupabaseConfigured && supabase) {
     const { error } = await supabase.from('actualites').delete().eq('id', id)
     if (error) throw error
+    invalidateCachedRequests('public:articles')
   }
   return true
 }

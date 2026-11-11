@@ -25,8 +25,9 @@ export function PageHero({ title, lede, crumbs, logo, logoAlt, sideImage, sideIm
               src={sideImage}
               alt={sideImageAlt || ''}
               className={styles.headerSideImage}
-              width="1316"
-              height="768"
+              width="640"
+              height="400"
+              decoding="async"
             />
           ) : null}
         </div>

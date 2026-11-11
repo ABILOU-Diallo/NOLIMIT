@@ -27,6 +27,7 @@ export function Logo() {
         alt={`Logo ${currentName}`}
         width="88"
         height="88"
+        decoding="async"
       />
       <span className={styles.wordmark}>
         <span className={styles.name}>{currentName}</span>

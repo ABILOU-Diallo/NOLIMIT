@@ -30,6 +30,19 @@ export function FormationDetailPage() {
     )
   }
 
+  if (state === ASYNC.error) {
+    return (
+      <PageBody>
+        <p role="alert" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+          Impossible de charger cette formation pour le moment. Veuillez réessayer plus tard.
+        </p>
+        <div style={{ textAlign: 'center' }}>
+          <LinkButton to="/formations" variant="outline">Retour au catalogue</LinkButton>
+        </div>
+      </PageBody>
+    )
+  }
+
   if (!data) {
     return (
       <PageBody>

@@ -46,6 +46,7 @@ export function PromoteurPage() {
                 width="540"
                 height="614"
                 loading="lazy"
+                decoding="async"
                 style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
               />
               <figcaption style={{

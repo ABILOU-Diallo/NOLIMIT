@@ -43,6 +43,10 @@ export function LanguesPage() {
                   <img
                     src={lang.image}
                     alt={`Apprendre l'${lang.name} à Yaoundé`}
+                    width="100"
+                    height="100"
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>

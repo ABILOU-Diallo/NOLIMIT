@@ -15,8 +15,7 @@ CREATE TABLE IF NOT EXISTS public.orientation_requests (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Désactivation RLS pour le développement (à activer en prod avec les bonnes policies)
-ALTER TABLE public.orientation_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orientation_requests ENABLE ROW LEVEL SECURITY;
 
 -- Index pour la performance
 CREATE INDEX IF NOT EXISTS idx_orientation_requests_status ON public.orientation_requests(status);

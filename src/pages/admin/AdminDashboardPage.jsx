@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Loader } from '../../components/ui/Loader'
-import { getAllArticles } from '../../services/actualiteService'
-import { getPreinscriptions } from '../../services/preinscriptionService'
-import { getUsers } from '../../services/authService'
-import { getFormations } from '../../services/formationService'
-import { getContacts } from '../../services/contactService'
-import { getAllTestimonials } from '../../services/testimonialService'
-import { getDashboardSeries, getTopPages } from '../../services/statsService'
+import { getDashboardCounts, getDashboardSeries, getTopPages } from '../../services/statsService'
 
 export function AdminDashboardPage() {
   const [stats, setStats] = useState(null)
@@ -19,22 +13,8 @@ export function AdminDashboardPage() {
     let active = true
     async function load() {
       try {
-        const [
-          users,
-          preinscriptions,
-          articles,
-          formations,
-          contacts,
-          testimonials,
-          seriesData,
-          topPages,
-        ] = await Promise.all([
-          getUsers(),
-          getPreinscriptions(),
-          getAllArticles(),
-          getFormations(true),
-          getContacts(),
-          getAllTestimonials(),
+        const [counts, seriesData, topPages] = await Promise.all([
+          getDashboardCounts(),
           getDashboardSeries(30),
           getTopPages(8),
         ])
@@ -43,15 +23,7 @@ export function AdminDashboardPage() {
 
         setSeries(seriesData)
         setPages(topPages)
-        setStats({
-          users: users.length,
-          preinscriptions: preinscriptions.length,
-          pendingPreinscriptions: preinscriptions.filter((item) => item.status === 'new').length,
-          articles: articles.length,
-          publishedArticles: articles.filter((item) => item.status === 'published').length,
-          contacts: contacts.length,
-          pendingContacts: contacts.filter((item) => item.status === 'new').length,
-        })
+        setStats(counts)
       } catch (err) {
         if (!active) return
         setError(err.message || 'Impossible de charger le tableau de bord.')
