@@ -12,7 +12,7 @@ export function EmployabilitePage() {
         path="/employabilite"
       />
       <PageHero
-        title="De la formation au travail."
+        title="De la formation à l'employabilité"
         lede="Une narration en six temps. Pas une liste de services."
         crumbs={[
           { to: '/', label: 'Accueil' },
@@ -30,11 +30,7 @@ export function EmployabilitePage() {
             </li>
           ))}
         </ol>
-        <p className={styles.todo} style={{ marginTop: '1.5rem' }}>
-          {/* TODO: contenu réel à fournir */}
-          Le détail des modalités de stage sera publié lorsqu’il sera fourni. Aucun partenaire
-          n’est affiché sans validation.
-        </p>
+        
       </PageBody>
     </>
   )

@@ -123,79 +123,115 @@
 /* Showcase Centerpiece */
 .showcaseWrapper {
   width: 100%;
-  max-width: 64rem;
-  margin: 2.75rem 0 2rem;
+  max-width: 48rem;
+  margin: 2.5rem auto 1.5rem;
   position: relative;
 }
 
 .showcaseCard {
   position: relative;
-  border-radius: 20px;
+  padding: clamp(0.5rem, 1.5vw, 1rem);
+  border-radius: 28px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  background: #0d1238;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.045));
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+  backdrop-filter: blur(24px) saturate(155%);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .photo {
   margin: 0;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1 / 1;
+  max-height: 640px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(7, 11, 30, 0.28);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 
 .photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 25%;
+  object-fit: contain;
   display: block;
-  transition: transform 0.8s ease;
+  transition: transform 0.5s ease;
+}
+
+.secondaryShowcaseCard {
+  margin-top: 1rem;
+}
+
+.secondaryPhoto {
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(7, 11, 30, 0.28);
+}
+
+.secondaryPhoto img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .showcaseCard:hover .photo img {
-  transform: scale(1.02);
+  transform: scale(1.015);
 }
 
 .photoOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(15, 23, 42, 0.15) 60%,
-    rgba(15, 23, 42, 0.6) 100%
-  );
-  pointer-events: none;
+  display: none;
 }
 
-/* Floating Badges */
-.floatingBadge {
-  position: absolute;
-  z-index: 2;
+/* Trust Badges Bar */
+.badgesRow {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+  width: 100%;
+}
+
+.trustBadge {
+  display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.65rem 1rem;
+  padding: 0.65rem 1.1rem;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color: #ffffff;
-  pointer-events: none;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.floatingBadge strong {
+.trustBadge:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.trustBadge strong {
   display: block;
   font-size: 0.88rem;
   font-weight: 700;
   color: #ffffff;
 }
 
-.floatingBadge span {
+.trustBadge span {
   display: block;
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.75);
@@ -211,22 +247,6 @@
   font-size: 1.25rem;
   color: #ffffff;
   flex-shrink: 0;
-}
-
-.badgeTopLeft {
-  top: 1.25rem;
-  left: 1.25rem;
-}
-
-.badgeTopRight {
-  top: 1.25rem;
-  right: 1.25rem;
-}
-
-.badgeBottomCenter {
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* Responsive Highlights Bar */
@@ -287,24 +307,11 @@
 
 @media (max-width: 768px) {
   .photo {
-    aspect-ratio: 4 / 3;
+    max-height: 420px;
   }
 
-  .badgeTopLeft,
-  .badgeTopRight {
-    position: static;
-    margin: 0.5rem;
-  }
-
-  .badgeBottomCenter {
-    position: static;
-    transform: none;
-    margin: 0.5rem;
-  }
-
-  .showcaseCard {
-    display: flex;
+  .badgesRow {
     flex-direction: column;
+    align-items: stretch;
   }
 }
-

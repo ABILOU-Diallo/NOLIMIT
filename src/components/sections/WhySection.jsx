@@ -9,7 +9,7 @@ export function WhySection() {
       <Container>
         <SectionHeading
           kicker="01 — Pourquoi NO LIMIT"
-          title="Une institution de formation, pas une plateforme anonyme."
+          title="Une institution de formation, pas une plateforme anonyme"
           lede="Le Groupe NO LIMIT relie l’orientation, la formation professionnelle et l’employabilité dans un même lieu, à Yaoundé."
         />
         <div className={styles.proof}>

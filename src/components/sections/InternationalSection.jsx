@@ -60,7 +60,7 @@ export function InternationalSection() {
       <Container>
         <SectionHeading
           kicker="05 — International & Mobilité"
-          title="Ouverture sur le monde et mobilité."
+          title="Ouverture sur le monde et mobilité"
           lede="Le Groupe NO LIMIT accompagne ses étudiants dans leurs projets d'études, de vie et de carrière professionnelle au travers nos formations recrutements et recrutements directs au Canada."
         />
 

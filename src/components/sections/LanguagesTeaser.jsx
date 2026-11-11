@@ -18,7 +18,7 @@ export function LanguagesTeaser() {
         <SectionHeading
           onDark
           kicker="03 — Centre Linguistique"
-          title="A1 jusqu’à C2. Pas un slogan, une échelle."
+          title="A1 jusqu’à C2. Pas un slogan, une échelle"
           lede="Allemand, anglais et français, avec des certifications reconnues. Votre réussite internationale commence ici."
         />
         <div className={styles.scale} aria-label="Niveaux du CECRL">

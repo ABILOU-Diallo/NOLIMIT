@@ -12,6 +12,7 @@ import { formatDiploma } from '../utils/format'
 import { ASYNC } from '../utils/asyncState'
 import styles from '../components/layout/PageHero.module.css'
 import CustomFormationsSection from '../components/sections/CustomFormationsSection'
+import formationsHero from '../assets/formations-hero.png'
 
 export function FormationsPage() {
   const [query, setQuery] = useState('')
@@ -38,6 +39,8 @@ export function FormationsPage() {
       <PageHero
         title="Formations & Filières d’Études"
         lede="Classées par établissement (CFP NO LIMIT & ISSMIGA) et par niveau."
+        sideImage={formationsHero}
+        sideImageAlt="Affiche de présentation des formations ISSMIGA"
         crumbs={[
           { to: '/', label: 'Accueil' },
           { label: 'Formations' },

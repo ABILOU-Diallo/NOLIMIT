@@ -83,9 +83,9 @@ export function HomePage() {
       <Reveal>
         <PromoterSection />
       </Reveal>
-      <Reveal>
+      {/* <Reveal>
         <TestimonialsSection items={catalog.testimonials || []} />
-      </Reveal>
+      </Reveal> */}
       <Reveal>
         <PreinscriptionCta />
       </Reveal>

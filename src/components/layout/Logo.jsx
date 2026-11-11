@@ -10,16 +10,13 @@ export function Logo() {
 
   let currentLogo = media.logo
   let currentName = site.name
-  let currentSig = site.signature
 
   if (isIssmiga) {
     currentLogo = media.issmiga
     currentName = 'ISSMIGA'
-    currentSig = 'Institut Supérieur · Groupe NO LIMIT'
   } else if (isCfp) {
     currentLogo = media.cfp
     currentName = 'CFP NO LIMIT'
-    currentSig = 'Centre de Formation Professionnelle'
   }
 
   return (
@@ -33,7 +30,6 @@ export function Logo() {
       />
       <span className={styles.wordmark}>
         <span className={styles.name}>{currentName}</span>
-        <span className={styles.sig}>{currentSig}</span>
       </span>
     </Link>
   )

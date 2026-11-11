@@ -101,6 +101,7 @@ export function PromoteurPage() {
               gap: '1.15rem',
               fontSize: '1.025rem',
               lineHeight: '1.7',
+              textAlign: 'justify',
               color: 'var(--color-navy-800)'
             }}>
               {promoter.paragraphs.map((paragraph, index) => {

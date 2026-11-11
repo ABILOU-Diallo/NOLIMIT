@@ -15,7 +15,7 @@ export function AdmissionsPage() {
         path="/admissions"
       />
       <PageHero
-        title="S’inscrire sans se perdre."
+        title="S’inscrire en toute sécurité"
         lede={`Rentrée : ${site.rentree.date}. Cinq étapes, du choix à l’admission sur dossier.`}
         crumbs={[
           { to: '/', label: 'Accueil' },

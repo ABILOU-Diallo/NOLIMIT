@@ -60,16 +60,29 @@ export function Hero() {
             <figure className={styles.photo}>
               <img
                 src={media.heroImage}
-                alt="L’équipe, l’administration et les étudiants du Groupe NO LIMIT et ISSMIGA réunis sur le campus à Yaoundé."
-                width="1200"
-                height="800"
+                alt="ISSMIGA et Université d'Ébolowa : Une nouvelle page de coopération institutionnelle"
+                width="1024"
+                height="1024"
                 fetchPriority="high"
               />
-              <div className={styles.photoOverlay} />
             </figure>
+          </div>
 
-            {/* Floating Trust Badges */}
-            <div className={`${styles.floatingBadge} ${styles.badgeTopLeft}`}>
+          <div className={`${styles.showcaseCard} ${styles.secondaryShowcaseCard}`}>
+            <figure className={styles.secondaryPhoto}>
+              <img
+                src={media.homeSecondaryImage}
+                alt="Visuel complémentaire de présentation du Groupe NO LIMIT"
+                width="1024"
+                height="768"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+
+          {/* Trust Badges Bar */}
+          <div className={styles.badgesRow}>
+            <div className={styles.trustBadge}>
               <div className={styles.badgeIcon} style={{ background: '#3b82f6' }}>
                 <i className="bx bx-award" aria-hidden="true" />
               </div>
@@ -79,7 +92,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className={`${styles.floatingBadge} ${styles.badgeTopRight}`}>
+            <div className={styles.trustBadge}>
               <div className={styles.badgeIcon} style={{ background: '#10b981' }}>
                 <i className="bx bx-briefcase-alt-2" aria-hidden="true" />
               </div>
@@ -89,7 +102,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className={`${styles.floatingBadge} ${styles.badgeBottomCenter}`}>
+            <div className={styles.trustBadge}>
               <div className={styles.badgeIcon} style={{ background: '#ec4899' }}>
                 <i className="bx bx-laptop" aria-hidden="true" />
               </div>
