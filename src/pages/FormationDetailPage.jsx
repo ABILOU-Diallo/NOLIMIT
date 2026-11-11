@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { PageBody, PageHero } from '../components/layout/PageHero'
 import { Seo } from '../components/layout/Seo'
 import { Badge } from '../components/ui/Badge'
@@ -9,6 +9,7 @@ import { getPoles } from '../services/formationService'
 import { getFormationBySlug } from '../services/formationService'
 import { formatDiploma } from '../utils/format'
 import { site } from '../data/site'
+import { getFormationImage } from '../data/formationImages'
 import { ASYNC } from '../utils/asyncState'
 import styles from '../components/layout/PageHero.module.css'
 
@@ -19,6 +20,7 @@ export function FormationDetailPage() {
   // On récupère les pôles pour avoir le nom du pôle parent
   const { data: poles } = useAsyncData(getPoles, [])
   const pole = poles?.find((item) => item.id === data?.poleId)
+  const formationImage = data ? getFormationImage(data) : null
 
   if (state === ASYNC.loading) {
     return (
@@ -75,6 +77,8 @@ export function FormationDetailPage() {
       <PageHero
         title={data.title}
         lede={pole?.name || (data.institution === 'issmiga' ? 'Enseignement Supérieur' : 'Formation Professionnelle')}
+        sideImage={formationImage}
+        sideImageAlt={formationImage ? `Illustration de la formation ${data.title}` : undefined}
         crumbs={[
           { to: '/', label: 'Accueil' },
           { to: '/formations', label: 'Formations' },
